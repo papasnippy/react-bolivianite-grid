@@ -1,0 +1,30 @@
+# compiled output
+/dist
+/tmp
+/typings
+/deploy
+
+# dependencies
+/node_modules
+/bower_components
+
+# IDEs
+/.idea
+/.vscode
+/.vs
+/bin
+/obj
+/**/*.user
+/modules/*/*/bin/
+/modules/*/*/obj/
+
+# misc
+.DS_Store
+/.sass-cache
+/connect.lock
+/coverage/*
+/libpeerconnection.log
+npm-debug.log
+testem.log
+yarn-error.log
+build/

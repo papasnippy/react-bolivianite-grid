@@ -1,0 +1,30 @@
+:local {
+    .root {
+        height: 100%;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+        user-select: none;
+        outline: none;
+    }
+    .headersRoot {
+        pointer-events: none;
+        > div {
+            pointer-events: initial;
+            position: absolute;
+            overflow: hidden;
+        }
+    }
+    .headerMount {
+        box-sizing: border-box;
+    }
+    .headerRows {
+        box-sizing: border-box;
+    }
+    .headerColumns {
+        box-sizing: border-box;
+    }
+    .headerCorner {
+        box-sizing: border-box;
+    }
+}

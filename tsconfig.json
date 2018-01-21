@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "declaration": false,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "noEmitOnError": false,
+        "noImplicitAny": true,
+        "sourceMap": true,
+        "target": "es5",
+        "inlineSources": true,
+        "stripInternal": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "jsx": "react",
+        "types": ["node"],
+        "allowJs": true,
+        "skipLibCheck": true,
+        "lib": ["es2015", "dom"]
+    },
+    "compileOnSave": false,
+    "buildOnSave": false
+}
