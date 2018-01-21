@@ -1,7 +1,8 @@
 import * as React from 'react';
 import ScrollView, { IScrollViewUpdateEvent } from './scrollview';
-import { debounce, Shallow, RenderThrottler} from '../controllers';
-
+import {
+    debounce, Shallow, RenderThrottler, KeyboardController, IKeyboardControllerUpdateSelectionEvent
+} from '../controllers';
 import {
     IGridAddress, IGridSelection, IGridView, IGridOverscan
 } from '../types';
@@ -14,6 +15,7 @@ export interface ICellRendererEvent {
     columnIndex: number;
     active: boolean;
     style: React.CSSProperties;
+    source: any;
 }
 
 export interface IHeaderRendererEvent {
@@ -50,6 +52,7 @@ export interface IGridProps {
     tabIndex?: number;
     columns: number | any[];
     rows: number | any[];
+    source?: any;
     defaultWidth: number;
     defaultHeight: number;
     overscanRows?: number;
@@ -65,7 +68,7 @@ export interface IGridProps {
 }
 //#endregion
 
-export class Grid extends React.Component<IGridProps, any> {
+export class Grid extends React.PureComponent<IGridProps, any> {
     private _shallow = {
         colHeaders: Shallow<React.CSSProperties>(),
         rowHeaders: Shallow<React.CSSProperties>(),
@@ -78,11 +81,13 @@ export class Grid extends React.Component<IGridProps, any> {
     private _rt = new RenderThrottler();
     private _scrollUpdateTrottled = this._rt.create();
     private _ref: HTMLDivElement = null;
+    private _refView: ScrollView = null;
     private _refScroller: HTMLDivElement = null;
     private _scrollerProps: React.HTMLProps<HTMLDivElement> = { style: { willChange: 'transform' } };
     private _lastView: IGridView = null;
     private _lastOverscan: IGridOverscan = null;
     private _focused = false;
+    private _kbCtr: KeyboardController = null;
 
     state = {
         scrollLeft: 0,
@@ -106,6 +111,43 @@ export class Grid extends React.Component<IGridProps, any> {
         super(p, c);
 
         this._onAfterUpdate = debounce(500, this._onAfterUpdate.bind(this));
+
+        const getState = () => ({
+            active: this.state.active,
+            editor: this.state.edit,
+            selection: this.state.selection,
+            focused: this._focused,
+            columns: this._columnCount,
+            rows: this._rowCount,
+            view: this._lastView
+        });
+
+        const onScroll = this.scrollTo.bind(this);
+        const onUpdateSelection = ({ active, selection }: IKeyboardControllerUpdateSelectionEvent) => {
+            if (active) {
+                this.setState({ active });
+            }
+
+            if (selection) {
+                this.setState({ selection });
+            }
+        };
+
+        const onCloseEditor = (_commit: boolean, _callback?: () => void) => {
+            // ...
+        };
+
+        const onOpenEditor = (_next: IGridAddress) => {
+            // ...
+        };
+
+        this._kbCtr = new KeyboardController({
+            getState,
+            onCloseEditor,
+            onOpenEditor,
+            onScroll,
+            onUpdateSelection
+        });
     }
 
     private get _columnCount() {
@@ -116,8 +158,20 @@ export class Grid extends React.Component<IGridProps, any> {
         return typeof this.props.rows === 'number' ? this.props.rows : this.props.rows.length;
     }
 
+    private get _headersHeight() {
+        return this.props.headersHeight || 0;
+    }
+
+    private get _headersWidth() {
+        return this.props.headersWidth || 0;
+    }
+
     private _onRef = (r: HTMLDivElement) => {
         this._ref = r;
+    }
+
+    private _onRefView = (r: ScrollView) => {
+        this._refView = r;
     }
 
     private _onRefScroller = (r: HTMLDivElement) => {
@@ -154,27 +208,32 @@ export class Grid extends React.Component<IGridProps, any> {
         this._refScroller = this._refScroller;
     }
 
+    private _onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        e.persist();
+        this._kbCtr.keydown(e);
+    }
+
     private _createView() {
         const sl = this.state.scrollLeft;
         const st = this.state.scrollTop;
-        const vw = this.state.viewWidth;
-        const vh = this.state.viewHeight;
+        const vw = this.state.viewWidth - this._headersWidth;
+        const vh = this.state.viewHeight - this._headersHeight;
 
-        let rows = 0;
+        let rowsHeight = 0;
         let firstRow = -1;
         let lastRow = -1;
         let rowIndex = 0;
 
         for (let rowSize of this._headerSize.rows) {
-            this._headerPos.rows[rowIndex] = rows;
+            this._headerPos.rows[rowIndex] = rowsHeight;
 
-            if (firstRow === -1 && rows >= st - rowSize) {
+            if (firstRow === -1 && rowsHeight >= st - rowSize) {
                 firstRow = rowIndex;
             }
 
-            rows += rowSize;
+            rowsHeight += rowSize;
 
-            if (lastRow === -1 && rows >= st + vh + this._scrollSize) {
+            if (lastRow === -1 && rowsHeight >= st + vh + this._scrollSize) {
                 lastRow = rowIndex;
             }
 
@@ -185,21 +244,21 @@ export class Grid extends React.Component<IGridProps, any> {
             lastRow = rowIndex;
         }
 
-        let columns = 0;
+        let columnsWidth = 0;
         let firstColumn = -1;
         let lastColumn = -1;
         let colIndex = 0;
 
         for (let colSize of this._headerSize.cols) {
-            this._headerPos.cols[colIndex] = columns;
+            this._headerPos.cols[colIndex] = columnsWidth;
 
-            if (firstColumn === -1 && columns >= sl - colSize) {
+            if (firstColumn === -1 && columnsWidth >= sl - colSize) {
                 firstColumn = colIndex;
             }
 
-            columns += colSize;
+            columnsWidth += colSize;
 
-            if (lastColumn === -1 && columns >= sl + vw + this._scrollSize) {
+            if (lastColumn === -1 && columnsWidth >= sl + vw + this._scrollSize) {
                 lastColumn = colIndex;
             }
 
@@ -210,7 +269,7 @@ export class Grid extends React.Component<IGridProps, any> {
             lastColumn = colIndex;
         }
 
-        this._lastView = { firstRow, lastRow, firstColumn, lastColumn, rows, columns };
+        this._lastView = { firstRow, lastRow, firstColumn, lastColumn, rowsHeight, columnsWidth };
     }
 
     private _createOverscan() {
@@ -244,6 +303,7 @@ export class Grid extends React.Component<IGridProps, any> {
             rowIndex: row,
             columnIndex: col,
             active: row === this.state.active.row && col === this.state.active.column,
+            source: this.props.source,
             style: {
                 top: this._headerPos.rows[row],
                 left: this._headerPos.cols[col],
@@ -288,9 +348,9 @@ export class Grid extends React.Component<IGridProps, any> {
         }
 
         if (this.state.edit && (
-                (this.state.edit.column < firstColumn) || (this.state.edit.column > lastRow) ||
-                (this.state.edit.row < firstRow) || (this.state.edit.row > lastRow)
-            )
+            (this.state.edit.column < firstColumn) || (this.state.edit.column > lastRow) ||
+            (this.state.edit.row < firstRow) || (this.state.edit.row > lastRow)
+        )
         ) {
             jsx.push(this._renderCell(this.state.edit.row, this.state.edit.column));
         }
@@ -364,7 +424,7 @@ export class Grid extends React.Component<IGridProps, any> {
 
         return (
             <>
-                {jsx}
+            {jsx}
             </>
         );
     }
@@ -496,6 +556,42 @@ export class Grid extends React.Component<IGridProps, any> {
         }
     }
 
+    /** TODO: instead of using column index - use cell position and viewport minus scroll size */
+    public scrollTo(cell: { column?: number; row?: number; }) {
+        if (!this._refView || !this._headerPos.cols.length || !this._headerPos.rows.length) {
+            return;
+        }
+
+        const { firstColumn, firstRow, lastColumn, lastRow } = this._lastView;
+        let { column, row } = cell;
+
+        if (row != null) {
+            row = Math.min(Math.max(0, row), this._rowCount - 1);
+            if (row <= firstRow || row >= lastRow) {
+                let rowPos = this._headerPos.rows[row];
+                if (row <= firstRow) { // to top
+                    this._refView.scrollTop = rowPos;
+                } else { // to bottom
+                    let rowSize = this._headerSize.rows[row];
+                    this._refView.scrollTop = rowPos + rowSize - this.state.viewHeight + this._headersHeight;
+                }
+            }
+        }
+
+        if (column != null) {
+            column = Math.min(Math.max(0, column), this._columnCount - 1);
+            if (column <= firstColumn || column >= lastColumn) {
+                let colPos = this._headerPos.cols[column];
+                if (column <= firstColumn) { // to left
+                    this._refView.scrollLeft = colPos;
+                } else { // to right
+                    let colSize = this._headerSize.cols[column];
+                    this._refView.scrollLeft = colPos + colSize - this.state.viewWidth + this._headersWidth;
+                }
+            }
+        }
+    }
+
     public componentDidMount() {
         this._headerSize.rows = new Array(this._rowCount).fill(this.props.defaultHeight);
         this._headerSize.cols = new Array(this._columnCount).fill(this.props.defaultWidth);
@@ -518,7 +614,7 @@ export class Grid extends React.Component<IGridProps, any> {
         this._createView();
         this._createOverscan();
 
-        const { rows, columns } = this._lastView;
+        const { rowsHeight, columnsWidth } = this._lastView;
 
         return (
             <div
@@ -528,8 +624,10 @@ export class Grid extends React.Component<IGridProps, any> {
                 onBlur={this._onBlur}
                 onFocus={this._onFocus}
                 style={this.props.styles && this.props.styles.main || null}
+                onKeyDown={this._onKeyDown}
             >
                 <ScrollView
+                    ref={this._onRefView}
                     size={this._scrollSize}
                     onUpdate={this._onScrollViewUpdate}
                     backgroundColor='rgba(0, 0, 0, 0.3)'
@@ -539,12 +637,12 @@ export class Grid extends React.Component<IGridProps, any> {
                     <div
                         ref={this._onRefScroller}
                         style={{
-                            height: rows,
-                            width: columns,
+                            height: rowsHeight,
+                            width: columnsWidth,
                             boxSizing: 'border-box',
                             position: 'relative',
-                            marginLeft: this.props.headersWidth || 0,
-                            marginTop: this.props.headersHeight || 0
+                            marginLeft: this._headersWidth,
+                            marginTop: this._headersHeight
                         }}
                     >
                         {this._renderData()}
@@ -554,8 +652,8 @@ export class Grid extends React.Component<IGridProps, any> {
                             position: 'absolute',
                             pointerEvents: 'none',
                             zIndex: 1,
-                            left: this.props.headersWidth || 0,
-                            top: this.props.headersHeight || 0
+                            left: this._headersWidth,
+                            top: this._headersHeight
                         }}
                     >
                         {this._renderSelections()}

@@ -15,8 +15,8 @@ export interface IGridView {
     lastRow: number;
     firstColumn: number;
     lastColumn: number;
-    rows: number;
-    columns: number;
+    rowsHeight: number;
+    columnsWidth: number;
 }
 
 export interface IGridOverscan {
