@@ -1,5 +1,5 @@
 import * as React from 'react';
-import GetScrollbarSize from './scrollbar-size';
+import { getScrollbarSize } from '../controllers';
 
 export interface IScrollViewUpdateEvent {
     scrollLeft: number;
@@ -50,7 +50,7 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         yEnabled: false
     };
 
-    private _scrollBarSize = GetScrollbarSize();
+    private _scrollBarSize = getScrollbarSize();
     private _a: HTMLDivElement;
     private _r: HTMLDivElement;
     private _x: HTMLDivElement;

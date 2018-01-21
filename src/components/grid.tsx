@@ -1,12 +1,10 @@
 import * as React from 'react';
 import ScrollView, { IScrollViewUpdateEvent } from './scrollview';
-import RenderThrottler from './renderthrottler';
-import debounce from './debounce';
-import Shallow from './shallow';
+import { debounce, Shallow, RenderThrottler} from '../controllers';
 
 import {
     IGridAddress, IGridSelection, IGridView, IGridOverscan
-} from './types';
+} from '../types';
 
 const Style = require('./grid.scss');
 

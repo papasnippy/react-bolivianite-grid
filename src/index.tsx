@@ -1,5 +1,5 @@
-export * from './grid';
-export * from './resizer';
+export * from './components/grid';
+export * from './components/resizer';
 export * from './excel-header';
-import { Grid } from './grid';
+import { Grid } from './components/grid';
 export default Grid;

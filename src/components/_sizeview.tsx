@@ -14,7 +14,7 @@ export class SizeView extends React.Component<React.HTMLProps<HTMLDivElement>, a
         this._onRef = this._onRef.bind(this);
     }
 
-    /* bound */ private _onRef(r: HTMLDivElement) {
+    private _onRef = (r: HTMLDivElement) => {
         this._r = r;
     }
 
