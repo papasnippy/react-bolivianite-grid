@@ -1,7 +1,8 @@
 import * as React from 'react';
 import ScrollView, { IScrollViewUpdateEvent } from './scrollview';
 import {
-    debounce, Shallow, RenderThrottler, KeyboardController, IKeyboardControllerUpdateSelectionEvent
+    debounce, Shallow, RenderThrottler, KeyboardController,
+    IKeyboardControllerUpdateSelectionEvent, IKeyboardControllerRemoveEvent
 } from '../controllers';
 import {
     IGridAddress, IGridSelection, IGridView, IGridOverscan
@@ -53,6 +54,7 @@ export interface IGridProps {
     columns: number | any[];
     rows: number | any[];
     source?: any;
+    readOnly?: boolean;
     defaultWidth: number;
     defaultHeight: number;
     overscanRows?: number;
@@ -119,7 +121,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             focused: this._focused,
             columns: this._columnCount,
             rows: this._rowCount,
-            view: this._lastView
+            view: this._lastView,
+            readOnly: this.props.readOnly
         });
 
         const onScroll = this.scrollTo.bind(this);
@@ -133,12 +136,32 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             }
         };
 
-        const onCloseEditor = (_commit: boolean, _callback?: () => void) => {
-            // ...
+        const onCloseEditor = (commit: boolean, _callback?: () => void) => {
+            console.log(`onCloseEditor`, { commit });
         };
 
-        const onOpenEditor = (_next: IGridAddress) => {
-            // ...
+        const onOpenEditor = (next: IGridAddress) => {
+            console.log(`onOpenEditor`, { next });
+        };
+
+        const onCopy = (cells: IGridAddress[], withHeaders: boolean) => {
+            console.log(`onCopy`, { withHeaders, cells });
+        };
+
+        const onPaste = (text: string) => {
+            console.log(`onPaste`, { text });
+        };
+
+        const onNullify = (cells: IGridAddress[]) => {
+            console.log(`onNullify`, { cells });
+        };
+
+        const onRemove = (event: IKeyboardControllerRemoveEvent) => {
+            console.log(`onRemove`, event);
+        };
+
+        const onSpace = (cells: IGridAddress[]) => {
+            console.log(`onSpace`, { cells });
         };
 
         this._kbCtr = new KeyboardController({
@@ -146,7 +169,12 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             onCloseEditor,
             onOpenEditor,
             onScroll,
-            onUpdateSelection
+            onUpdateSelection,
+            onCopy,
+            onPaste,
+            onNullify,
+            onRemove,
+            onSpace
         });
     }
 
@@ -603,6 +631,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
     public componentDidUpdate() {
         this._onAfterUpdate();
+    }
+
+    public componentWillUnmount() {
+        this._kbCtr.dispose();
     }
 
     public render() {

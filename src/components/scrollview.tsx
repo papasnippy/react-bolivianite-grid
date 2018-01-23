@@ -170,6 +170,38 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         this._ymove = -1;
     }
 
+    private _onScrollMouseY = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!this.state.yEnabled || !this._r || e.button !== 0) {
+            return;
+        }
+
+        let cp = e.nativeEvent.offsetY;
+        let sp = this._ypos;
+        let ss = this._ysize;
+
+        if (cp < sp) {
+            this.scrollTop = Math.max(0, this.scrollTop - this.clientHeight);
+        } else if (cp > sp + ss) {
+            this.scrollTop = Math.min(this.scrollHeight, this.scrollTop + this.clientHeight);
+        }
+    }
+
+    private _onScrollMouseX = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!this.state.xEnabled || !this._r || e.button !== 0) {
+            return;
+        }
+
+        let cp = e.nativeEvent.offsetX;
+        let sp = this._xpos;
+        let ss = this._xsize;
+
+        if (cp < sp) {
+            this.scrollLeft = Math.max(0, this.scrollLeft - this.clientWidth);
+        } else if (cp > sp + ss) {
+            this.scrollLeft = Math.min(this.scrollWidth, this.scrollLeft + this.clientWidth);
+        }
+    }
+
     private _getUpdateEventObject(): IScrollViewUpdateEvent {
         if (!this._r) {
             return {
@@ -315,6 +347,19 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                 }}
             >
                 <div
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        right: 0,
+                        bottom: 0,
+                        overflow: 'hidden'
+                    }}
+                    onMouseDown={this._onScrollMouseX}
+                >
+                    {this._renderPartial(this.props.xBackgroundContent)}
+                </div>
+                <div
                     ref={this._onRefX}
                     style={{
                         backgroundColor: color,
@@ -326,19 +371,6 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                     }}
                 >
                     {this._renderPartial(this.props.xScrollContent)}
-                </div>
-                <div
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        top: 0,
-                        right: 0,
-                        bottom: 0,
-                        overflow: 'hidden',
-                        pointerEvents: 'none'
-                    }}
-                >
-                    {this._renderPartial(this.props.xBackgroundContent)}
                 </div>
             </div>
         );
@@ -362,6 +394,19 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                 }}
             >
                 <div
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        right: 0,
+                        bottom: 0,
+                        overflow: 'hidden'
+                    }}
+                    onMouseDown={this._onScrollMouseY}
+                >
+                    {this._renderPartial(this.props.yBackgroundContent)}
+                </div>
+                <div
                     ref={this._onRefY}
                     style={{
                         backgroundColor: color,
@@ -374,19 +419,7 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                 >
                     {this._renderPartial(this.props.yScrollContent)}
                 </div>
-                <div
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        top: 0,
-                        right: 0,
-                        bottom: 0,
-                        overflow: 'hidden',
-                        pointerEvents: 'none'
-                    }}
-                >
-                    {this._renderPartial(this.props.yBackgroundContent)}
-                </div>
+
             </div>
         );
     }
