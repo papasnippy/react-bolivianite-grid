@@ -1,47 +1,26 @@
 import { KeyboardEvent } from 'react';
-import { IGridAddress, IGridSelection, IGridView } from '../types';
-
-const IS_MACOS = navigator.platform.slice(0, 3) === 'Mac';
-
-export interface IState {
-    focused: boolean;
-    editor: IGridAddress;
-    active: IGridAddress;
-    selection: IGridSelection[];
-    view: IGridView;
-    rows: number;
-    columns: number;
-    readOnly: boolean;
-}
-
-export interface IKeyboardControllerUpdateSelectionEvent {
-    active?: IGridAddress;
-    selection?: IGridSelection[];
-}
+import { IGridAddress, IGridSelection } from '../types';
+import { Controller, IControllerProps } from './controller';
 
 export interface IKeyboardControllerRemoveEvent {
     rows: number[];
     columns: number[];
 }
 
-export interface IKeyboardControllerProps {
-    getState: () => IState;
-    onScroll: (cell: IGridAddress) => void;
-    onUpdateSelection: (next: IKeyboardControllerUpdateSelectionEvent) => void;
-    onCloseEditor: (commit: boolean, onClosed?: () => void) => void;
-    onOpenEditor: (next: IGridAddress) => void;
+export interface IKeyboardControllerProps extends IControllerProps {
     onNullify: (cells: IGridAddress[]) => void;
     onRemove: (props: IKeyboardControllerRemoveEvent) => void;
     onSpace: (cells: IGridAddress[]) => void;
     onCopy: (cells: IGridAddress[], withHeaders: boolean) => void;
-    onPaste: (text: string) => void;
+    onPaste: (clipboard: DataTransfer) => void;
 }
 
-export class KeyboardController {
-    protected _state: IState = null;
+export class KeyboardController extends Controller {
     protected _onPasteListener: any;
 
     constructor(protected _props: IKeyboardControllerProps) {
+        super(_props);
+
         document.body.addEventListener('paste', this._onPasteListener = (e: ClipboardEvent) => {
             const { focused, readOnly } = this._props.getState();
 
@@ -49,21 +28,8 @@ export class KeyboardController {
                 return;
             }
 
-            this._props.onPaste(e.clipboardData.getData('text/plain'));
+            this._props.onPaste(e.clipboardData);
         });
-    }
-
-    private _getModifiers(e: KeyboardEvent<HTMLDivElement>) {
-        const { ctrlKey, altKey, shiftKey } = e;
-        const cmdKey = e.getModifierState('Meta'); // Command key for Mac OS
-
-        return {
-            ctrlKey,
-            macCmdKey: cmdKey,
-            cmdKey: IS_MACOS ? cmdKey : ctrlKey,
-            shiftKey,
-            altKey
-        };
     }
 
     private _isInput(e: KeyboardEvent<HTMLDivElement>) {
@@ -80,45 +46,6 @@ export class KeyboardController {
             (96 <= keyCode && keyCode <= 111) ||
             (186 <= keyCode && keyCode <= 222)
         );
-    }
-
-    private _clampAddress({ column, row }: IGridAddress) {
-        const { rows, columns } = this._state;
-        return {
-            column: Math.min(Math.max(0, column), columns - 1),
-            row: Math.min(Math.max(0, row), rows - 1)
-        } as IGridAddress;
-    }
-
-    private _splitSelection(selection: IGridSelection[]) {
-        let prev = selection.slice();
-        let last = prev.pop();
-
-        return {
-            prev, last
-        };
-    }
-
-    private _getSelectedCells(selection: IGridSelection[]) {
-        let map: {
-            [key: string]: IGridAddress;
-        } = {};
-
-        for (const { column, row, height, width } of selection) {
-            for (let r = row, rLast = row + height; r <= rLast; r++) {
-                for (let c = column, cLast = column + width; c <= cLast; c++) {
-                    let key = `${r}x${c}`;
-
-                    if (map[key]) {
-                        continue;
-                    }
-
-                    map[key] = { row: r, column: c };
-                }
-            }
-        }
-
-        return Object.keys(map).sort().map(k => map[k]);
     }
 
     private _moveSelection(shiftKey: boolean, cmdKey: boolean, direction: 'left' | 'up' | 'right' | 'down', distance: number) {
@@ -565,6 +492,11 @@ export class KeyboardController {
 
     private _onSpace(e: KeyboardEvent<HTMLDivElement>) {
         e.preventDefault();
+
+        if (this._state.readOnly) {
+            return;
+        }
+
         const cells = this._getSelectedCells(this._state.selection);
         this._props.onSpace(cells);
     }

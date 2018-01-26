@@ -2,7 +2,8 @@ import * as React from 'react';
 import ScrollView, { IScrollViewUpdateEvent } from './scrollview';
 import {
     debounce, Shallow, RenderThrottler, KeyboardController,
-    IKeyboardControllerUpdateSelectionEvent, IKeyboardControllerRemoveEvent
+    IUpdateSelectionEvent, IKeyboardControllerRemoveEvent,
+    MouseController
 } from '../controllers';
 import {
     IGridAddress, IGridSelection, IGridView, IGridOverscan
@@ -33,6 +34,24 @@ export interface ISelectionRendererEvent {
     active: boolean;
 }
 
+export interface IGridSpaceEvent {
+    cells: IGridAddress[];
+}
+
+export interface IGridRemoveEvent extends IKeyboardControllerRemoveEvent { }
+
+export interface IGridNullifyEvent extends IGridSpaceEvent { }
+
+export interface IGridCopyEvent {
+    cells: IGridAddress[];
+    withHeaders: boolean;
+}
+
+export interface IGridPasteEvent {
+    target: IGridAddress;
+    clipboard: DataTransfer;
+}
+
 export interface IGridClasses {
     rows?: string;
     columns?: string;
@@ -53,20 +72,57 @@ export interface IGridProps {
     tabIndex?: number;
     columns: number | any[];
     rows: number | any[];
+
+    /** Not used directly by Component, but provided to the cell renderer. */
     source?: any;
+
+    /** Prevent editors to appear. `onNullify`, `onRemove`, `onSpace` and `onPaste` events will not be invoked. */
     readOnly?: boolean;
+
+    /** Default column width. */
     defaultWidth: number;
+
+    /** Default row height. */
     defaultHeight: number;
+
     overscanRows?: number;
     overscanColumns?: number;
+
+    /** Column header height. */
     headersHeight?: number;
+
+    /** Row header width. */
     headersWidth?: number;
+
+    /** Add classnames here. */
     classes?: IGridClasses;
+
+    /** Add styles here. Some positioning properties will be ignored. */
     styles?: IGridStyles;
 
+    /** Cell renderer. Required. Some event handlers will be bound. */
     onRenderCell: (e: ICellRendererEvent) => JSX.Element;
+
+    /** Header renderer. Required. */
     onRenderHeader: (e: IHeaderRendererEvent) => JSX.Element;
+
+    /** Selection renderer. Required. If active property is true - this renders active cell selection. */
     onRenderSelection: (e: ISelectionRendererEvent) => JSX.Element;
+
+    /** Invoked with all selected cells when `SPACE` key is pressed. Usefull for checkbox cells. */
+    onSpace?: (e: IGridSpaceEvent) => void;
+
+    /** Invoked with all selected rows and columns when `CMD`/`CTRL`+`DELETE`/`BACKSPACE` keys are pressed. Remove records here. */
+    onRemove?: (e: IGridRemoveEvent) => void;
+
+    /** Invoked with all selected cells when `DELETE`/`BACKSPACE` keys are pressed. Replace data with nulls here. */
+    onNullify?: (e: IGridNullifyEvent) => void;
+
+    /** Invoked on `COPY` event, provides selected cells and flah `withHeaders` when ALT key is pressed. */
+    onCopy?: (e: IGridCopyEvent) => void;
+
+    /** Invoked on `PASTE` event, provides target cell and clipboard `DataTransfer` object. */
+    onPaste?: (e: IGridPasteEvent) => void;
 }
 //#endregion
 
@@ -90,6 +146,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     private _lastOverscan: IGridOverscan = null;
     private _focused = false;
     private _kbCtr: KeyboardController = null;
+    private _msCtr: MouseController = null;
 
     state = {
         scrollLeft: 0,
@@ -126,7 +183,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         });
 
         const onScroll = this.scrollTo.bind(this);
-        const onUpdateSelection = ({ active, selection }: IKeyboardControllerUpdateSelectionEvent) => {
+        const onUpdateSelection = ({ active, selection }: IUpdateSelectionEvent) => {
             if (active) {
                 this.setState({ active });
             }
@@ -145,23 +202,33 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         };
 
         const onCopy = (cells: IGridAddress[], withHeaders: boolean) => {
-            console.log(`onCopy`, { withHeaders, cells });
+            if (this.props.onCopy) {
+                this.props.onCopy({ withHeaders, cells });
+            }
         };
 
-        const onPaste = (text: string) => {
-            console.log(`onPaste`, { text });
+        const onPaste = (clipboard: DataTransfer) => {
+            if (this.props.onPaste) {
+                this.props.onPaste({ clipboard, target: { ...this.state.active } });
+            }
         };
 
         const onNullify = (cells: IGridAddress[]) => {
-            console.log(`onNullify`, { cells });
+            if (this.props.onNullify) {
+                this.props.onNullify({ cells });
+            }
         };
 
         const onRemove = (event: IKeyboardControllerRemoveEvent) => {
-            console.log(`onRemove`, event);
+            if (this.props.onRemove) {
+                this.props.onRemove(event);
+            }
         };
 
         const onSpace = (cells: IGridAddress[]) => {
-            console.log(`onSpace`, { cells });
+            if (this.props.onSpace) {
+                this.props.onSpace({ cells });
+            }
         };
 
         this._kbCtr = new KeyboardController({
@@ -175,6 +242,14 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             onNullify,
             onRemove,
             onSpace
+        });
+
+        this._msCtr = new MouseController({
+            getState,
+            onCloseEditor,
+            onOpenEditor,
+            onScroll,
+            onUpdateSelection
         });
     }
 
@@ -239,6 +314,13 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     private _onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
         e.persist();
         this._kbCtr.keydown(e);
+    }
+
+    private _onMouseDown = (e: React.MouseEvent<HTMLElement>) => {
+        e.persist();
+        let row = Number(e.currentTarget.getAttribute('x-row'));
+        let column = Number(e.currentTarget.getAttribute('x-col'));
+        this._msCtr.mousedown(e, row, column);
     }
 
     private _createView() {
@@ -345,7 +427,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         return React.cloneElement(React.Children.only(cell), {
             'x-row': row,
             'x-col': col,
-            key: `${row}x${col}`
+            key: `${row}x${col}`,
+            onMouseDown: this._onMouseDown
         });
     }
 
@@ -635,6 +718,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
     public componentWillUnmount() {
         this._kbCtr.dispose();
+        this._msCtr.dispose();
     }
 
     public render() {
