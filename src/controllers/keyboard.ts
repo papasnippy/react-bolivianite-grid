@@ -306,9 +306,14 @@ export class KeyboardController {
 
                 case 'right':
                     if (last.column === active.column) {
-                        if (last.column + last.width < columns - 1) {
-                            if (last.width + distance > columns - 1) {
-                                delta = last.width + distance - columns - 1;
+                        let lastPos = last.column + last.width;
+                        if (lastPos < columns - 1) {
+                            if (lastPos + distance > columns - 1) {
+                                delta = (
+                                    distance >= columns - 1 - lastPos
+                                        ? columns - 1 - last.column
+                                        : last.width + distance - columns - 1
+                                );
                             }
 
                             next = {
@@ -341,9 +346,15 @@ export class KeyboardController {
 
                 case 'down':
                     if (last.row === active.row) {
-                        if (last.row + last.height < rows - 1) {
-                            if (last.height + distance > rows - 1) {
-                                delta = last.height + distance - rows - 1;
+                        let lastPos = last.row + last.height;
+
+                        if (lastPos < rows - 1) {
+                            if (lastPos + distance > rows - 1) {
+                                delta = (
+                                    distance >= rows - 1 - lastPos
+                                        ? rows - 1 - last.row
+                                        : lastPos + distance - rows - 1
+                                );
                             }
 
                             next = {
