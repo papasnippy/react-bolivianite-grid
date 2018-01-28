@@ -6,11 +6,10 @@ export class RenderThrottler {
     private _active = true;
 
     constructor() {
-        this._step = this._step.bind(this);
         window.requestAnimationFrame(this._step);
     }
 
-    private _step() {
+    private _step = () => {
         let c = 0;
         for (let id of Object.keys(this._tasks)) {
             let f = this._tasks[id];

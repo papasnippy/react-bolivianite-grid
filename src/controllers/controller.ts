@@ -22,7 +22,7 @@ export interface IUpdateSelectionEvent {
 export interface IControllerProps {
     getState: () => IState;
     onScroll: (cell: IGridAddress) => void;
-    onUpdateSelection: (next: IUpdateSelectionEvent) => void;
+    onUpdateSelection: (next: IUpdateSelectionEvent, callback?: () => void) => void;
     onCloseEditor: (commit: boolean, onClosed?: () => void) => void;
     onOpenEditor: (next: IGridAddress) => void;
 }
@@ -82,5 +82,9 @@ export class Controller {
         }
 
         return Object.keys(map).sort().map(k => map[k]);
+    }
+
+    protected _request() {
+        return this._state = this._props.getState();
     }
 }

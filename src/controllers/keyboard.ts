@@ -16,20 +16,10 @@ export interface IKeyboardControllerProps extends IControllerProps {
 }
 
 export class KeyboardController extends Controller {
-    protected _onPasteListener: any;
-
     constructor(protected _props: IKeyboardControllerProps) {
         super(_props);
 
-        document.body.addEventListener('paste', this._onPasteListener = (e: ClipboardEvent) => {
-            const { focused, readOnly } = this._props.getState();
-
-            if (!focused || readOnly) {
-                return;
-            }
-
-            this._props.onPaste(e.clipboardData);
-        });
+        document.body.addEventListener('paste', this._paste);
     }
 
     private _isInput(e: KeyboardEvent<HTMLDivElement>) {
@@ -358,7 +348,7 @@ export class KeyboardController extends Controller {
         }
     }
 
-    private _onTab(e: KeyboardEvent<HTMLDivElement>) {
+    private _onTab(e: KeyboardEvent<HTMLDivElement>, callback?: () => void) {
         e.preventDefault();
 
         const { shiftKey, cmdKey } = this._getModifiers(e);
@@ -414,12 +404,17 @@ export class KeyboardController extends Controller {
                     ? null
                     : [{ ...active, height: 0, width: 0 }]
             )
+        }, () => {
+            this._props.onScroll(active);
+
+            if (callback) {
+                callback();
+            }
         });
 
-        this._props.onScroll(active);
     }
 
-    private _onEnter(e: KeyboardEvent<HTMLDivElement>) {
+    private _onEnter(e: KeyboardEvent<HTMLDivElement>, callback?: () => void) {
         e.preventDefault();
 
         const { shiftKey, cmdKey } = this._getModifiers(e);
@@ -485,9 +480,14 @@ export class KeyboardController extends Controller {
                     ? null
                     : [{ ...active, height: 0, width: 0 }]
             )
+        }, () => {
+            this._props.onScroll(active);
+
+            if (callback) {
+                callback();
+            }
         });
 
-        this._props.onScroll(active);
     }
 
     private _onSpace(e: KeyboardEvent<HTMLDivElement>) {
@@ -685,8 +685,18 @@ export class KeyboardController extends Controller {
         }
     }
 
+    protected _paste = (e: ClipboardEvent) => {
+        const { focused, readOnly } = this._props.getState();
+
+        if (!focused || readOnly) {
+            return;
+        }
+
+        this._props.onPaste(e.clipboardData);
+    }
+
     public keydown(e: KeyboardEvent<HTMLDivElement>) {
-        const { editor, active, focused, rows, columns } = this._state = this._props.getState();
+        const { editor, active, focused, rows, columns } = this._request();
 
         if (!rows || !columns) {
             return;
@@ -696,13 +706,17 @@ export class KeyboardController extends Controller {
             switch (e.keyCode) {
                 case 9: // tab
                     this._props.onCloseEditor(true, () => {
-                        this._onTab(e);
+                        this._onTab(e, () => {
+                            this._props.onOpenEditor(this._request().active);
+                        });
                     });
                     break;
 
                 case 13: // enter
                     this._props.onCloseEditor(true, () => {
-                        this._onEnter(e);
+                        this._onEnter(e, () => {
+                            this._props.onOpenEditor(this._request().active);
+                        });
                     });
                     break;
 
@@ -760,10 +774,14 @@ export class KeyboardController extends Controller {
             case 88: // x
                 this._onData(e);
                 break;
+
+            case 113: // F2
+                this._props.onOpenEditor({ ...active });
+                break;
         }
     }
 
     public dispose() {
-        document.body.removeEventListener('paste', this._onPasteListener);
+        document.body.removeEventListener('paste', this._paste);
     }
 }

@@ -20,6 +20,13 @@ export interface ICellRendererEvent {
     source: any;
 }
 
+export interface ICellEditorEvent extends ICellRendererEvent {
+    /** Request to close editor. */
+    close: (commit: boolean) => void;
+    /** Set update for this cell. */
+    update: (nextValue: any) => void;
+}
+
 export interface IHeaderRendererEvent {
     type: 'rows' | 'columns';
     index: number;
@@ -32,6 +39,7 @@ export interface ISelectionRendererEvent {
     key: number;
     style: React.CSSProperties;
     active: boolean;
+    edit: boolean;
 }
 
 export interface IGridSpaceEvent {
@@ -50,6 +58,11 @@ export interface IGridCopyEvent {
 export interface IGridPasteEvent {
     target: IGridAddress;
     clipboard: DataTransfer;
+}
+
+export interface IGridUpdateEvent {
+    cell: IGridAddress;
+    value: any;
 }
 
 export interface IGridClasses {
@@ -109,6 +122,9 @@ export interface IGridProps {
     /** Selection renderer. Required. If active property is true - this renders active cell selection. */
     onRenderSelection: (e: ISelectionRendererEvent) => JSX.Element;
 
+    /** Editor renderer. Optional. */
+    onRenderEditor?: (e: ICellEditorEvent) => JSX.Element;
+
     /** Invoked with all selected cells when `SPACE` key is pressed. Usefull for checkbox cells. */
     onSpace?: (e: IGridSpaceEvent) => void;
 
@@ -118,11 +134,17 @@ export interface IGridProps {
     /** Invoked with all selected cells when `DELETE`/`BACKSPACE` keys are pressed. Replace data with nulls here. */
     onNullify?: (e: IGridNullifyEvent) => void;
 
-    /** Invoked on `COPY` event, provides selected cells and flah `withHeaders` when ALT key is pressed. */
+    /** Invoked on `COPY` event, provides selected cells and flag `withHeaders` when ALT key is pressed. */
     onCopy?: (e: IGridCopyEvent) => void;
 
     /** Invoked on `PASTE` event, provides target cell and clipboard `DataTransfer` object. */
     onPaste?: (e: IGridPasteEvent) => void;
+
+    /** Invoked on cell right click. */
+    onRightClick?: (e: IGridAddress) => void;
+
+    /** Invoked on editor close when value was changed. */
+    onUpdate?: (e: IGridUpdateEvent) => void;
 }
 //#endregion
 
@@ -147,6 +169,12 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     private _focused = false;
     private _kbCtr: KeyboardController = null;
     private _msCtr: MouseController = null;
+    private _currentEdit: {
+        row: number;
+        col: number;
+        nextValue: any;
+        updatedValue: boolean;
+    } = null;
 
     state = {
         scrollLeft: 0,
@@ -183,22 +211,21 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         });
 
         const onScroll = this.scrollTo.bind(this);
-        const onUpdateSelection = ({ active, selection }: IUpdateSelectionEvent) => {
-            if (active) {
-                this.setState({ active });
+        const onUpdateSelection = ({ active, selection }: IUpdateSelectionEvent, callback: () => void) => {
+            if (!active && !selection) {
+                return;
             }
 
-            if (selection) {
-                this.setState({ selection });
+            this.setState({
+                active: active || this.state.active,
+                selection: selection || this.state.selection
+            }, callback);
+        };
+
+        const onRightClick = (cell: IGridAddress) => {
+            if (this.props.onRightClick) {
+                this.props.onRightClick(cell);
             }
-        };
-
-        const onCloseEditor = (commit: boolean, _callback?: () => void) => {
-            console.log(`onCloseEditor`, { commit });
-        };
-
-        const onOpenEditor = (next: IGridAddress) => {
-            console.log(`onOpenEditor`, { next });
         };
 
         const onCopy = (cells: IGridAddress[], withHeaders: boolean) => {
@@ -233,8 +260,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         this._kbCtr = new KeyboardController({
             getState,
-            onCloseEditor,
-            onOpenEditor,
+            onCloseEditor: this.closeEditor,
+            onOpenEditor: this.openEditor,
             onScroll,
             onUpdateSelection,
             onCopy,
@@ -246,10 +273,11 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         this._msCtr = new MouseController({
             getState,
-            onCloseEditor,
-            onOpenEditor,
+            onCloseEditor: this.closeEditor,
+            onOpenEditor: this.openEditor,
             onScroll,
-            onUpdateSelection
+            onUpdateSelection,
+            onRightClick
         });
     }
 
@@ -283,12 +311,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
     private _onBlur = () => {
         this._focused = false;
-        console.log(`this._focused = ${this._focused}`);
     }
 
     private _onFocus = () => {
         this._focused = true;
-        console.log(`this._focused = ${this._focused}`);
     }
 
     private _onScrollViewUpdate = (e: IScrollViewUpdateEvent) => {
@@ -320,7 +346,28 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         e.persist();
         let row = Number(e.currentTarget.getAttribute('x-row'));
         let column = Number(e.currentTarget.getAttribute('x-col'));
+
+        this.focus();
+
         this._msCtr.mousedown(e, row, column);
+    }
+
+    private _onMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
+        let row = Number(e.currentTarget.getAttribute('x-row'));
+        let column = Number(e.currentTarget.getAttribute('x-col'));
+        this._msCtr.mouseenter(row, column);
+    }
+
+    private _onRootMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.persist();
+        let x = e.pageX;
+        let y = e.pageY;
+        let rect = this._ref.getBoundingClientRect();
+        this._msCtr.rootleave(x, y, rect);
+    }
+
+    private _onRootMouseEnter = () => {
+        this._msCtr.rootenter();
     }
 
     private _createView() {
@@ -408,8 +455,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         };
     }
 
-    private _renderCell(row: number, col: number) {
-        let cell = this.props.onRenderCell({
+    private _prepareCellProps(row: number, col: number) {
+        return {
             rowIndex: row,
             columnIndex: col,
             active: row === this.state.active.row && col === this.state.active.column,
@@ -422,13 +469,51 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 position: 'absolute',
                 zIndex: 1
             }
+        } as ICellRendererEvent;
+    }
+
+    private _renderCell(row: number, col: number) {
+        let cell = this.props.onRenderCell(this._prepareCellProps(row, col));
+
+        return React.cloneElement(React.Children.only(cell), {
+            'x-row': row,
+            'x-col': col,
+            key: `C${row}x${col}`,
+            onMouseDown: this._onMouseDown,
+            onMouseEnter: this._onMouseEnter
+        });
+    }
+
+    private _renderEditor(row: number, col: number) {
+        if (!this.props.onRenderEditor) {
+            return this._renderCell(row, col);
+        }
+
+
+        if (!this._currentEdit || (this._currentEdit.row !== row || this._currentEdit.col !== col)) {
+            this._currentEdit = {
+                row, col,
+                nextValue: null,
+                updatedValue: false
+            };
+        }
+
+        let cellProps = this._prepareCellProps(row, col);
+        let cell = this.props.onRenderEditor({
+            ...cellProps,
+            close: (commit: boolean) => {
+                this.closeEditor(commit);
+            },
+            update: (nextValue: any) => {
+                this._currentEdit.nextValue = nextValue;
+                this._currentEdit.updatedValue = true;
+            }
         });
 
         return React.cloneElement(React.Children.only(cell), {
             'x-row': row,
             'x-col': col,
-            key: `${row}x${col}`,
-            onMouseDown: this._onMouseDown
+            key: `E${row}x${col}`
         });
     }
 
@@ -449,21 +534,27 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         let iclen = Math.max(0, Math.min(columnCount - firstColumn, 1 + lastColumn - firstColumn));
         let jsx: JSX.Element[] = new Array(irlen * iclen);
         let i = 0;
+        let { edit } = this.state;
 
         for (let ir = 0; ir < irlen; ir++) {
             for (let ic = 0; ic < iclen; ic++) {
                 let r = ir + firstRow;
                 let c = ic + firstColumn;
-                jsx[i++] = this._renderCell(r, c);
+
+                if (edit && edit.column === c && edit.row === r) {
+                    jsx[i++] = this._renderEditor(r, c);
+                } else {
+                    jsx[i++] = this._renderCell(r, c);
+                }
             }
         }
 
-        if (this.state.edit && (
-            (this.state.edit.column < firstColumn) || (this.state.edit.column > lastRow) ||
-            (this.state.edit.row < firstRow) || (this.state.edit.row > lastRow)
+        if (edit && (
+            (edit.column < firstColumn) || (edit.column > lastRow) ||
+            (edit.row < firstRow) || (edit.row > lastRow)
         )
         ) {
-            jsx.push(this._renderCell(this.state.edit.row, this.state.edit.column));
+            jsx.push(this._renderEditor(edit.row, edit.column));
         }
 
         return jsx;
@@ -626,6 +717,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             return this.props.onRenderSelection({
                 key: i,
                 active: false,
+                edit: !!this.state.edit,
                 style: {
                     position: 'absolute',
                     zIndex: i,
@@ -642,6 +734,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         jsx.push(this.props.onRenderSelection({
             key: ax,
             active: true,
+            edit: !!this.state.edit,
             style: {
                 position: 'absolute',
                 zIndex: ax,
@@ -703,6 +796,53 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         }
     }
 
+    public openEditor = (cell: IGridAddress) => {
+        let e = this.state.edit;
+
+        if (e) {
+            if (e.row === cell.row && e.column === cell.column) {
+                return;
+            }
+
+            this.closeEditor(true, () => {
+                this.setState({ edit: cell });
+            });
+            return;
+        }
+
+        this.setState({ edit: cell });
+    }
+
+    public closeEditor = (commit: boolean, callback?: () => void) => {
+        if (!this.state.edit) {
+            this._currentEdit = null;
+            this.focus();
+
+            if (callback) {
+                callback();
+            }
+            return;
+        }
+
+        this.setState({ edit: null }, () => {
+            let e = this._currentEdit;
+            this._currentEdit = null;
+            this.focus();
+
+            if (callback) {
+                callback();
+            }
+
+            if (this.props.onUpdate && e) {
+                let { col, row, nextValue, updatedValue } = e;
+
+                if (commit && updatedValue) {
+                    this.props.onUpdate({ cell: { row, column: col }, value: nextValue });
+                }
+            }
+        });
+    }
+
     public componentDidMount() {
         this._headerSize.rows = new Array(this._rowCount).fill(this.props.defaultHeight);
         this._headerSize.cols = new Array(this._columnCount).fill(this.props.defaultWidth);
@@ -741,6 +881,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 onFocus={this._onFocus}
                 style={this.props.styles && this.props.styles.main || null}
                 onKeyDown={this._onKeyDown}
+                onMouseLeave={this._onRootMouseLeave}
+                onMouseEnter={this._onRootMouseEnter}
             >
                 <ScrollView
                     ref={this._onRefView}
