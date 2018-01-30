@@ -1,13 +1,21 @@
-
 import * as React from 'react';
-import { Grid, ExcelHeader, Resizer } from '../src';
+import { Grid, Resizer, Headers } from '../src';
 import Editor from './editor';
+import ExcelColumn from './header';
 
 export class Example extends React.Component<any, any> {
     state = {
         data: {} as {
             [key: string]: string;
-        }
+        },
+        headers: new Headers({
+            columns: new Array(20).fill(null).map(_ => new ExcelColumn()),
+            rows: 200,
+            columnWidth: 75,
+            rowHeight: 24,
+            headersHeight: 24,
+            headersWidth: 50
+        })
     };
 
     public render() {
@@ -35,12 +43,7 @@ export class Example extends React.Component<any, any> {
                     }}
                 >
                     <Grid
-                        rows={200}
-                        columns={20}
-                        defaultWidth={100}
-                        defaultHeight={24}
-                        headersHeight={24}
-                        headersWidth={50}
+                        refHeaders={this.state.headers}
                         overscanRows={3}
                         source={this.state.data}
                         styles={{
@@ -58,7 +61,7 @@ export class Example extends React.Component<any, any> {
                         }}
                         onRenderCell={({ style, columnIndex, rowIndex, source }) => {
                             let key = `${rowIndex} x ${columnIndex}`;
-                            let display = source[key] || key;
+                            let display = source[key] === void 0 ? key : source[key];
 
                             return (
                                 <div
@@ -99,7 +102,7 @@ export class Example extends React.Component<any, any> {
                                 </div>
                             );
                         }}
-                        onRenderHeader={({ style, type, index, selection }) => {
+                        onRenderHeader={({ style, type, index, selection, header }) => {
                             return (
                                 <div
                                     style={{
@@ -112,7 +115,7 @@ export class Example extends React.Component<any, any> {
                                         alignItems: 'center'
                                     }}
                                 >
-                                    {ExcelHeader({ type, index })}
+                                    {type === 'columns' ? (header as ExcelColumn).print(index) : index + 1}
                                     <Resizer type={type} index={index} />
                                 </div>
                             );
@@ -134,6 +137,17 @@ export class Example extends React.Component<any, any> {
                                     }}
                                 />
                             );
+                        }}
+                        onNullify={({ cells }) => {
+                            let data = {
+                                ...this.state.data
+                            };
+
+                            cells.forEach(({ column, row }) => {
+                                data[`${row} x ${column}`] = null;
+                            });
+
+                            this.setState({ data });
                         }}
                         onUpdate={({ cell, value }) => {
                             let { column, row } = cell;
