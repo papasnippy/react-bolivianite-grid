@@ -9,9 +9,9 @@ export class Example extends React.Component<any, any> {
             [key: string]: string;
         },
         headers: new Headers({
-            columns: new Array(20).fill(null).map(_ => new ExcelColumn()),
+            columns: new Array(50).fill(null).map(_ => new ExcelColumn()),
             rows: 200,
-            columnWidth: 75,
+            columnWidth: 100,
             rowHeight: 24,
             headersHeight: 24,
             headersWidth: 50
@@ -82,6 +82,7 @@ export class Example extends React.Component<any, any> {
                         }}
                         onRenderEditor={({ style, columnIndex, rowIndex, update, source }) => {
                             let key = `${rowIndex} x ${columnIndex}`;
+                            let initialValue = source[key] === void 0 ? key : source[key];
                             return (
                                 <div
                                     style={{
@@ -96,7 +97,7 @@ export class Example extends React.Component<any, any> {
                                     }}
                                 >
                                     <Editor
-                                        initialValue={source[key] || key}
+                                        initialValue={initialValue}
                                         update={update}
                                     />
                                 </div>
