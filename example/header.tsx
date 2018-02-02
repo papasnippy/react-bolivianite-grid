@@ -1,11 +1,18 @@
 import { Header } from '../src';
 
 export class ExcelColumn extends Header {
+    private static _id = 0;
     private _lastIndex = -1;
     private _caption = '';
 
-    constructor() {
-        super();
+    public children: ExcelColumn[];
+
+    constructor(children?: ExcelColumn[], id?: number) {
+        super(id != null ? id : ExcelColumn._id++);
+        if (children) {
+            this.children = children;
+            this.children.forEach(c => c.parent = this);
+        }
     }
 
     public print(index: number) {

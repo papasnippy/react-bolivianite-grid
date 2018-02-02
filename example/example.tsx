@@ -1,7 +1,15 @@
 import * as React from 'react';
-import { Grid, Resizer, Headers } from '../src';
+import { Grid, Resizer, Headers, HeaderType } from '../src';
 import Editor from './editor';
 import ExcelColumn from './header';
+
+/*
+Headers.create(
+    new Array(3).fill(null).map(() => new ExcelColumn(
+        new Array(3).fill(null).map(() => new ExcelColumn())
+    ))
+);
+*/
 
 export class Example extends React.Component<any, any> {
     state = {
@@ -9,9 +17,19 @@ export class Example extends React.Component<any, any> {
             [key: string]: string;
         },
         headers: new Headers({
-            columns: new Array(50).fill(null).map(_ => new ExcelColumn()),
-            rows: 200,
-            columnWidth: 100,
+            columns: Headers.create(
+                new Array(2).fill(null).map(() => new ExcelColumn(
+                    new Array(3).fill(null).map(() => new ExcelColumn(
+                        new Array(2).fill(null).map(() => new ExcelColumn())
+                    ))
+                ))
+            ),
+            rows: Headers.create(
+                new Array(3).fill(null).map((_, i) => new ExcelColumn(
+                    i !== 1 ? new Array(3).fill(null).map(() => new ExcelColumn()) : null
+                ))
+            ),
+            columnWidth: 70,
             rowHeight: 24,
             headersHeight: 24,
             headersWidth: 50
@@ -103,21 +121,31 @@ export class Example extends React.Component<any, any> {
                                 </div>
                             );
                         }}
-                        onRenderHeader={({ style, type, index, selection, header }) => {
+                        onRenderHeader={({ style, type, selection, header }) => {
+                            let nextStyle: React.CSSProperties = {
+                                ...style,
+                                boxSizing: 'border-box',
+                                borderRight: `solid 1px #${type === HeaderType.Row && selection ? '0af' : '999'}`,
+                                borderBottom: `solid 1px #${type === HeaderType.Column && selection ? '0af' : '999'}`,
+                                padding: '0 3px',
+                                display: 'flex',
+                                alignItems: 'center'
+                            };
+
+                            let h = header as ExcelColumn;
+
+                            if (selection) {
+                                nextStyle.backgroundColor = `rgba(0, 0, 0, 0.1)`;
+                            }
+
+                            if (type === HeaderType.Row) {
+                                nextStyle.justifyContent = 'flex-end';
+                            }
+
                             return (
-                                <div
-                                    style={{
-                                        ...style,
-                                        boxSizing: 'border-box',
-                                        borderRight: `solid 1px #${type === 'rows' && selection ? '0af' : '999'}`,
-                                        borderBottom: `solid 1px #${type === 'columns' && selection ? '0af' : '999'}`,
-                                        padding: '0 3px',
-                                        display: 'flex',
-                                        alignItems: 'center'
-                                    }}
-                                >
-                                    {type === 'columns' ? (header as ExcelColumn).print(index) : index + 1}
-                                    <Resizer type={type} index={index} />
+                                <div style={nextStyle}>
+                                    {type === HeaderType.Row && header.index !== -1 ? header.index : h.print(h.id as number)}
+                                    <Resizer header={header} />
                                 </div>
                             );
                         }}
@@ -157,9 +185,24 @@ export class Example extends React.Component<any, any> {
                             this.setState({
                                 data: {
                                     ...this.state.data,
-                                    [key]: value
+                                    [key]: Math.min(200, Math.max(value, 24))
                                 }
                             });
+                        }}
+                        onHeaderResize={({ header, size }) => {
+                            size = Math.max(size, 24);
+                            header.updateSize(size, s => Math.min(200, Math.max(s, 24)));
+                            let headers = this.state.headers.update();
+                            this.setState({ headers });
+                        }}
+                        onHeaderLevelResize={({ level, size, type }) => {
+                            let headers = this.state.headers.update({
+                                [type === HeaderType.Row ? 'leftLevels' : 'topLevels']: {
+                                    [level]: size
+                                }
+                            });
+
+                            this.setState({ headers });
                         }}
                     />
                 </div>

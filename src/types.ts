@@ -25,3 +25,8 @@ export interface IGridOverscan {
     firstColumn: number;
     lastColumn: number;
 }
+
+export enum HeaderType {
+    Row = 1,
+    Column
+}

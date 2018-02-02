@@ -7,12 +7,18 @@ export interface IKeyboardControllerRemoveEvent {
     columns: number[];
 }
 
+export interface IKeyboardControllerPasteEvent {
+    clipboard: DataTransfer;
+    getAllSelectedCells: () => IGridAddress[];
+    getLastSelectedCells: () => IGridAddress[];
+}
+
 export interface IKeyboardControllerProps extends IControllerProps {
     onNullify: (cells: IGridAddress[]) => void;
     onRemove: (props: IKeyboardControllerRemoveEvent) => void;
     onSpace: (cells: IGridAddress[]) => void;
     onCopy: (cells: IGridAddress[], withHeaders: boolean) => void;
-    onPaste: (clipboard: DataTransfer) => void;
+    onPaste: (event: IKeyboardControllerPasteEvent) => void;
 }
 
 export class KeyboardController extends Controller {
@@ -628,6 +634,27 @@ export class KeyboardController extends Controller {
         });
     }
 
+    private _onSelectAll(e: KeyboardEvent<HTMLDivElement>) {
+        e.preventDefault();
+
+        const { cmdKey } = this._getModifiers(e);
+
+        if (!cmdKey) {
+            return;
+        }
+
+        let { rows, columns } = this._state;
+
+        this._props.onUpdateSelection({
+            selection: [{
+                row: 0,
+                column: 0,
+                width: columns - 1,
+                height: rows - 1
+            }]
+        });
+    }
+
     private _onData(e: KeyboardEvent<HTMLDivElement>) {
         const { cmdKey, altKey, shiftKey } = this._getModifiers(e);
 
@@ -686,13 +713,22 @@ export class KeyboardController extends Controller {
     }
 
     protected _paste = (e: ClipboardEvent) => {
-        const { focused, readOnly } = this._props.getState();
+        const { focused, readOnly, selection } = this._props.getState();
 
         if (!focused || readOnly) {
             return;
         }
 
-        this._props.onPaste(e.clipboardData);
+        this._props.onPaste({
+            clipboard: e.clipboardData,
+            getAllSelectedCells: () => {
+                return this._getSelectedCells(selection);
+            },
+            getLastSelectedCells: () => {
+                let { last } = this._splitSelection(selection);
+                return this._getSelectedCells([last]);
+            }
+        });
     }
 
     public keydown(e: KeyboardEvent<HTMLDivElement>) {
@@ -764,6 +800,10 @@ export class KeyboardController extends Controller {
             case 39: // right
             case 40: // down
                 this._onArrows(e);
+                break;
+
+            case 65: // a
+                this._onSelectAll(e);
                 break;
 
             case 8: // backspace

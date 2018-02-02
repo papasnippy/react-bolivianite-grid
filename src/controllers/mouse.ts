@@ -1,5 +1,5 @@
 import { MouseEvent } from 'react';
-import { IGridAddress } from '../types';
+import { IGridAddress, HeaderType } from '../types';
 import { Controller, IControllerProps } from './controller';
 
 export interface IMouseControllerProps extends IControllerProps {
@@ -142,6 +142,36 @@ export class MouseController extends Controller {
 
         this._request();
         this._mouseSelectFromActive(row, column);
+    }
+
+    public headerdown(e: MouseEvent<HTMLElement>, type: HeaderType, first: number, last = first) {
+        e.preventDefault();
+
+        const { editor, rows, columns } = this._request();
+
+        if (editor) {
+            return;
+        }
+
+        let { shiftKey } = this._getModifiers(e);
+
+        if (shiftKey) {
+
+        } else {
+            let active = {
+                row: type === HeaderType.Column ? 0 : first,
+                column: type === HeaderType.Column ? first : 0
+            };
+
+            this._props.onUpdateSelection({
+                active,
+                selection: [{
+                    ...active,
+                    height: type === HeaderType.Column ? rows - 1 : last - first,
+                    width: type === HeaderType.Column ? last - first : columns - 1
+                }]
+            });
+        }
     }
 
     public mousedown(e: MouseEvent<HTMLElement>, row: number, column: number) {
