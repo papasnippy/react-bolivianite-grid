@@ -18,18 +18,18 @@ export class Example extends React.Component<any, any> {
         },
         headers: new Headers({
             columns: Headers.create(
-                new Array(2).fill(null).map(() => new ExcelColumn(
-                    new Array(3).fill(null).map(() => new ExcelColumn(
-                        new Array(2).fill(null).map(() => new ExcelColumn())
+                new Array(5).fill(null).map(() => new ExcelColumn(
+                    new Array(5).fill(null).map(() => new ExcelColumn(
+                        new Array(5).fill(null).map(() => new ExcelColumn())
                     ))
                 ))
             ),
             rows: Headers.create(
-                new Array(3).fill(null).map((_, i) => new ExcelColumn(
-                    i !== 1 ? new Array(3).fill(null).map(() => new ExcelColumn()) : null
+                new Array(10).fill(null).map((_, i) => new ExcelColumn(
+                    i !== 1 ? new Array(20).fill(null).map(() => new ExcelColumn()) : null
                 ))
             ),
-            columnWidth: 70,
+            columnWidth: 100,
             rowHeight: 24,
             headersHeight: 24,
             headersWidth: 50

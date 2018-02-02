@@ -19,7 +19,11 @@
   "author": "Aliaksei Kubiatski <papasnippynpm@gmail.com>",
   "license": "MIT",
   "dependencies": {},
-  "peerDependencies": {},
+  "peerDependencies": {
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "prop-types": "^15.6.0"
+  },
   "devDependencies": {
     "@types/extract-text-webpack-plugin": "^3.0.0",
     "@types/gulp": "^4.0.5",
@@ -27,6 +31,7 @@
     "@types/gulp-typescript": "^2.13.0",
     "@types/html-webpack-plugin": "^2.28.0",
     "@types/node": "9.4.0",
+    "@types/prop-types": "^15.5.2",
     "@types/react": "^16.0.20",
     "@types/react-dom": "^16.0.2",
     "@types/webpack": "^3.0.14",
@@ -42,6 +47,7 @@
     "postcss-each": "^0.10.0",
     "postcss-loader": "^2.0.8",
     "postcss-mixins": "^6.2.0",
+    "prop-types": "^15.6.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "resolve-url-loader": "^2.2.0",
