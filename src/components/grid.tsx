@@ -33,6 +33,13 @@ export interface ICellEditorEvent extends ICellRendererEvent {
     update: (nextValue: any) => void;
 }
 
+export interface IResizerRenderEvent {
+    type: 'level' | 'header';
+    orientation: 'horizontal' | 'vertical';
+    resizer: 'initial' | 'changed';
+    style: React.CSSProperties;
+}
+
 export interface IHeaderRendererEvent {
     type: HeaderType;
     selection: boolean;
@@ -131,6 +138,9 @@ export interface IGridProps {
     /** Editor renderer. Optional. */
     onRenderEditor?: (e: ICellEditorEvent) => JSX.Element;
 
+    /** Resizer renderer. Optional. */
+    onRenderResizer?: (e: IResizerRenderEvent) => JSX.Element;
+
     /** Invoked with all selected cells when `SPACE` key is pressed. Usefull for checkbox cells. */
     onSpace?: (e: IGridSpaceEvent) => void;
 
@@ -213,15 +223,11 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             height: 0
         }] as IGridSelection[],
         resizeHeaderPreview: null as {
-            type: HeaderType;
             header: Header;
-            size: number;
             change: number;
         },
         resizeLevelPreview: null as {
-            type: HeaderType;
-            level: number;
-            size: number;
+            header: Header;
             change: number;
         }
     };
@@ -737,7 +743,87 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         );
     }
 
-    private _renderHeaderContainers = ({ clientWidth, clientHeight, scrollLeft, scrollTop }: IScrollViewUpdateEvent) => {
+    private _renderResizing({ scrollLeft, scrollTop }: IScrollViewUpdateEvent) {
+        if (!this.props.onRenderResizer || !this.state.resizeHeaderPreview && !this.state.resizeLevelPreview) {
+            return null;
+        }
+
+        let type: 'level' | 'header';
+        let orientation: 'horizontal' | 'vertical';
+
+        let styleInitial = {
+            position: 'absolute',
+            pointerEvents: 'none'
+        } as React.CSSProperties;
+
+        let styleChanged = {
+            position: 'absolute',
+            pointerEvents: 'none'
+        } as React.CSSProperties;
+
+        if (this.state.resizeHeaderPreview) {
+            type = 'header';
+
+            let { change, header } = this.state.resizeHeaderPreview;
+
+            if (header._type === HeaderType.Row) {
+                orientation = 'horizontal';
+                styleChanged.left = styleInitial.left = 0;
+                styleChanged.right = styleInitial.right = 0;
+                styleChanged.top = styleInitial.top = this.props.refHeaders.headersHeight + header._position - scrollTop;
+                styleInitial.height = header.size;
+                styleChanged.height = header.size + change;
+            } else {
+                orientation = 'vertical';
+                styleChanged.top = styleInitial.top = 0;
+                styleChanged.bottom = styleInitial.bottom = 0;
+                styleChanged.left = styleInitial.left = this.props.refHeaders.headersWidth + header._position - scrollLeft;
+                styleInitial.width = header.size;
+                styleChanged.width = header.size + change;
+            }
+        }
+
+        if (this.state.resizeLevelPreview) {
+            type = 'level';
+
+            let { change, header } = this.state.resizeLevelPreview;
+            let level = header._level;
+
+            if (header._type === HeaderType.Row) { // resizing left level
+                orientation = 'vertical';
+                let position = this.props.refHeaders.getLeftLevelPosition(level);
+                let size = this.props.refHeaders.getLeftLevelWidth(level);
+                styleChanged.top = styleInitial.top = 0;
+                styleChanged.bottom = styleInitial.bottom = 0;
+                styleChanged.left = styleInitial.left = position - scrollLeft;
+                styleInitial.width = size;
+                styleChanged.width = size + change;
+            } else { // resizing top level
+                orientation = 'horizontal';
+                let position = this.props.refHeaders.getTopLevelPosition(level);
+                let size = this.props.refHeaders.getTopLevelHeight(level);
+                styleChanged.left = styleInitial.left = 0;
+                styleChanged.right = styleInitial.right = 0;
+                styleChanged.top = styleInitial.top = position - scrollTop;
+                styleInitial.height = size;
+                styleChanged.height = size + change;
+            }
+        }
+
+        if (this.state.resizeHeaderPreview || this.state.resizeLevelPreview) {
+            return (
+                <>
+                    {this.props.onRenderResizer({ type, orientation, style: styleInitial, resizer: 'initial' })}
+                    {this.props.onRenderResizer({ type, orientation, style: styleChanged, resizer: 'changed' })}
+                </>
+            );
+        }
+
+        return null;
+    }
+
+    private _renderHeaderContainers = (event: IScrollViewUpdateEvent) => {
+        const { clientWidth, clientHeight, scrollLeft, scrollTop } = event;
         const cnColumns = [
             Style.headerMount,
             Style.headerColumns,
@@ -805,6 +891,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                     >
                     </div>
                 }
+                {this._renderResizing(event)}
             </div>
         );
     }
@@ -965,18 +1052,14 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
 
     public previewResizeHeader(resizeHeaderPreview: {
-        type: HeaderType;
         header: Header;
-        size: number;
         change: number;
     }) {
         this.setState({ resizeHeaderPreview });
     }
 
     public previewResizeLevel(resizeLevelPreview: {
-        type: HeaderType;
-        level: number;
-        size: number;
+        header: Header;
         change: number;
     }) {
         this.setState({ resizeLevelPreview });

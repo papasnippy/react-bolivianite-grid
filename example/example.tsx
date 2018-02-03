@@ -185,24 +185,43 @@ export class Example extends React.Component<any, any> {
                             this.setState({
                                 data: {
                                     ...this.state.data,
-                                    [key]: Math.min(200, Math.max(value, 24))
+                                    [key]: value
                                 }
                             });
                         }}
                         onHeaderResize={({ header, size }) => {
-                            size = Math.max(size, 24);
-                            header.updateSize(size, s => Math.min(200, Math.max(s, 24)));
+                            let min = header.type === HeaderType.Column ? 50 : 24;
+                            let getSize = (s: number) => Math.max(s, min);
+
+                            if (size === null) {
+                                size = header.getLeafCount() * (header.type === HeaderType.Column ? 100 : 24);
+                            }
+
+                            header.updateSize(getSize(size), getSize);
+
                             let headers = this.state.headers.update();
                             this.setState({ headers });
                         }}
                         onHeaderLevelResize={({ level, size, type }) => {
+                            let min = type === HeaderType.Column ? 25 : 50;
+
+                            if (size === null) {
+                                size = type === HeaderType.Column ? 25 : 50;
+                            }
+
                             let headers = this.state.headers.update({
                                 [type === HeaderType.Row ? 'leftLevels' : 'topLevels']: {
-                                    [level]: size
+                                    [level]: Math.max(size, min)
                                 }
                             });
 
                             this.setState({ headers });
+                        }}
+                        onRenderResizer={({ style }) => {
+                            style.background = `rgba(0, 0, 0, 0.4)`;
+                            return (
+                                <div style={style} />
+                            );
                         }}
                     />
                 </div>

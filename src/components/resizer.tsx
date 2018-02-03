@@ -37,6 +37,11 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
         type: 'left-level' | 'top-level' | 'row' | 'column';
     } = null;
 
+    private _lastClick: {
+        type: 'left-level' | 'top-level' | 'row' | 'column';
+        time: number;
+    };
+
     private _moveListener: any = null;
     private _upListener: any = null;
 
@@ -62,11 +67,7 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
         this._moving = null;
     }
 
-    private _onMove(_change: number) {
-
-    }
-
-    private _onChange(change: number) {
+    private _onMove(change: number) {
         if (!this._moving) {
             return;
         }
@@ -77,10 +78,32 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
         switch (type) {
             case 'column':
             case 'row':
+                this._grid.previewResizeHeader({
+                    header: header,
+                    change: change,
+                });
+                break;
+
+            case 'left-level':
+            case 'top-level':
+                this._grid.previewResizeLevel({
+                    header: header,
+                    change: change,
+                });
+                break;
+        }
+    }
+
+    private _change(type: 'left-level' | 'top-level' | 'row' | 'column', change: number) {
+        let { header } = this.props;
+
+        switch (type) {
+            case 'column':
+            case 'row':
                 this._grid.resizeHeader({
                     type: type === 'row' ? HeaderType.Row : HeaderType.Column,
                     header: header,
-                    size: header.size + change
+                    size: change === null ? null : (header.size + change)
                 });
                 break;
 
@@ -94,10 +117,19 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
                 this._grid.resizeLevel({
                     type: type === 'left-level' ? HeaderType.Row : HeaderType.Column,
                     level: header._level,
-                    size: start + change
+                    size: change === null ? null : (start + change)
                 });
                 break;
         }
+    }
+
+    private _onChange(change: number) {
+        if (!this._moving) {
+            return;
+        }
+
+        let { type } = this._moving;
+        this._change(type, change);
     }
 
     private _onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -110,23 +142,41 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
 
         this._unbind();
 
+        let now = Date.now();
+        let movingType = (
+            type === 'r'
+                ? isRow
+                    ? 'left-level'
+                    : 'column'
+                : isRow
+                    ? 'row'
+                    : 'top-level'
+        );
+
+        if (this._lastClick && this._lastClick.type === movingType && (now - this._lastClick.time < 500)) {
+            this._change(movingType, null);
+            this._grid.previewResizeHeader(null);
+            this._grid.previewResizeLevel(null);
+            this._unbind();
+            return;
+        }
+
         this._moving = {
-            type: (
-                type === 'r'
-                    ? isRow
-                        ? 'left-level'
-                        : 'column'
-                    : isRow
-                        ? 'row'
-                        : 'top-level'
-            ),
+            type: movingType as any,
             start: p
+        };
+
+        this._lastClick = {
+            type: movingType as any,
+            time: now
         };
 
         let change = 0;
 
         window.addEventListener('mouseup', this._upListener = () => {
             this._onChange(change);
+            this._grid.previewResizeHeader(null);
+            this._grid.previewResizeLevel(null);
             this._unbind();
         });
 
@@ -148,16 +198,16 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
     public render() {
         return (
             <>
-                <div
-                    x-type='r'
-                    style={Resizer._r}
-                    onMouseDown={this._onMouseDown}
-                />
-                <div
-                    x-type='b'
-                    style={Resizer._b}
-                    onMouseDown={this._onMouseDown}
-                />
+            <div
+                x-type='r'
+                style={Resizer._r}
+                onMouseDown={this._onMouseDown}
+            />
+            <div
+                x-type='b'
+                style={Resizer._b}
+                onMouseDown={this._onMouseDown}
+            />
             </>
         );
     }

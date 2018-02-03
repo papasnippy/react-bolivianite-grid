@@ -51,6 +51,10 @@ export class Header {
         return Header._getIndices(this.children);
     }
 
+    get type() {
+        return this._type;
+    }
+
     /** Used by Grid component. */
     _updateLevel() {
         let level = 0;
@@ -78,6 +82,14 @@ export class Header {
             size: this.size,
             index: this._index
         };
+    }
+
+    public getLeafCount(): number {
+        if (!this.children || !this.children.length) {
+            return 1;
+        }
+
+        return this.children.reduce((p, c) => p + c.getLeafCount(), 0);
     }
 
     public updateSize(size: number, clamp?: (size: number) => number) {

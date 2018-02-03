@@ -7,7 +7,7 @@ interface EditorProps {
 
 export class Editor extends React.PureComponent<EditorProps, any> {
     state = {
-        value: this.props.initialValue
+        value: this.props.initialValue == null ? '' : this.props.initialValue
     };
 
     private _ref: HTMLInputElement;
