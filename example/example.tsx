@@ -205,10 +205,6 @@ export class Example extends React.Component<any, any> {
                         onHeaderLevelResize={({ level, size, type }) => {
                             let min = type === HeaderType.Column ? 25 : 50;
 
-                            if (size === null) {
-                                size = type === HeaderType.Column ? 25 : 50;
-                            }
-
                             let headers = this.state.headers.update({
                                 [type === HeaderType.Row ? 'leftLevels' : 'topLevels']: {
                                     [level]: Math.max(size, min)

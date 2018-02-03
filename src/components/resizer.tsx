@@ -44,6 +44,7 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
 
     private _moveListener: any = null;
     private _upListener: any = null;
+    private _escListener: any = null;
 
     private get _grid() {
         return this.context['grid'] as Grid;
@@ -54,6 +55,11 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
     }
 
     private _unbind() {
+        if (this._moving) {
+            this._grid.previewResizeHeader(null);
+            this._grid.previewResizeLevel(null);
+        }
+
         if (this._moveListener) {
             document.body.removeEventListener('mousemove', this._moveListener);
             this._moveListener = null;
@@ -62,6 +68,11 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
         if (this._upListener) {
             window.removeEventListener('mouseup', this._upListener);
             this._upListener = null;
+        }
+
+        if (this._escListener) {
+            window.removeEventListener('keydown', this._escListener);
+            this._escListener = null;
         }
 
         this._moving = null;
@@ -94,7 +105,12 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
         }
     }
 
-    private _change(type: 'left-level' | 'top-level' | 'row' | 'column', change: number) {
+    private _onChange(change: number) {
+        if (!this._moving) {
+            return;
+        }
+
+        let { type } = this._moving;
         let { header } = this.props;
 
         switch (type) {
@@ -103,7 +119,7 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
                 this._grid.resizeHeader({
                     type: type === 'row' ? HeaderType.Row : HeaderType.Column,
                     header: header,
-                    size: change === null ? null : (header.size + change)
+                    size: header.size + change
                 });
                 break;
 
@@ -117,24 +133,18 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
                 this._grid.resizeLevel({
                     type: type === 'left-level' ? HeaderType.Row : HeaderType.Column,
                     level: header._level,
-                    size: change === null ? null : (start + change)
+                    size: start + change
                 });
                 break;
         }
     }
 
-    private _onChange(change: number) {
-        if (!this._moving) {
-            return;
-        }
-
-        let { type } = this._moving;
-        this._change(type, change);
-    }
-
     private _onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
         e.preventDefault();
-        e.stopPropagation();
+
+        if (e.button !== 0) {
+            return;
+        }
 
         let type = e.currentTarget.getAttribute('x-type') as ('r' | 'b');
         let p = type === 'r' ? e.pageX : e.pageY;
@@ -154,7 +164,7 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
         );
 
         if (this._lastClick && this._lastClick.type === movingType && (now - this._lastClick.time < 500)) {
-            this._change(movingType, null);
+            // TODO: call autosize for column
             this._grid.previewResizeHeader(null);
             this._grid.previewResizeLevel(null);
             this._unbind();
@@ -180,6 +190,12 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
             this._unbind();
         });
 
+        window.addEventListener('keydown', this._escListener = (ev: KeyboardEvent) => {
+            if (ev.keyCode === 27) { // esc
+                this._unbind();
+            }
+        });
+
         document.body.addEventListener('mousemove', this._moveListener = (ev: MouseEvent) => {
             if (!this._moving) {
                 return;
@@ -198,16 +214,16 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
     public render() {
         return (
             <>
-            <div
-                x-type='r'
-                style={Resizer._r}
-                onMouseDown={this._onMouseDown}
-            />
-            <div
-                x-type='b'
-                style={Resizer._b}
-                onMouseDown={this._onMouseDown}
-            />
+                <div
+                    x-type='r'
+                    style={Resizer._r}
+                    onMouseDown={this._onMouseDown}
+                />
+                <div
+                    x-type='b'
+                    style={Resizer._b}
+                    onMouseDown={this._onMouseDown}
+                />
             </>
         );
     }

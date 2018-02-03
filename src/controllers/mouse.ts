@@ -7,7 +7,6 @@ export interface IMouseControllerProps extends IControllerProps {
 }
 
 export class MouseController extends Controller {
-    protected _blockContextMenu = false;
     protected _lastMouseDown = {
         time: 0,
         row: -1,
@@ -19,17 +18,10 @@ export class MouseController extends Controller {
     } = null;
     protected _scrollBySelect: { h: 'L' | 'R', v: 'T' | 'B' } = null;
     protected _scrollTask: any = null;
-    protected _onContextMenuListener: any = null;
 
     constructor(protected _props: IMouseControllerProps) {
         super(_props);
         window.addEventListener('mouseup', this._mouseup);
-        document.body.addEventListener('contextmenu', this._onContextMenuListener = (e: any) => {
-            if (this._blockContextMenu) {
-                this._blockContextMenu = false;
-                e.preventDefault();
-            }
-        });
     }
 
     protected _mouseSelectFromActive(row: number, column: number) {
@@ -145,7 +137,15 @@ export class MouseController extends Controller {
     }
 
     public headerdown(e: MouseEvent<HTMLElement>, type: HeaderType, first: number, last = first) {
+        if (e.defaultPrevented) {
+            return;
+        }
+
         e.preventDefault();
+
+        if (e.button !== 0) {
+            return;
+        }
 
         const { editor, rows, columns } = this._request();
 
@@ -182,10 +182,6 @@ export class MouseController extends Controller {
 
         if (!clickInEditor && e.button !== 1) {
             e.preventDefault();
-        }
-
-        if (e.button === 2) {
-            this._blockContextMenu = true;
         }
 
         if (editor && !clickInEditor && e.button !== 1) {
@@ -251,6 +247,5 @@ export class MouseController extends Controller {
     public dispose() {
         this.rootenter();
         window.removeEventListener('mouseup', this._mouseup);
-        document.body.removeEventListener('contextmenu', this._onContextMenuListener);
     }
 }

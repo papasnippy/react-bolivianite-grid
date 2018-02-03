@@ -1,3 +1,4 @@
+/*
 import * as React from 'react';
 
 export class SizeView extends React.Component<React.HTMLProps<HTMLDivElement>, any> {
@@ -54,3 +55,4 @@ export class SizeView extends React.Component<React.HTMLProps<HTMLDivElement>, a
 }
 
 export default SizeView;
+*/

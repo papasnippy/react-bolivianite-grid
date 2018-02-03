@@ -59,6 +59,11 @@ export interface IGridSpaceEvent {
     cells: IGridAddress[];
 }
 
+export interface IGridHeaderRightClickEvent {
+    header: Header;
+    event: React.MouseEvent<HTMLElement>;
+}
+
 export interface IGridRemoveEvent extends IKeyboardControllerRemoveEvent { }
 
 export interface IGridNullifyEvent extends IGridSpaceEvent { }
@@ -159,6 +164,9 @@ export interface IGridProps {
     /** Invoked on cell right click. */
     onRightClick?: (e: IGridAddress) => void;
 
+    /** Invoked on cell right click. */
+    onHeaderRightClick?: (e: IGridHeaderRightClickEvent) => void;
+
     /** Invoked on editor close when value was changed. */
     onUpdate?: (e: IGridUpdateEvent) => void;
 
@@ -187,6 +195,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         crnHeaders: Shallow<React.CSSProperties>()
     };
 
+    private _blockContextMenu = false;
+    private _onContextMenuListener: any = null;
     private _scrollSize = 15;
     private _rt = new RenderThrottler();
     private _scrollUpdateTrottled = this._rt.create();
@@ -408,6 +418,14 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             return;
         }
 
+        if (this.props.onHeaderRightClick) {
+            this.props.onHeaderRightClick({ header: h, event: e });
+
+            if (e.defaultPrevented) {
+                return;
+            }
+        }
+
         let { indices } = h;
 
         if (!indices.length) {
@@ -436,6 +454,12 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
     private _onRootMouseEnter = () => {
         this._msCtr.rootenter();
+    }
+
+    private _onRootMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.button === 2) {
+            this._blockContextMenu = true;
+        }
     }
 
     private _createView() {
@@ -1066,7 +1090,12 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
 
     public componentDidMount() {
-        // this.forceUpdate();
+        document.body.addEventListener('contextmenu', this._onContextMenuListener = (e: any) => {
+            if (this._blockContextMenu) {
+                this._blockContextMenu = false;
+                e.preventDefault();
+            }
+        });
     }
 
     public componentDidUpdate() {
@@ -1074,6 +1103,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
 
     public componentWillUnmount() {
+        document.body.removeEventListener('contextmenu', this._onContextMenuListener);
         this._kbCtr.dispose();
         this._msCtr.dispose();
     }
@@ -1100,6 +1130,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 onKeyDown={this._onKeyDown}
                 onMouseLeave={this._onRootMouseLeave}
                 onMouseEnter={this._onRootMouseEnter}
+                onMouseDown={this._onRootMouseDown}
             >
                 <ScrollView
                     ref={this._onRefView}
