@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import { Header, Headers } from '../models';
+import { Header, HeadersContainer } from '../models';
 import { Grid } from '../components/grid';
 import { HeaderType } from '../types';
 
@@ -51,7 +51,7 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
     }
 
     private get _model() {
-        return this.context['headers'] as Headers;
+        return this.context['headers'] as HeadersContainer;
     }
 
     private _unbind() {

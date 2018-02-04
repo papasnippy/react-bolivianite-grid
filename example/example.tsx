@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Grid, Resizer, Headers, HeaderType } from '../src';
+import { Grid, Resizer, HeadersContainer, HeaderType } from '../src';
 import Editor from './editor';
 import ExcelColumn from './header';
 
@@ -16,17 +16,17 @@ export class Example extends React.Component<any, any> {
         data: {} as {
             [key: string]: string;
         },
-        headers: new Headers({
-            columns: Headers.create(
-                new Array(5).fill(null).map(() => new ExcelColumn(
-                    new Array(5).fill(null).map(() => new ExcelColumn(
-                        new Array(5).fill(null).map(() => new ExcelColumn())
+        headers: new HeadersContainer({
+            columns: HeadersContainer.create(
+                new Array(2).fill(null).map(() => new ExcelColumn(
+                    new Array(2).fill(null).map(() => new ExcelColumn(
+                        new Array(2).fill(null).map(() => new ExcelColumn())
                     ))
                 ))
             ),
-            rows: Headers.create(
-                new Array(10).fill(null).map((_, i) => new ExcelColumn(
-                    i !== 1 ? new Array(20).fill(null).map(() => new ExcelColumn()) : null
+            rows: HeadersContainer.create(
+                new Array(3).fill(null).map((_, i) => new ExcelColumn(
+                    i !== 1 ? new Array(3).fill(null).map(() => new ExcelColumn()) : null
                 ))
             ),
             columnWidth: 100,
@@ -61,7 +61,7 @@ export class Example extends React.Component<any, any> {
                     }}
                 >
                     <Grid
-                        refHeaders={this.state.headers}
+                        headersContainer={this.state.headers}
                         overscanRows={3}
                         source={this.state.data}
                         styles={{
@@ -191,13 +191,7 @@ export class Example extends React.Component<any, any> {
                         }}
                         onHeaderResize={({ header, size }) => {
                             let min = header.type === HeaderType.Column ? 50 : 24;
-                            let getSize = (s: number) => Math.max(s, min);
-
-                            if (size === null) {
-                                size = header.getLeafCount() * (header.type === HeaderType.Column ? 100 : 24);
-                            }
-
-                            header.updateSize(getSize(size), getSize);
+                            header.updateSize(size, s => Math.max(s, min));
 
                             let headers = this.state.headers.update();
                             this.setState({ headers });

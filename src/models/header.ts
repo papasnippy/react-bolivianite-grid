@@ -23,7 +23,7 @@ export class Header {
     /** Header level. Assigned by Grid component. Do not change. */
     _level = 0;
     /** Header view index. Assigned by Grid component. Do not change. Use `index` getter.*/
-    _index = 0;
+    _index = -1;
     /** Header type. Assigned by Grid component. Do not change. */
     _type: HeaderType = null;
 
@@ -53,6 +53,16 @@ export class Header {
 
     get type() {
         return this._type;
+    }
+
+    public getLeafs(out: Header[] = []) {
+        if (!this.children || !this.children.length) {
+            out.push(this);
+            return out;
+        }
+
+        this.children.forEach(c => c.getLeafs(out));
+        return out;
     }
 
     /** Used by Grid component. */
@@ -94,7 +104,7 @@ export class Header {
 
     public updateSize(size: number, clamp?: (size: number) => number) {
         if (size <= 0) {
-            return;
+            size = 5;
         }
 
         if ((!this.children || !this.children.length) && clamp) {
@@ -108,11 +118,24 @@ export class Header {
             return;
         }
 
-        this.children.forEach((c) => {
-            c.updateSize(Math.floor(c.size * this.size / prevSize), clamp);
-        });
+        let leafs = this.getLeafs();
 
-        this.size = this.children.reduce((n, c) => c.size + n, 0);
+        let d = 0;
+
+        if (clamp) {
+            leafs.forEach((c) => {
+                let n = Math.floor(c.size * this.size / prevSize);
+                let m = clamp(n - d);
+
+                if (n < m) {
+                    d += m - n;
+                }
+            });
+        }
+
+        leafs.forEach((c) => {
+            c.updateSize(Math.floor(c.size * this.size / prevSize) - d, clamp);
+        });
     }
 }
 

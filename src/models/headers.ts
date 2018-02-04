@@ -17,7 +17,7 @@ export interface IHeadersProps {
     topLevels?: { [level: number]: number };
 }
 
-export class Headers {
+export class HeadersContainer {
     private static _create<T extends Header>(list: T[], out: T[], cmp?: (h: T) => boolean) {
         list.forEach((h) => {
             if (cmp && !cmp(h)) {
@@ -25,7 +25,7 @@ export class Headers {
             }
 
             if ((h.children && h.children.length)) {
-                Headers._create(h.children, out, cmp);
+                HeadersContainer._create(h.children, out, cmp);
                 return;
             }
 
@@ -41,7 +41,7 @@ export class Headers {
      * Returns list of last leaves of provided tree.
      */
     static create<T extends Header>(list: T[], compare?: (h: T) => boolean) {
-        return Headers._create(list, [], compare);
+        return HeadersContainer._create(list, [], compare);
     }
 
     private static _defaultIdCounter = 0;
@@ -78,13 +78,13 @@ export class Headers {
         this._topLevelSizes = { ...(topLevels || {}) };
 
         if (typeof columns === 'number') {
-            this._columns = new Array(columns).fill(null).map(() => new Header(Headers._defaultIdCounter++, columnWidth));
+            this._columns = new Array(columns).fill(null).map(() => new Header(HeadersContainer._defaultIdCounter++, columnWidth));
         } else {
             this._columns = columns;
         }
 
         if (typeof rows === 'number') {
-            this._rows = new Array(rows).fill(null).map(() => new Header(Headers._defaultIdCounter++, rowHeight));
+            this._rows = new Array(rows).fill(null).map(() => new Header(HeadersContainer._defaultIdCounter++, rowHeight));
         } else {
             this._rows = rows;
         }
@@ -160,6 +160,7 @@ export class Headers {
                 h.size = size;
             }
 
+            h._index = (h.children && h.children[0]) ? -1 : i;
             h._position = cursor;
             cursor += h.size;
 
@@ -246,7 +247,7 @@ export class Headers {
         leftLevels?: { [level: number]: number; },
         topLevels?: { [level: number]: number; }
     } = {}) {
-        let h = new Headers({
+        let h = new HeadersContainer({
             ...this._props,
             rows: rows || this._rows,
             columns: columns || this._columns,
