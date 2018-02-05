@@ -1,11 +1,11 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import { Header, HeadersContainer } from '../models';
+import { HeadersContainer, IHeader } from '../models';
 import { Grid } from '../components/grid';
 import { HeaderType } from '../types';
 
 export interface IResizerProps {
-    header: Header;
+    header: IHeader;
 }
 
 export class Resizer extends React.PureComponent<IResizerProps, any> {
@@ -127,12 +127,12 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
             case 'top-level':
                 let start = (
                     type === 'left-level'
-                        ? this._model.getLeftLevelWidth(header._level)
-                        : this._model.getTopLevelHeight(header._level)
+                        ? this._model.getLeftLevelWidth(header.level)
+                        : this._model.getTopLevelHeight(header.level)
                 );
                 this._grid.resizeLevel({
                     type: type === 'left-level' ? HeaderType.Row : HeaderType.Column,
-                    level: header._level,
+                    level: header.level,
                     size: start + change
                 });
                 break;
@@ -148,7 +148,7 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
 
         let type = e.currentTarget.getAttribute('x-type') as ('r' | 'b');
         let p = type === 'r' ? e.pageX : e.pageY;
-        let isRow = this.props.header._type === HeaderType.Row;
+        let isRow = this.props.header.type === HeaderType.Row;
 
         this._unbind();
 

@@ -1,0 +1,20 @@
+Roadmap:
+    * main
+        - redux test for header container
+        - headers multiple update
+        - headers multiple resize
+        - autosizing
+            - by scroll end
+            - by resizer doubleclick
+        - split grid into separate components for rendering optimization
+        - scrollbar customization
+        - copy paste example
+        - license
+        - build
+        - documentation
+        - package release
+    * likely
+        - headers selection by down and move
+        - total headers (bottom and right)
+    * not likely
+        - fixed rows and columns

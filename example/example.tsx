@@ -1,15 +1,6 @@
 import * as React from 'react';
 import { Grid, Resizer, HeadersContainer, HeaderType } from '../src';
 import Editor from './editor';
-import ExcelColumn from './header';
-
-/*
-Headers.create(
-    new Array(3).fill(null).map(() => new ExcelColumn(
-        new Array(3).fill(null).map(() => new ExcelColumn())
-    ))
-);
-*/
 
 export class Example extends React.Component<any, any> {
     state = {
@@ -17,24 +8,129 @@ export class Example extends React.Component<any, any> {
             [key: string]: string;
         },
         headers: new HeadersContainer({
-            columns: HeadersContainer.create(
-                new Array(2).fill(null).map(() => new ExcelColumn(
-                    new Array(2).fill(null).map(() => new ExcelColumn(
-                        new Array(2).fill(null).map(() => new ExcelColumn())
-                    ))
-                ))
-            ),
-            rows: HeadersContainer.create(
-                new Array(3).fill(null).map((_, i) => new ExcelColumn(
-                    i !== 1 ? new Array(3).fill(null).map(() => new ExcelColumn()) : null
-                ))
-            ),
+            columns: [
+                {
+                    children: [
+                        {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }, {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }, {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    children: [
+                        {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }, {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }, {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    children: [
+                        {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }, {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }, {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }
+                    ]
+                }
+            ],
+            rows: [
+                {
+                    children: [
+                        {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }, {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }, {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    children: [
+                        {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }, {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }, {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    children: [
+                        {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }, {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }, {
+                            children: [
+                                {}, {}, {}
+                            ]
+                        }
+                    ]
+                }
+            ],
             columnWidth: 100,
             rowHeight: 24,
             headersHeight: 24,
             headersWidth: 50
         })
     };
+
+    public excelIndex(index: number) {
+        index++;
+        let c = '';
+
+        for (let a = 1, b = 26; (index -= a) >= 0; a = b, b *= 26) {
+            c = String.fromCharCode(~~((index % b) / a) + 65) + c;
+        }
+
+        return c;
+    }
 
     public render() {
         return (
@@ -61,7 +157,7 @@ export class Example extends React.Component<any, any> {
                     }}
                 >
                     <Grid
-                        headersContainer={this.state.headers}
+                        headers={this.state.headers}
                         overscanRows={3}
                         source={this.state.data}
                         styles={{
@@ -132,8 +228,6 @@ export class Example extends React.Component<any, any> {
                                 alignItems: 'center'
                             };
 
-                            let h = header as ExcelColumn;
-
                             if (selection) {
                                 nextStyle.backgroundColor = `rgba(0, 0, 0, 0.1)`;
                             }
@@ -144,7 +238,11 @@ export class Example extends React.Component<any, any> {
 
                             return (
                                 <div style={nextStyle}>
-                                    {type === HeaderType.Row && header.index !== -1 ? header.index : h.print(h.id as number)}
+                                    {
+                                        header.type === HeaderType.Column && header.index != null
+                                            ? this.excelIndex(header.index)
+                                            : header.index
+                                    }
                                     <Resizer header={header} />
                                 </div>
                             );
@@ -190,22 +288,18 @@ export class Example extends React.Component<any, any> {
                             });
                         }}
                         onHeaderResize={({ header, size }) => {
-                            let min = header.type === HeaderType.Column ? 50 : 24;
-                            header.updateSize(size, s => Math.max(s, min));
+                            let headers = this.state.headers.resizeHeader(header, size, header._type === HeaderType.Column ? 50 : 24);
 
-                            let headers = this.state.headers.update();
-                            this.setState({ headers });
-                        }}
-                        onHeaderLevelResize={({ level, size, type }) => {
-                            let min = type === HeaderType.Column ? 25 : 50;
-
-                            let headers = this.state.headers.update({
-                                [type === HeaderType.Row ? 'leftLevels' : 'topLevels']: {
-                                    [level]: Math.max(size, min)
-                                }
+                            this.setState({
+                                headers
                             });
+                        }}
+                        onHeaderLevelResize={({ type, level, size }) => {
+                            let headers = this.state.headers.resizeLevel(type, level, size, type === HeaderType.Column ? 25 : 50);
 
-                            this.setState({ headers });
+                            this.setState({
+                                headers
+                            });
                         }}
                         onRenderResizer={({ style }) => {
                             style.background = `rgba(0, 0, 0, 0.4)`;
