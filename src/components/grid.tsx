@@ -1129,7 +1129,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                     ref={this._onRefView}
                     size={this._scrollSize}
                     onUpdate={this._onScrollViewUpdate}
-                    backgroundColor='rgba(0, 0, 0, 0.3)'
+                    backgroundColor="rgba(0, 0, 0, 0.3)"
                     scrollerProps={this._scrollerProps}
                     afterContent={this._renderHeaderContainers}
                 >

@@ -215,12 +215,12 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
         return (
             <>
                 <div
-                    x-type='r'
+                    x-type="r"
                     style={Resizer._r}
                     onMouseDown={this._onMouseDown}
                 />
                 <div
-                    x-type='b'
+                    x-type="b"
                     style={Resizer._b}
                     onMouseDown={this._onMouseDown}
                 />
