@@ -1,6 +1,5 @@
 Roadmap:
     * main
-        - provide to events header type, index, parent and position
         - autosizing
             - by scroll end
             - by resizer doubleclick

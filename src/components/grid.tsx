@@ -46,6 +46,8 @@ export interface IHeaderRendererEvent {
     style: React.CSSProperties;
     header: IHeader;
     parent: boolean;
+    viewIndex: number;
+    parentHeader: IHeader;
 }
 
 export interface ISelectionRendererEvent {
@@ -723,9 +725,13 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             }
         }
 
+        let headerParent = this.props.headers.getParent(header);
+
         let cell = this.props.onRenderHeader({
             type, header, style, parent,
-            selection: parent ? false : selection
+            selection: parent ? false : selection,
+            parentHeader: headerParent,
+            viewIndex: this.props.headers.getViewIndex(header)
         });
 
         out.push(React.cloneElement(React.Children.only(cell), {
@@ -735,7 +741,6 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             onMouseDown: this._onMouseDownHeader
         }));
 
-        let headerParent = this.props.headers.getParent(header);
         if (headerParent) {
             this._renderHeader(out, type, index, headerParent, scrollPos, lock, true);
         }

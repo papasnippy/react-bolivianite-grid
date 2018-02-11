@@ -186,7 +186,7 @@ export class Example extends React.Component<any, any> {
                                 </div>
                             );
                         }}
-                        onRenderHeader={({ style, type, selection, header }) => {
+                        onRenderHeader={({ style, type, selection, header, viewIndex }) => {
                             let nextStyle: React.CSSProperties = {
                                 ...style,
                                 boxSizing: 'border-box',
@@ -205,12 +205,10 @@ export class Example extends React.Component<any, any> {
                                 nextStyle.justifyContent = 'flex-end';
                             }
 
-                            let headerType = state.headers.getHeaderType(header);
-                            let viewIndex = state.headers.getViewIndex(header);
                             return (
                                 <div style={nextStyle}>
                                     {
-                                        headerType === HeaderType.Column && viewIndex != null
+                                        type === HeaderType.Column && viewIndex != null
                                             ? this.excelIndex(viewIndex)
                                             : viewIndex
                                     }
@@ -258,19 +256,14 @@ export class Example extends React.Component<any, any> {
                                 }
                             });
                         }}
-                        onHeaderResize={({ header, size }) => {
-                            let headerType = state.headers.getHeaderType(header);
-                            let headers = state.headers.resizeHeaders([{ header, size }], headerType === HeaderType.Column ? 50 : 24);
-
+                        onHeaderResize={({ header, size, type }) => {
                             this._push({
-                                headers
+                                headers: state.headers.resizeHeaders([{ header, size }], type === HeaderType.Column ? 50 : 24)
                             });
                         }}
                         onHeaderLevelResize={({ type, level, size }) => {
-                            let headers = state.headers.resizeLevel(type, level, size, type === HeaderType.Column ? 25 : 50);
-
                             this._push({
-                                headers
+                                headers: state.headers.resizeLevel(type, level, size, type === HeaderType.Column ? 25 : 50)
                             });
                         }}
                         onRenderResizer={({ style }) => {
