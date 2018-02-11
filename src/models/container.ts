@@ -1,6 +1,8 @@
 import { HeaderType } from '../index';
 import { IHeader } from './header';
 
+export type IContainerHeadersFilter = (h: IHeader, type: HeaderType) => boolean;
+
 export interface IContainerProps {
     rows: IHeader[];
     columns: IHeader[];
@@ -10,7 +12,7 @@ export interface IContainerProps {
     headersHeight: number;
     headersWidth: number;
 
-    filter?: (h: IHeader, type: HeaderType) => boolean;
+    filter?: IContainerHeadersFilter;
 }
 
 export interface IContainerState extends IContainerProps {
@@ -20,8 +22,6 @@ export interface IContainerState extends IContainerProps {
     viewTopLevels: number;
     leftLevels: { [level: number]: number };
     topLevels: { [level: number]: number };
-
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     types: { [headerId: string]: HeaderType };
     indices: { [headerId: string]: number };
     positions: { [headerId: string]: number };
@@ -449,6 +449,16 @@ export class HeadersContainer {
             headersWidth: this._state.headersWidth,
             filter: this._state.filter
         } as IContainerProps;
+    }
+
+    public updateFilter(filter: IContainerHeadersFilter) {
+        if (this._state.filter === filter) {
+            return this;
+        }
+
+        let next = this._createClone();
+        next._state.filter = filter;
+        return next._recalcHeaders();
     }
 
     public updateHeaders(updates: { header: IHeader, update: IHeader }[]) {
