@@ -427,7 +427,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         }
 
         let leaves = this.props.headers.getHeaderLeaves(h);
-        let indices = leaves.map(v => v.index);
+        let indices = leaves.map(v => this.props.headers.getViewIndex(v));
 
         if (!indices.length) {
             return;
@@ -475,11 +475,11 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         let rowIndex = 0;
 
         for (let rh of this.props.headers.rows) {
-            if (firstRow === -1 && rowsHeight >= st - rh.size) {
+            if (firstRow === -1 && rowsHeight >= st - rh.$size) {
                 firstRow = rowIndex;
             }
 
-            rowsHeight += rh.size;
+            rowsHeight += rh.$size;
 
             if (lastRow === -1 && rowsHeight >= st + vh + this._scrollSize) {
                 lastRow = rowIndex;
@@ -499,11 +499,11 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         let colIndex = 0;
 
         for (let ch of this.props.headers.columns) {
-            if (firstColumn === -1 && columnsWidth >= sl - ch.size) {
+            if (firstColumn === -1 && columnsWidth >= sl - ch.$size) {
                 firstColumn = colIndex;
             }
 
-            columnsWidth += ch.size;
+            columnsWidth += ch.$size;
 
             if (lastColumn === -1 && columnsWidth >= sl + vw + this._scrollSize) {
                 lastColumn = colIndex;
@@ -519,8 +519,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         let rhLast = this.props.headers.rows[this.props.headers.rows.length - 1];
         let chLast = this.props.headers.columns[this.props.headers.columns.length - 1];
-        rowsHeight = rhLast.position + rhLast.size;
-        columnsWidth = chLast.position + chLast.size;
+        rowsHeight = this.props.headers.getPosition(rhLast) + rhLast.$size;
+        columnsWidth = this.props.headers.getPosition(chLast) + chLast.$size;
 
         this._lastView = { firstRow, lastRow, firstColumn, lastColumn, rowsHeight, columnsWidth };
     }
@@ -563,10 +563,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             active: row === this.state.active.row && col === this.state.active.column,
             source: this.props.source,
             style: {
-                top: rh.position,
-                left: ch.position,
-                height: rh.size,
-                width: ch.size,
+                top: this.props.headers.getPosition(rh),
+                left: this.props.headers.getPosition(ch),
+                height: rh.$size,
+                width: ch.$size,
                 position: 'absolute',
                 zIndex: 1
             }
@@ -670,37 +670,39 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         lock: { [id: string]: boolean },
         parent: boolean
     ) {
-        let { level, id, children } = header;
+        let { $id, $children } = header;
 
-        if (lock[id]) {
+        if (lock[$id]) {
             return;
         }
 
-        lock[id] = true;
+        lock[$id] = true;
 
         let style: React.CSSProperties = {
             position: 'absolute',
             zIndex: 1
         };
 
+        let level = this.props.headers.getLevel(header);
+
         if (type === HeaderType.Row) {
             style.left = this.props.headers.getLeftLevelPosition(level); // 0;
             style.width = this.props.headers.getLeftLevelWidth(level); // headersWidth;
-            style.top = header.position - scrollPos;
-            style.height = header.size;
+            style.top = this.props.headers.getPosition(header) - scrollPos;
+            style.height = header.$size;
 
             let levels = this.props.headers.leftLevels;
-            if (level < (levels - 1) && (!children || !children.length)) {
+            if (level < (levels - 1) && (!$children || !$children.length)) {
                 style.width = this.props.headers.headersWidth - style.left;
             }
         } else {
             style.top = this.props.headers.getTopLevelPosition(level);
             style.height = this.props.headers.getTopLevelHeight(level); // headersHeight;
-            style.left = header.position - scrollPos;
-            style.width = header.size;
+            style.left = this.props.headers.getPosition(header) - scrollPos;
+            style.width = header.$size;
 
             let levels = this.props.headers.topLevels;
-            if (level < (levels - 1) && (!children || !children.length)) {
+            if (level < (levels - 1) && (!$children || !$children.length)) {
                 style.height = this.props.headers.headersHeight - style.top;
             }
         }
@@ -728,13 +730,14 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         out.push(React.cloneElement(React.Children.only(cell), {
             'x-type': type,
-            'x-id': id,
-            key: id,
+            'x-id': $id,
+            key: $id,
             onMouseDown: this._onMouseDownHeader
         }));
 
-        if (header.parent) {
-            this._renderHeader(out, type, index, header.parent, scrollPos, lock, true);
+        let headerParent = this.props.headers.getParent(header);
+        if (headerParent) {
+            this._renderHeader(out, type, index, headerParent, scrollPos, lock, true);
         }
     }
 
@@ -788,21 +791,23 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             type = 'header';
 
             let { change, header } = this.state.resizeHeaderPreview;
+            let headerType = this.props.headers.getHeaderType(header);
+            let headerPosition = this.props.headers.getPosition(header);
 
-            if (header.type === HeaderType.Row) {
+            if (headerType === HeaderType.Row) {
                 orientation = 'horizontal';
                 styleChanged.left = styleInitial.left = 0;
                 styleChanged.right = styleInitial.right = 0;
-                styleChanged.top = styleInitial.top = this.props.headers.headersHeight + header.position - scrollTop;
-                styleInitial.height = header.size;
-                styleChanged.height = header.size + change;
+                styleChanged.top = styleInitial.top = this.props.headers.headersHeight + headerPosition - scrollTop;
+                styleInitial.height = header.$size;
+                styleChanged.height = header.$size + change;
             } else {
                 orientation = 'vertical';
                 styleChanged.top = styleInitial.top = 0;
                 styleChanged.bottom = styleInitial.bottom = 0;
-                styleChanged.left = styleInitial.left = this.props.headers.headersWidth + header.position - scrollLeft;
-                styleInitial.width = header.size;
-                styleChanged.width = header.size + change;
+                styleChanged.left = styleInitial.left = this.props.headers.headersWidth + headerPosition - scrollLeft;
+                styleInitial.width = header.$size;
+                styleChanged.width = header.$size + change;
             }
         }
 
@@ -810,9 +815,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             type = 'level';
 
             let { change, header } = this.state.resizeLevelPreview;
-            let level = header.level;
+            let headerType = this.props.headers.getHeaderType(header);
+            let level = this.props.headers.getLevel(header);
 
-            if (header.type === HeaderType.Row) { // resizing left level
+            if (headerType === HeaderType.Row) { // resizing left level
                 orientation = 'vertical';
                 let position = this.props.headers.getLeftLevelPosition(level);
                 let size = this.props.headers.getLeftLevelWidth(level);
@@ -925,10 +931,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         }
 
         let jsx = this.state.selection.map(({ row, column, width, height }, i) => {
-            let l = this.props.headers.columns[column].position;
-            let t = this.props.headers.rows[row].position;
-            let w = this.props.headers.columns.slice(column, column + width + 1).reduce((r, n) => r + n.size, 0);
-            let h = this.props.headers.rows.slice(row, row + height + 1).reduce((r, n) => r + n.size, 0);
+            let l = this.props.headers.getPosition(this.props.headers.columns[column]);
+            let t = this.props.headers.getPosition(this.props.headers.rows[row]);
+            let w = this.props.headers.columns.slice(column, column + width + 1).reduce((r, n) => r + n.$size, 0);
+            let h = this.props.headers.rows.slice(row, row + height + 1).reduce((r, n) => r + n.$size, 0);
 
             return this.props.onRenderSelection({
                 key: i,
@@ -957,10 +963,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             style: {
                 position: 'absolute',
                 zIndex: ax,
-                left: ch.position,
-                top: rh.position,
-                width: ch.size,
-                height: rh.size
+                left: this.props.headers.getPosition(ch),
+                top: this.props.headers.getPosition(rh),
+                width: ch.$size,
+                height: rh.$size
             }
         }));
 
@@ -991,11 +997,11 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         if (row != null) {
             row = Math.min(Math.max(0, row), this._rowCount - 1);
             if (row <= firstRow || row >= lastRow) {
-                let rowPos = this.props.headers.rows[row].position;
+                let rowPos = this.props.headers.getPosition(this.props.headers.rows[row]);
                 if (row <= firstRow) { // to top
                     this._refView.scrollTop = rowPos;
                 } else { // to bottom
-                    let rowSize = this.props.headers.rows[row].size;
+                    let rowSize = this.props.headers.rows[row].$size;
                     this._refView.scrollTop = rowPos + rowSize - this.state.viewHeight + this._headersHeight;
                 }
             }
@@ -1004,11 +1010,11 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         if (column != null) {
             column = Math.min(Math.max(0, column), this._columnCount - 1);
             if (column <= firstColumn || column >= lastColumn) {
-                let colPos = this.props.headers.columns[column].position;
+                let colPos = this.props.headers.getPosition(this.props.headers.columns[column]);
                 if (column <= firstColumn) { // to left
                     this._refView.scrollLeft = colPos;
                 } else { // to right
-                    let colSize = this.props.headers.columns[column].size;
+                    let colSize = this.props.headers.columns[column].$size;
                     this._refView.scrollLeft = colPos + colSize - this.state.viewWidth + this._headersWidth;
                 }
             }

@@ -1,8 +1,8 @@
 Roadmap:
     * main
-        - redux test for header container
         - headers multiple update
         - headers multiple resize
+        - provide to events header type, index, parent and position
         - autosizing
             - by scroll end
             - by resizer doubleclick

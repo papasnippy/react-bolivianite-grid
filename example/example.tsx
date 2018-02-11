@@ -2,124 +2,60 @@ import * as React from 'react';
 import { Grid, Resizer, HeadersContainer, HeaderType } from '../src';
 import Editor from './editor';
 
+interface State {
+    data?: {
+        [key: string]: string;
+    };
+    headers?: HeadersContainer;
+}
+
 export class Example extends React.Component<any, any> {
     state = {
-        data: {} as {
-            [key: string]: string;
-        },
-        headers: new HeadersContainer({
-            columns: [
-                {
-                    children: [
-                        {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }, {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }, {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }
-                    ]
-                },
-                {
-                    children: [
-                        {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }, {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }, {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }
-                    ]
-                },
-                {
-                    children: [
-                        {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }, {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }, {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }
-                    ]
-                }
-            ],
-            rows: [
-                {
-                    children: [
-                        {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }, {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }, {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }
-                    ]
-                },
-                {
-                    children: [
-                        {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }, {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }, {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }
-                    ]
-                },
-                {
-                    children: [
-                        {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }, {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }, {
-                            children: [
-                                {}, {}, {}
-                            ]
-                        }
-                    ]
-                }
-            ],
-            columnWidth: 100,
-            rowHeight: 24,
-            headersHeight: 24,
-            headersWidth: 50
-        })
+        history: [this._getInitialState()],
+        index: 0
     };
+
+    private _getInitialState(): State {
+        return {
+            data: {} as {
+                [key: string]: string;
+            },
+            headers: new HeadersContainer({
+                columns: [
+                    { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] },
+                    { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] },
+                    { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] }
+                ],
+                rows: [
+                    { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] },
+                    { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] },
+                    { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] }
+                ],
+                // columns: [{}, {}, {}],
+                // rows: [{}],
+                columnWidth: 100,
+                rowHeight: 24,
+                headersHeight: 24,
+                headersWidth: 50
+            })
+        };
+    }
+
+    private _push(state: State) {
+        let ix = this.state.index;
+        let is = this.state.history[ix];
+
+        this.setState({
+            index: ix + 1,
+            history: [
+                ...this.state.history.slice(0, ix + 1),
+                {
+                    ...is,
+                    ...state
+                }
+            ]
+        });
+    }
 
     public excelIndex(index: number) {
         index++;
@@ -133,6 +69,8 @@ export class Example extends React.Component<any, any> {
     }
 
     public render() {
+        let state = this.state.history[this.state.index];
+
         return (
             <div
                 style={{
@@ -148,6 +86,37 @@ export class Example extends React.Component<any, any> {
                     fontSize: 14
                 }}
             >
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <button
+                        onClick={() => {
+                            if (!this.state.index) {
+                                return;
+                            }
+
+                            this.setState({
+                                index: this.state.index - 1
+                            });
+                        }}
+                    >
+                        UNDO
+                    </button>
+                    <div>
+                        H: {this.state.index}/{this.state.history.length - 1}
+                    </div>
+                    <button
+                        onClick={() => {
+                            if (this.state.index === (this.state.history.length - 1)) {
+                                return;
+                            }
+
+                            this.setState({
+                                index: this.state.index + 1
+                            });
+                        }}
+                    >
+                        REDO
+                    </button>
+                </div>
                 <div
                     style={{
                         width: '80vw',
@@ -157,9 +126,9 @@ export class Example extends React.Component<any, any> {
                     }}
                 >
                     <Grid
-                        headers={this.state.headers}
+                        headers={state.headers}
                         overscanRows={3}
-                        source={this.state.data}
+                        source={state.data}
                         styles={{
                             corner: {
                                 borderRight: 'solid 1px #999',
@@ -236,12 +205,14 @@ export class Example extends React.Component<any, any> {
                                 nextStyle.justifyContent = 'flex-end';
                             }
 
+                            let headerType = state.headers.getHeaderType(header);
+                            let viewIndex = state.headers.getViewIndex(header);
                             return (
                                 <div style={nextStyle}>
                                     {
-                                        header.type === HeaderType.Column && header.index != null
-                                            ? this.excelIndex(header.index)
-                                            : header.index
+                                        headerType === HeaderType.Column && viewIndex != null
+                                            ? this.excelIndex(viewIndex)
+                                            : viewIndex
                                     }
                                     <Resizer header={header} />
                                 </div>
@@ -267,37 +238,38 @@ export class Example extends React.Component<any, any> {
                         }}
                         onNullify={({ cells }) => {
                             let data = {
-                                ...this.state.data
+                                ...state.data
                             };
 
                             cells.forEach(({ column, row }) => {
                                 data[`${row} x ${column}`] = null;
                             });
 
-                            this.setState({ data });
+                            this._push({ data });
                         }}
                         onUpdate={({ cell, value }) => {
                             let { column, row } = cell;
                             let key = `${row} x ${column}`;
 
-                            this.setState({
+                            this._push({
                                 data: {
-                                    ...this.state.data,
+                                    ...state.data,
                                     [key]: value
                                 }
                             });
                         }}
                         onHeaderResize={({ header, size }) => {
-                            let headers = this.state.headers.resizeHeader(header, size, header._type === HeaderType.Column ? 50 : 24);
+                            let headerType = state.headers.getHeaderType(header);
+                            let headers = state.headers.resizeHeader(header, size, headerType === HeaderType.Column ? 50 : 24);
 
-                            this.setState({
+                            this._push({
                                 headers
                             });
                         }}
                         onHeaderLevelResize={({ type, level, size }) => {
-                            let headers = this.state.headers.resizeLevel(type, level, size, type === HeaderType.Column ? 25 : 50);
+                            let headers = state.headers.resizeLevel(type, level, size, type === HeaderType.Column ? 25 : 50);
 
-                            this.setState({
+                            this._push({
                                 headers
                             });
                         }}
