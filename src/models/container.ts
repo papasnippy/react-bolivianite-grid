@@ -343,6 +343,11 @@ export class HeadersContainer {
         this._state.viewRows = null;
         this._state.viewLeftLevels = 0;
         this._state.viewTopLevels = 0;
+        this._state.types = {};
+        this._state.indices = {};
+        this._state.positions = {};
+        this._state.levels = {};
+        this._state.parents = {};
         this._state.viewColumns = this._create(this._state.columns, [], HeaderType.Column, this._state.filter);
         this._state.viewRows = this._create(this._state.rows, [], HeaderType.Row, this._state.filter);
         this._calcPosition();
@@ -522,5 +527,16 @@ export class HeadersContainer {
         next._calcLevels();
 
         return next;
+    }
+
+    public update(props: IContainerProps) {
+        let next = this._createClone();
+
+        next._state = {
+            ...next._state,
+            ...props
+        };
+
+        return next._recalcHeaders();
     }
 }
