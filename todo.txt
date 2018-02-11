@@ -1,7 +1,5 @@
 Roadmap:
     * main
-        - headers multiple update
-        - headers multiple resize
         - provide to events header type, index, parent and position
         - autosizing
             - by scroll end

@@ -260,7 +260,7 @@ export class Example extends React.Component<any, any> {
                         }}
                         onHeaderResize={({ header, size }) => {
                             let headerType = state.headers.getHeaderType(header);
-                            let headers = state.headers.resizeHeader(header, size, headerType === HeaderType.Column ? 50 : 24);
+                            let headers = state.headers.resizeHeaders([{ header, size }], headerType === HeaderType.Column ? 50 : 24);
 
                             this._push({
                                 headers

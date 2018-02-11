@@ -63,36 +63,6 @@ export class HeadersContainer {
         this._calcLevels();
     }
 
-    private _createClone() {
-        let c = new HeadersContainer(null);
-
-        c._state = {
-            ...this._state,
-            leftLevels: { ...this._state.leftLevels },
-            topLevels: { ...this._state.topLevels },
-            types: { ...this._state.types },
-            indices: { ...this._state.indices },
-            positions: { ...this._state.positions },
-            levels: { ...this._state.levels },
-            parents: { ...this._state.parents }
-        };
-
-        return {
-            next: c,
-            recalcHeaders: () => {
-                c._state.viewColumns = null;
-                c._state.viewRows = null;
-                c._state.viewLeftLevels = 0;
-                c._state.viewTopLevels = 0;
-                c._state.viewColumns = c._create(c._state.columns, [], HeaderType.Column, c._state.filter);
-                c._state.viewRows = c._create(c._state.rows, [], HeaderType.Row, c._state.filter);
-
-                c._calcPosition();
-                c._calcLevels();
-            }
-        };
-    }
-
     get headersWidth() {
         return this._headersWidth;
     }
@@ -119,14 +89,8 @@ export class HeadersContainer {
 
     toJSON() {
         return {
-            headersWidth: this.headersWidth,
-            headersHeight: this.headersHeight,
-            topLevels: this.topLevels,
-            leftLevels: this.leftLevels,
             columns: this.columns,
-            rows: this.rows,
-            sourceColumns: this._state.columns,
-            sourceRows: this._state.rows
+            rows: this.rows
         };
     }
 
@@ -159,6 +123,23 @@ export class HeadersContainer {
         });
 
         return out;
+    }
+
+    private _createClone() {
+        let c = new HeadersContainer(null);
+
+        c._state = {
+            ...this._state,
+            leftLevels: { ...this._state.leftLevels },
+            topLevels: { ...this._state.topLevels },
+            types: { ...this._state.types },
+            indices: { ...this._state.indices },
+            positions: { ...this._state.positions },
+            levels: { ...this._state.levels },
+            parents: { ...this._state.parents }
+        };
+
+        return c;
     }
 
     private _applyHeaderLevel(h: IHeader) {
@@ -357,35 +338,60 @@ export class HeadersContainer {
         });
     }
 
-    /*private _updateHeader(address: number[], list: IHeader[], update: { [k: string]: any }): IHeader[] {
-        let len = address.length;
+    private _recalcHeaders() {
+        this._state.viewColumns = null;
+        this._state.viewRows = null;
+        this._state.viewLeftLevels = 0;
+        this._state.viewTopLevels = 0;
+        this._state.viewColumns = this._create(this._state.columns, [], HeaderType.Column, this._state.filter);
+        this._state.viewRows = this._create(this._state.rows, [], HeaderType.Row, this._state.filter);
+        this._calcPosition();
+        this._calcLevels();
 
-        if (!len) {
-            return list;
+        return this;
+    }
+
+    private _updateHeaders(
+        branchMap: {
+            [branchName: string]: {
+                [$id: string]: IHeader;
+            };
+        },
+        sourceList: IHeader[]
+    ) {
+        let branchList = Object.keys(branchMap);
+
+        if (!branchList.length) {
+            return sourceList;
         }
 
-        let ix = address[len - 1];
-        address = address.slice(0, len - 1);
+        branchList.forEach((branch) => {
+            let address = branch.split('/').map(Number);
+            let updateMap = branchMap[branch];
 
-        return this._mapBranch(address, list, (h) => {
-            if (this._state.indices[h.id] !== ix) {
-                return h;
-            }
+            sourceList = this._mapBranch(address, sourceList, (h) => {
+                let update = updateMap[h.$id];
 
-            let copy: IHeader = { ...h };
-
-            Object.keys(update).forEach((k) => {
-                if (HeaderStrictKeys[k]) {
-                    return;
+                if (!update) {
+                    return h;
                 }
 
-                // todo remove any
-                (copy as any)[k] = update[k];
-            });
+                let next = { ...h };
 
-            return copy;
+                Object.keys(update).forEach((key) => {
+                    if (key === '$id') {
+                        return;
+                    }
+
+                    next[key] = update[key];
+                });
+
+                return next;
+            });
         });
-    }*/
+
+        return sourceList;
+    }
 
     public getHeader(id: number | string) {
         return this._idMap[id];
@@ -433,56 +439,65 @@ export class HeadersContainer {
         return this._getLeaves(h);
     }
 
-    /*public updateHeader(header: IHeader, update: { [k: string]: any }) {
-        let address = this._getHeaderAddress(header);
-        let type = this._state.types[header.id];
-        let t: 'rows' | 'columns' = type === HeaderType.Column ? 'columns' : 'rows';
+    public getSource() {
+        return {
+            columns: this._state.columns,
+            rows: this._state.rows,
+            columnWidth: this._state.columnWidth,
+            rowHeight: this._state.rowHeight,
+            headersHeight: this._state.headersHeight,
+            headersWidth: this._state.headersWidth,
+            filter: this._state.filter
+        } as IContainerProps;
+    }
 
-        return this._updateHeaderLine(t, this._updateHeader(address, this._state[t], update));
-    }*/
+    public updateHeaders(updates: { header: IHeader, update: IHeader }[]) {
+        let mapColumns: {
+            [branchName: string]: {
+                [$id: string]: IHeader;
+            };
+        } = {};
 
-    public resizeHeader(header: IHeader, size: number, min = 5, max = Infinity) {
-        if (size <= min) {
-            size = min;
-        }
+        let mapRows: typeof mapColumns = {};
 
-        // get header leaves with new sizes
-        let list = this._getResizeList(header, size, (sz: number) => Math.min(Math.max(min, sz), max));
+        updates.forEach(({ header, update }) => {
+            let headerType = this._state.types[header.$id];
+            let address = this._getHeaderAddress(header);
+            let map = headerType === HeaderType.Column ? mapColumns : mapRows;
+            let branchName = address.slice(0, address.length - 1).join('/');
 
-        if (!list.length) {
-            return;
-        }
-
-        let viewAddressToListIndex: { [h: number]: number } = {};
-        list.forEach((u, i) => {
-            viewAddressToListIndex[this._state.indices[u.header.$id]] = i;
-        });
-
-        // get branch address in which array of headers will be changes
-        let address = this._getHeaderAddress(list[0].header);
-        address.pop();
-
-        // map tree branch, replacing only target headers
-        let type = this._state.types[header.$id];
-        let t: 'rows' | 'columns' = type === HeaderType.Column ? 'columns' : 'rows';
-        let { next, recalcHeaders } = this._createClone();
-
-        next._state[t] = this._mapBranch(address, this._state[t], (h) => {
-            if (viewAddressToListIndex[this._state.indices[h.$id]] == null) {
-                return h;
+            if (!map[branchName]) {
+                map[branchName] = {};
             }
 
-            let headerIndex = this._state.indices[h.$id];
-            let listIndex = viewAddressToListIndex[headerIndex];
-
-            return {
-                ...h,
-                $size: list[listIndex].size
-            };
+            map[branchName][header.$id] = update;
         });
 
-        recalcHeaders();
-        return next;
+        let next = this._createClone();
+
+        next._state.columns = this._updateHeaders(mapColumns, next._state.columns);
+        next._state.rows = this._updateHeaders(mapRows, next._state.rows);
+
+        return next._recalcHeaders();
+    }
+
+    public resizeHeaders(list: { header: IHeader, size: number }[], min = 5, max = Infinity) {
+        let updates: { header: IHeader, update: IHeader }[] = [];
+
+        list.forEach((u) => {
+            let resizeList = this._getResizeList(u.header, u.size, (sz: number) => Math.min(Math.max(min, sz), max));
+
+            resizeList.forEach(({ header, size }) => {
+                updates.push({
+                    header,
+                    update: {
+                        $size: size
+                    }
+                });
+            });
+        });
+
+        return this.updateHeaders(updates);
     }
 
     public resizeLevel(type: HeaderType, level: number, size: number, min = 5, max = Infinity) {
@@ -491,7 +506,7 @@ export class HeadersContainer {
             size = min;
         }
 
-        let { next } = this._createClone();
+        let next = this._createClone();
 
         next._state[t][level] = Math.min(Math.max(min, size), max);
         next._calcLevels();
