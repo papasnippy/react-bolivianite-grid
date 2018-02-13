@@ -1,5 +1,4 @@
 * todo
-    - do something with css (use jss)
     - build
     - lazy grid component (themed and with copy-paste)
     - license
