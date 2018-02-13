@@ -9,6 +9,7 @@ export interface IResizerProps {
 }
 
 export class Resizer extends React.PureComponent<IResizerProps, any> {
+    /** React v17 deprecated */
     static contextTypes = {
         grid: PropTypes.object,
         headers: PropTypes.object
@@ -45,6 +46,7 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
     private _moveListener: any = null;
     private _upListener: any = null;
     private _escListener: any = null;
+    private _moved = false;
 
     private get _grid() {
         return this.context['grid'] as Grid;
@@ -106,7 +108,7 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
     }
 
     private _onChange(change: number) {
-        if (!this._moving) {
+        if (!this._moving || !this._moved) {
             return;
         }
 
@@ -116,10 +118,13 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
         switch (type) {
             case 'column':
             case 'row':
-                this._grid.resizeHeader({
-                    type: type === 'row' ? HeaderType.Row : HeaderType.Column,
-                    header: header,
-                    size: header.$size + change
+                this._grid.resizeHeaders({
+                    headers: [{
+                        type: type === 'row' ? HeaderType.Row : HeaderType.Column,
+                        header: header,
+                        size: header.$size + change
+                    }],
+                    behavior: 'manual'
                 });
                 break;
 
@@ -140,6 +145,8 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
     }
 
     private _onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+        this._moved = false;
+
         e.preventDefault();
 
         if (e.button !== 0) {
@@ -165,10 +172,10 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
         );
 
         if (this._lastClick && this._lastClick.type === movingType && (now - this._lastClick.time < 500)) {
-            // TODO: call autosize for column
             this._grid.previewResizeHeader(null);
             this._grid.previewResizeLevel(null);
             this._unbind();
+            this._grid.autoMeasure([this.props.header]);
             return;
         }
 
@@ -186,6 +193,9 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
 
         window.addEventListener('mouseup', this._upListener = () => {
             this._onChange(change);
+
+            this._moved = false;
+
             this._grid.previewResizeHeader(null);
             this._grid.previewResizeLevel(null);
             this._unbind();
@@ -201,6 +211,8 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
             if (!this._moving) {
                 return;
             }
+
+            this._moved = true;
 
             let m = type === 'r' ? ev.pageX : ev.pageY;
             change = m - this._moving.start;

@@ -12,6 +12,31 @@ export interface IScrollViewUpdateEvent {
 
 export type TScrollViewPartial<T = any> = JSX.Element | ((props: T) => JSX.Element);
 
+export interface IScrollViewThemeClassNames {
+    bottomTrack?: string;
+    bottomThumb?: string;
+    rightTrack?: string;
+    rightThumb?: string;
+    scrollCorner?: string;
+}
+
+export interface IScrollViewThemeStyles {
+    bottomTrack?: React.CSSProperties;
+    bottomThumb?: React.CSSProperties;
+    rightTrack?: React.CSSProperties;
+    rightThumb?: React.CSSProperties;
+    scrollCorner?: React.CSSProperties;
+}
+
+export interface IScrollViewTheme {
+    scrollSize?: number;
+    scrollMinimum?: number;
+    trackBackground?: string;
+    thumbBackground?: string;
+    classNames?: IScrollViewThemeClassNames;
+    styles?: IScrollViewThemeStyles;
+}
+
 export interface IScrollViewProps {
     height?: number | string;
     width?: number | string;
@@ -19,26 +44,19 @@ export interface IScrollViewProps {
     over?: boolean;
     /** If defined - scrollbar will br enabled only for x or y axis */
     mode?: 'x' | 'y';
-    /** Scrollbar size (width and height) */
-    size?: number;
-    /** Scrollbar minimum size */
-    minLength?: number;
     /** Css props passed to scroller element */
     scrollerProps?: React.HTMLProps<HTMLDivElement>;
-    /** Scrollbar background color */
-    backgroundColor?: string;
-    /** Scrollbar indicator color */
-    color?: string;
-    afterContent?: TScrollViewPartial<IScrollViewUpdateEvent>;
-    xScrollStyle?: React.CSSProperties;
-    xBackgroundStyle?: React.CSSProperties;
+
+    after?: TScrollViewPartial<IScrollViewUpdateEvent>;
+
+    theme?: IScrollViewTheme;
+
     xScrollContent?: TScrollViewPartial;
     xBackgroundContent?: TScrollViewPartial;
-    yBackgroundStyle?: React.CSSProperties;
-    yScrollStyle?: React.CSSProperties;
+
     yScrollContent?: TScrollViewPartial;
     yBackgroundContent?: TScrollViewPartial;
-    zBackgroundStyle?: React.CSSProperties;
+
     zBackgroundContent?: TScrollViewPartial;
 
     onUpdate?: (event: IScrollViewUpdateEvent) => void;
@@ -73,8 +91,22 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         super(p, c);
     }
 
+    private get _theme() {
+        let theme = this.props.theme || {};
+        theme.classNames = theme.classNames || {};
+        theme.styles = theme.styles || {};
+        theme.scrollSize = theme.scrollSize || 17;
+        theme.scrollMinimum = theme.scrollMinimum || 20;
+        theme.styles.bottomThumb = theme.styles.bottomThumb || {};
+        theme.styles.bottomTrack = theme.styles.bottomTrack || {};
+        theme.styles.rightTrack = theme.styles.rightTrack || {};
+        theme.styles.rightThumb = theme.styles.rightThumb || {};
+        theme.styles.scrollCorner = theme.styles.scrollCorner || {};
+        return theme;
+    }
+
     public get size() {
-        return Math.max(0, (this.props.size == void 0 ? 17 : this.props.size) || 0);
+        return Math.max(0, this._theme.scrollSize || 0);
     }
 
     public get scrollLeft() {
@@ -230,7 +262,7 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         let ss = this.size;
         let sx = this.props.mode === 'x' ? 0 : ss;
         let sy = this.props.mode === 'y' ? 0 : ss;
-        let sm = this.props.minLength || 20; // scrollbar minimum length
+        let sm = this._theme.scrollMinimum; // scrollbar minimum length
 
         // size of the canvas
         this._xlen = t.children[0].clientWidth;
@@ -329,14 +361,11 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         );
     }
 
-    private _renderXScrollbar(scrollSize: number, backgroundColor: string, color: string) {
-        let { xBackgroundStyle, xScrollStyle } = this.props;
-
+    private _renderXScrollbar(scrollSize: number) {
         return (
             <div
                 style={{
-                    backgroundColor: backgroundColor,
-                    ...(xBackgroundStyle || {}),
+                    background: this._theme.trackBackground,
                     position: 'absolute',
                     left: 0,
                     right: this.props.mode === 'x' ? 0 : scrollSize,
@@ -347,7 +376,9 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                 }}
             >
                 <div
+                    className={this._theme.classNames.bottomTrack}
                     style={{
+                        ...this._theme.styles.bottomTrack,
                         position: 'absolute',
                         left: 0,
                         top: 0,
@@ -360,10 +391,11 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                     {this._renderPartial(this.props.xBackgroundContent)}
                 </div>
                 <div
+                    className={this._theme.classNames.bottomThumb}
                     ref={this._onRefX}
                     style={{
-                        backgroundColor: color,
-                        ...(xScrollStyle || {}),
+                        background: this._theme.thumbBackground,
+                        ...this._theme.styles.bottomThumb,
                         position: 'absolute',
                         top: 0,
                         height: '100%',
@@ -376,14 +408,11 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         );
     }
 
-    private _renderYScrollbar(scrollSize: number, backgroundColor: string, color: string) {
-        let { yBackgroundStyle, yScrollStyle } = this.props;
-
+    private _renderYScrollbar(scrollSize: number) {
         return (
             <div
                 style={{
-                    backgroundColor: backgroundColor,
-                    ...(yBackgroundStyle || {}),
+                    background: this._theme.trackBackground,
                     position: 'absolute',
                     right: 0,
                     bottom: this.props.mode === 'y' ? 0 : scrollSize,
@@ -394,7 +423,9 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                 }}
             >
                 <div
+                    className={this._theme.classNames.rightTrack}
                     style={{
+                        ...this._theme.styles.rightTrack,
                         position: 'absolute',
                         left: 0,
                         top: 0,
@@ -407,10 +438,11 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                     {this._renderPartial(this.props.yBackgroundContent)}
                 </div>
                 <div
+                    className={this._theme.classNames.rightTrack}
                     ref={this._onRefY}
                     style={{
-                        backgroundColor: color,
-                        ...(yScrollStyle || {}),
+                        background: this._theme.thumbBackground,
+                        ...this._theme.styles.rightThumb,
                         position: 'absolute',
                         right: 0,
                         width: '100%',
@@ -424,14 +456,11 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         );
     }
 
-    private _renderZScrollbar(scrollSize: number, backgroundColor: string) {
-        let { zBackgroundStyle } = this.props;
-
+    private _renderZScrollbar(scrollSize: number) {
         return (
             <div
                 style={{
-                    backgroundColor: backgroundColor,
-                    ...(zBackgroundStyle || {}),
+                    background: this._theme.trackBackground,
                     position: 'absolute',
                     bottom: 0,
                     right: 0,
@@ -442,7 +471,9 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                 }}
             >
                 <div
+                    className={this._theme.classNames.scrollCorner}
                     style={{
+                        ...this._theme.styles.scrollCorner,
                         position: 'absolute',
                         left: 0,
                         top: 0,
@@ -501,11 +532,6 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         let ss = this.size;
         let ps = this.props.over ? 0 : ss;
 
-        let { backgroundColor, color } = this.props;
-
-        backgroundColor = backgroundColor || (this.props.over ? 'rgba(0, 0, 0, 0.2)' : '#cdcdcd');
-        color = color || (this.props.over ? 'rgba(0, 0, 0, 0.5)' : '#666');
-
         return (
             <div
                 ref={this._onRefA}
@@ -517,10 +543,10 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                 }}
             >
                 {this._renderBody(ps)}
-                {this._renderPartial(this.props.afterContent, () => this._getUpdateEventObject())}
-                {this._renderXScrollbar(ss, backgroundColor, color)}
-                {this._renderYScrollbar(ss, backgroundColor, color)}
-                {this._renderZScrollbar(ss, backgroundColor)}
+                {this._renderPartial(this.props.after, () => this._getUpdateEventObject())}
+                {this._renderXScrollbar(ss)}
+                {this._renderYScrollbar(ss)}
+                {this._renderZScrollbar(ss)}
             </div>
         );
     }

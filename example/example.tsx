@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Grid, Resizer, HeadersContainer, HeaderType } from '../src';
+import { Grid, Resizer, HeadersContainer, HeaderType, ICellMeasureResult } from '../src';
 import Editor from './editor';
 
-interface State {
+export interface State {
     data?: {
         [key: string]: string;
     };
@@ -21,18 +21,20 @@ export class Example extends React.Component<any, any> {
                 [key: string]: string;
             },
             headers: new HeadersContainer({
-                columns: [
-                    { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] },
-                    { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] },
-                    { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] }
-                ],
-                rows: [
-                    { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] },
-                    { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] },
-                    { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] }
-                ],
+                // columns: [
+                //     { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] },
+                //     { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] },
+                //     { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] }
+                // ],
+                // rows: [
+                //     { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] },
+                //     { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] },
+                //     { $children: [{ $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }, { $children: [{}, {}, {}] }] }
+                // ],
                 // columns: [{}, {}, {}],
                 // rows: [{}],
+                columns: new Array(50).fill(null).map(() => ({})),
+                rows: new Array(200).fill(null).map(() => ({})),
                 columnWidth: 100,
                 rowHeight: 24,
                 headersHeight: 24,
@@ -41,14 +43,15 @@ export class Example extends React.Component<any, any> {
         };
     }
 
-    private _push(state: State) {
+    private _push(state: State, autosize = false) {
         let ix = this.state.index;
         let is = this.state.history[ix];
+        let n = autosize ? 0 : 1;
 
         this.setState({
-            index: ix + 1,
+            index: ix + n,
             history: [
-                ...this.state.history.slice(0, ix + 1),
+                ...this.state.history.slice(0, ix + n),
                 {
                     ...is,
                     ...state
@@ -129,17 +132,28 @@ export class Example extends React.Component<any, any> {
                         headers={state.headers}
                         overscanRows={3}
                         source={state.data}
-                        styles={{
-                            corner: {
-                                borderRight: 'solid 1px #999',
-                                borderBottom: 'solid 1px #999',
-                                background: '#ccc'
-                            },
-                            columns: {
-                                background: '#ccc'
-                            },
-                            rows: {
-                                background: '#ccc'
+                        theme={{
+                            scrollSize: 12,
+                            trackBackground: `rgba(128, 128, 128, 0.8)`,
+                            thumbBackground: `rgba(0, 0, 0, 0.5)`,
+                            styles: {
+                                columns: {
+                                    background: '#ccc'
+                                },
+                                rows: {
+                                    background: '#ccc'
+                                },
+                                gridCorner: {
+                                    borderRight: 'solid 1px #999',
+                                    borderBottom: 'solid 1px #999',
+                                    background: '#ccc'
+                                },
+                                bottomThumb: {
+                                    borderRadius: 10
+                                },
+                                rightThumb: {
+                                    borderRadius: 10
+                                },
                             }
                         }}
                         onRenderCell={({ style, columnIndex, rowIndex, source }) => {
@@ -256,10 +270,14 @@ export class Example extends React.Component<any, any> {
                                 }
                             });
                         }}
-                        onHeaderResize={({ header, size, type }) => {
+                        onHeaderResize={({ headers, behavior }) => {
                             this._push({
-                                headers: state.headers.resizeHeaders([{ header, size }], type === HeaderType.Column ? 50 : 24)
-                            });
+                                headers: state.headers.resizeHeaders(
+                                    headers,
+                                    ({ type, size }) => Math.max(size, type === HeaderType.Column ? 50 : 24),
+                                    behavior
+                                )
+                            }, behavior === 'auto');
                         }}
                         onHeaderLevelResize={({ type, level, size }) => {
                             this._push({
@@ -271,6 +289,27 @@ export class Example extends React.Component<any, any> {
                             return (
                                 <div style={style} />
                             );
+                        }}
+                        onAutoMeasure={({ cells, callback }) => {
+                            let ctx = document.createElement('canvas').getContext('2d');
+                            ctx.font = `14px Verdana`;
+
+                            let values = cells.map(({ columnIndex, rowIndex, source }) => {
+                                let value = source[`${rowIndex} x ${columnIndex}`];
+
+                                if (value == null || value === '') {
+                                    return null;
+                                }
+
+                                return {
+                                    rowIndex,
+                                    columnIndex,
+                                    height: 0,
+                                    width: ctx.measureText(String(value)).width + 6 // 6 is cell padding
+                                } as ICellMeasureResult;
+                            });
+
+                            callback(values);
                         }}
                     />
                 </div>

@@ -6,7 +6,7 @@ import * as sourcemaps from 'gulp-sourcemaps';
 const gulp = require('gulp');
 
 const tsCommonjs = gts.createProject('tsconfig.json', { declaration: true });
-const tsModule = gts.createProject('tsconfig.json', { module: 'es6', target: 'es6' });
+const tsModule = gts.createProject('tsconfig.json', { module: 'es2015', target: 'es6' });
 
 function createBuild(type: 'cjs' | 'es') {
     gulp.task(`build::${type}`, () => {

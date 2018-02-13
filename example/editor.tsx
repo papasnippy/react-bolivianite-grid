@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-interface EditorProps {
+export interface EditorProps {
     initialValue: string;
     update: (v: any) => void;
 }

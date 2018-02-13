@@ -10,184 +10,27 @@ import {
     IGridAddress, IGridSelection, IGridView, IGridOverscan, HeaderType
 } from '../types';
 import {
-    HeadersContainer, IHeader
+    IHeader, HeaderResizeBehavior, HeadersContainer
 } from '../models';
+import {
+    IGridProps, ICellMeasureResult, ICellRenderBaseEvent, ICellRendererEvent,
+    IGridResizeHeaderLevelEvent, IGridResizeHeadersEvent
+} from './types';
 
 const Style = require('./grid.scss');
 
-//#region interfaces
-export interface ICellRendererEvent {
-    rowIndex: number;
-    columnIndex: number;
-    active: boolean;
-    style: React.CSSProperties;
-    source: any;
-    rowHeader: IHeader;
-    columnHeader: IHeader;
-}
-
-export interface ICellEditorEvent extends ICellRendererEvent {
-    /** Request to close editor. */
-    close: (commit: boolean) => void;
-    /** Set update for this cell. */
-    update: (nextValue: any) => void;
-}
-
-export interface IResizerRenderEvent {
-    type: 'level' | 'header';
-    orientation: 'horizontal' | 'vertical';
-    resizer: 'initial' | 'changed';
-    style: React.CSSProperties;
-}
-
-export interface IHeaderRendererEvent {
-    type: HeaderType;
-    selection: boolean;
-    style: React.CSSProperties;
-    header: IHeader;
-    parent: boolean;
-    viewIndex: number;
-    parentHeader: IHeader;
-}
-
-export interface ISelectionRendererEvent {
-    key: number;
-    style: React.CSSProperties;
-    active: boolean;
-    edit: boolean;
-}
-
-export interface IGridSpaceEvent {
-    cells: IGridAddress[];
-}
-
-export interface IGridHeaderRightClickEvent {
-    header: IHeader;
-    event: React.MouseEvent<HTMLElement>;
-}
-
-export interface IGridRemoveEvent extends IKeyboardControllerRemoveEvent { }
-
-export interface IGridNullifyEvent extends IGridSpaceEvent { }
-
-export interface IGridCopyEvent {
-    cells: IGridAddress[];
-    withHeaders: boolean;
-}
-
-export interface IGridResizeHeadersEvent {
-    type: HeaderType;
-    header: IHeader;
-    size: number;
-}
-
-export interface IGridResizeHeaderLevelEvent {
-    type: HeaderType;
-    level: number;
-    size: number;
-}
-
-export interface IGridPasteEvent extends IKeyboardControllerPasteEvent {
-    target: IGridAddress;
-}
-
-export interface IGridUpdateEvent {
-    cell: IGridAddress;
-    value: any;
-}
-
-export interface IGridClasses {
-    rows?: string;
-    columns?: string;
-    corner?: string;
-    main?: string;
-    // todo: scrollbars
-}
-
-export interface IGridStyles {
-    rows?: React.CSSProperties;
-    columns?: React.CSSProperties;
-    corner?: React.CSSProperties;
-    main?: React.CSSProperties;
-    // todo: scrollbars
-}
-
-export interface IGridProps {
-    tabIndex?: number;
-
-    /** Reference to headers container. This object is mutable! */
-    headers: HeadersContainer;
-
-    /** Not used directly by Component, but provided to the cell renderer. */
-    source?: any;
-
-    /** Prevent editors to appear. `onNullify`, `onRemove`, `onSpace` and `onPaste` events will not be invoked. */
-    readOnly?: boolean;
-
-    overscanRows?: number;
-    overscanColumns?: number;
-
-    /** Add classnames here. */
-    classes?: IGridClasses;
-
-    /** Add styles here. Some positioning properties will be ignored. */
-    styles?: IGridStyles;
-
-    /** Cell renderer. Required. Some event handlers will be bound. */
-    onRenderCell: (e: ICellRendererEvent) => JSX.Element;
-
-    /** Header renderer. Required. */
-    onRenderHeader: (e: IHeaderRendererEvent) => JSX.Element;
-
-    /** Selection renderer. Required. If active property is true - this renders active cell selection. */
-    onRenderSelection: (e: ISelectionRendererEvent) => JSX.Element;
-
-    /** Editor renderer. Optional. */
-    onRenderEditor?: (e: ICellEditorEvent) => JSX.Element;
-
-    /** Resizer renderer. Optional. */
-    onRenderResizer?: (e: IResizerRenderEvent) => JSX.Element;
-
-    /** Invoked with all selected cells when `SPACE` key is pressed. Usefull for checkbox cells. */
-    onSpace?: (e: IGridSpaceEvent) => void;
-
-    /** Invoked with all selected rows and columns when `CMD`/`CTRL`+`DELETE`/`BACKSPACE` keys are pressed. Remove records here. */
-    onRemove?: (e: IGridRemoveEvent) => void;
-
-    /** Invoked with all selected cells when `DELETE`/`BACKSPACE` keys are pressed. Replace data with nulls here. */
-    onNullify?: (e: IGridNullifyEvent) => void;
-
-    /** Invoked on `COPY` event, provides selected cells and flag `withHeaders` when ALT key is pressed. */
-    onCopy?: (e: IGridCopyEvent) => void;
-
-    /** Invoked on `PASTE` event, provides target cell and clipboard `DataTransfer` object. */
-    onPaste?: (e: IGridPasteEvent) => void;
-
-    /** Invoked on cell right click. */
-    onRightClick?: (e: IGridAddress) => void;
-
-    /** Invoked on cell right click. */
-    onHeaderRightClick?: (e: IGridHeaderRightClickEvent) => void;
-
-    /** Invoked on editor close when value was changed. */
-    onUpdate?: (e: IGridUpdateEvent) => void;
-
-    onHeaderResize?: (e: IGridResizeHeadersEvent) => void;
-
-    onHeaderLevelResize?: (e: IGridResizeHeaderLevelEvent) => void;
-}
-//#endregion
-
 export class Grid extends React.PureComponent<IGridProps, any> {
+    /** React v17 deprecated */
     static childContextTypes = {
         grid: PropTypes.object,
         headers: PropTypes.object
     };
 
-    getChildContext() {
+    /** React v17 deprecated */
+    getChildContext(this: Grid) {
         return {
             grid: this,
-            headers: this.props.headers
+            headers: this.props.headers as HeadersContainer /*typescript workaround*/
         };
     }
 
@@ -199,12 +42,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
     private _blockContextMenu = false;
     private _onContextMenuListener: any = null;
-    private _scrollSize = 15;
     private _rt = new RenderThrottler();
     private _scrollUpdateTrottled = this._rt.create();
     private _ref: HTMLDivElement = null;
     private _refView: ScrollView = null;
-    private _refScroller: HTMLDivElement = null;
     private _scrollerProps: React.HTMLProps<HTMLDivElement> = { style: { willChange: 'transform' } };
     private _lastView: IGridView = null;
     private _lastOverscan: IGridOverscan = null;
@@ -338,6 +179,18 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         });
     }
 
+    private get _theme() {
+        let theme = this.props.theme || {};
+        theme.scrollSize = theme.scrollSize || 15;
+        theme.classNames = theme.classNames || {};
+        theme.styles = theme.styles || {};
+        theme.styles.grid = theme.styles.grid || {};
+        theme.styles.gridCorner = theme.styles.gridCorner || {};
+        theme.styles.rows = theme.styles.rows || {};
+        theme.styles.columns = theme.styles.columns || {};
+        return theme;
+    }
+
     private get _columnCount() {
         return this.props.headers ? this.props.headers.columns.length : 0;
     }
@@ -360,10 +213,6 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
     private _onRefView = (r: ScrollView) => {
         this._refView = r;
-    }
-
-    private _onRefScroller = (r: HTMLDivElement) => {
-        this._refScroller = r;
     }
 
     private _onBlur = () => {
@@ -390,8 +239,99 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         });
     }
 
+    private _onAutoMeasureApply(result: ICellMeasureResult[], behavior: HeaderResizeBehavior) {
+        if (!result) {
+            return;
+        }
+
+        result = result.filter(v => !!v);
+
+        if (!result.length) {
+            return;
+        }
+
+        const columnHeaders = this.props.headers.columns;
+        const rowHeaders = this.props.headers.rows;
+
+        let columns: { [colIndex: string]: number } = {};
+        let rows: { [rowIndex: string]: number } = {};
+
+        for (let { rowIndex, columnIndex, height, width } of result) {
+            columns[columnIndex] = columns[columnIndex] == null ? width : Math.max(width, columns[columnIndex]);
+            rows[rowIndex] = rows[rowIndex] == null ? height : Math.max(height, rows[rowIndex]);
+        }
+
+        let ch = Object
+            .keys(columns)
+            .map(k => ({ columnIndex: Number(k), width: columns[k] }))
+            .filter(({ width, columnIndex }) => {
+                let h = columnHeaders[columnIndex];
+                return h && (behavior === 'reset' || !this.props.headers.getManualResized(h) && h.$size < width);
+            })
+            .map(({ columnIndex, width }) => ({
+                header: columnHeaders[columnIndex],
+                size: width,
+                type: this.props.headers.getHeaderType(columnHeaders[columnIndex])
+            }));
+
+        let rh = Object
+            .keys(rows)
+            .map(k => ({ rowIndex: Number(k), height: rows[k] }))
+            .filter(({ rowIndex, height }) => {
+                let h = rowHeaders[rowIndex];
+                return h && (behavior === 'reset' || !this.props.headers.getManualResized(h) && h.$size < height);
+            })
+            .map(({ rowIndex, height }) => ({
+                header: rowHeaders[rowIndex],
+                size: height,
+                type: this.props.headers.getHeaderType(rowHeaders[rowIndex])
+            }));
+
+        if (ch.length || rh.length) {
+            this.props.onHeaderResize({ headers: [...ch, ...rh], behavior: behavior });
+        }
+    }
+
+    private _onAutoMeasure() {
+        if (this.state.edit || !this.props.onAutoMeasure || !this.props.onHeaderResize || !this._lastView) {
+            return;
+        }
+
+        const { firstColumn, firstRow, lastRow, lastColumn } = this._lastView;
+
+        if (firstColumn === -1 || firstRow === -1) {
+            return;
+        }
+
+        const { columns, rows } = this.props.headers;
+        const cells: ICellRenderBaseEvent[] = [];
+
+        for (let r = firstRow; r <= lastRow; r++) {
+            for (let c = firstColumn; c <= lastColumn; c++) {
+                cells.push({
+                    columnIndex: c,
+                    rowIndex: r,
+                    source: this.props.source,
+                    columnHeader: columns[c],
+                    rowHeader: rows[r]
+                });
+            }
+        }
+
+        if (!cells.length) {
+            return;
+        }
+
+        this.props.onAutoMeasure({
+            cells,
+            callback: (result: ICellMeasureResult[]) => {
+                this._onAutoMeasureApply(result, 'auto');
+            }
+        });
+    }
+
     private _onAfterUpdate() {
-        this._refScroller = this._refScroller;
+        this._onAutoMeasure();
     }
 
     private _onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -483,7 +423,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
             rowsHeight += rh.$size;
 
-            if (lastRow === -1 && rowsHeight >= st + vh + this._scrollSize) {
+            if (lastRow === -1 && rowsHeight >= st + vh + this._theme.scrollSize) {
                 lastRow = rowIndex;
                 break;
             }
@@ -507,7 +447,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
             columnsWidth += ch.$size;
 
-            if (lastColumn === -1 && columnsWidth >= sl + vw + this._scrollSize) {
+            if (lastColumn === -1 && columnsWidth >= sl + vw + this._theme.scrollSize) {
                 lastColumn = colIndex;
                 break;
             }
@@ -769,7 +709,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         return (
             <>
-            {jsx}
+                {jsx}
             </>
         );
     }
@@ -861,34 +801,34 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         const cnColumns = [
             Style.headerMount,
             Style.headerColumns,
-            (this.props.classes && this.props.classes.columns || null)
+            this._theme.classNames.columns
         ].filter(v => !!(v || '').trim()).join(' ');
 
         const cnRows = [
             Style.headerMount,
             Style.headerRows,
-            (this.props.classes && this.props.classes.rows || null)
+            this._theme.classNames.rows
         ].filter(v => !!(v || '').trim()).join(' ');
 
         const cnCorner = [
             Style.headerMount,
             Style.headerCorner,
-            (this.props.classes && this.props.classes.corner || null)
+            this._theme.classNames.gridCorner
         ].filter(v => !!(v || '').trim()).join(' ');
 
         return (
             <div
                 className={Style.headersRoot}
                 style={{
-                    width: clientWidth + this._scrollSize,
-                    height: clientHeight + this._scrollSize
+                    width: clientWidth + this._theme.scrollSize,
+                    height: clientHeight + this._theme.scrollSize
                 }}
             >
                 {!!this.props.headers.headersHeight &&
                     <div
                         className={cnColumns}
                         style={this._shallow.colHeaders({
-                            ...(this.props.styles && this.props.styles.columns || {}),
+                            ...this._theme.styles.columns,
                             left: this.props.headers.headersWidth,
                             top: 0,
                             right: 0,
@@ -902,7 +842,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                     <div
                         className={cnRows}
                         style={this._shallow.rowHeaders({
-                            ...(this.props.styles && this.props.styles.rows || {}),
+                            ...this._theme.styles.rows,
                             left: 0,
                             top: this.props.headers.headersHeight,
                             bottom: 0,
@@ -916,7 +856,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                     <div
                         className={cnCorner}
                         style={this._shallow.crnHeaders({
-                            ...(this.props.styles && this.props.styles.corner || {}),
+                            ...this._theme.styles.gridCorner,
                             left: 0,
                             top: 0,
                             height: this.props.headers.headersHeight,
@@ -1073,7 +1013,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         });
     }
 
-    public resizeHeader(e: IGridResizeHeadersEvent) {
+    public resizeHeaders(e: IGridResizeHeadersEvent) {
         if (this.props.onHeaderResize) {
             this.props.onHeaderResize(e);
         }
@@ -1083,6 +1023,65 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         if (this.props.onHeaderLevelResize) {
             this.props.onHeaderLevelResize(e);
         }
+    }
+
+    public autoMeasure(headers: IHeader[]) {
+        if (this.state.edit || !this.props.onAutoMeasure || !this.props.onHeaderResize || !this._lastView) {
+            return;
+        }
+
+        const { firstColumn, firstRow, lastRow, lastColumn } = this._lastView;
+
+        if (firstColumn === -1 || firstRow === -1) {
+            return;
+        }
+
+        const batch = headers.map(h => this.props.headers.getHeaderLeaves(h));
+        const { columns, rows } = this.props.headers;
+        const cells: ICellRenderBaseEvent[] = [];
+
+        for (let list of batch) {
+            for (let h of list) {
+                let t = this.props.headers.getHeaderType(h);
+
+                if (t === HeaderType.Column) {
+                    let c = this.props.headers.getViewIndex(h);
+
+                    for (let r = firstRow; r <= lastRow; r++) {
+                        cells.push({
+                            columnIndex: c,
+                            rowIndex: r,
+                            source: this.props.source,
+                            columnHeader: columns[c],
+                            rowHeader: rows[r]
+                        });
+                    }
+                } else {
+                    let r = this.props.headers.getViewIndex(h);
+
+                    for (let c = firstColumn; c <= lastColumn; c++) {
+                        cells.push({
+                            columnIndex: c,
+                            rowIndex: r,
+                            source: this.props.source,
+                            columnHeader: columns[c],
+                            rowHeader: rows[r]
+                        });
+                    }
+                }
+            }
+        }
+
+        if (!cells.length) {
+            return;
+        }
+
+        this.props.onAutoMeasure({
+            cells,
+            callback: (result: ICellMeasureResult[]) => {
+                this._onAutoMeasureApply(result, 'reset');
+            }
+        });
     }
 
     public previewResizeHeader(resizeHeaderPreview: { header: IHeader; change: number; }) {
@@ -1115,7 +1114,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     public render() {
         const className = [
             Style.root,
-            (this.props.classes && this.props.classes.main || null)
+            this._theme.classNames.grid
         ].filter(v => !!(v || '').trim()).join(' ');
 
         this._createView();
@@ -1130,7 +1129,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 ref={this._onRef}
                 onBlur={this._onBlur}
                 onFocus={this._onFocus}
-                style={this.props.styles && this.props.styles.main || null}
+                style={this._theme.styles.grid}
                 onKeyDown={this._onKeyDown}
                 onMouseLeave={this._onRootMouseLeave}
                 onMouseEnter={this._onRootMouseEnter}
@@ -1138,14 +1137,12 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             >
                 <ScrollView
                     ref={this._onRefView}
-                    size={this._scrollSize}
                     onUpdate={this._onScrollViewUpdate}
-                    backgroundColor="rgba(0, 0, 0, 0.3)"
                     scrollerProps={this._scrollerProps}
-                    afterContent={this._renderHeaderContainers}
+                    after={this._renderHeaderContainers}
+                    theme={this.props.theme}
                 >
                     <div
-                        ref={this._onRefScroller}
                         style={{
                             height: rowsHeight,
                             width: columnsWidth,

@@ -1,7 +1,11 @@
 import { HeaderType } from '../index';
 import { IHeader } from './header';
 
+export type HeaderResizeBehavior = 'auto' | 'manual' | 'reset';
+
 export type IContainerHeadersFilter = (h: IHeader, type: HeaderType) => boolean;
+
+export type HeaderClampFunction = (props: { header: IHeader, type: HeaderType, size: number }) => number;
 
 export interface IContainerProps {
     rows: IHeader[];
@@ -27,6 +31,7 @@ export interface IContainerState extends IContainerProps {
     positions: { [headerId: string]: number };
     levels: { [headerId: string]: number };
     parents: { [headerId: string]: IHeader };
+    manualResized: { [headerId: string]: boolean };
 }
 
 export class HeadersContainer {
@@ -53,7 +58,8 @@ export class HeadersContainer {
             indices: {},
             positions: {},
             levels: {},
-            parents: {}
+            parents: {},
+            manualResized: {}
         };
 
         this._state.viewColumns = this._create(props.columns, [], HeaderType.Column, props.filter);
@@ -136,7 +142,8 @@ export class HeadersContainer {
             indices: { ...this._state.indices },
             positions: { ...this._state.positions },
             levels: { ...this._state.levels },
-            parents: { ...this._state.parents }
+            parents: { ...this._state.parents },
+            manualResized: { ...this._state.manualResized }
         };
 
         return c;
@@ -274,9 +281,13 @@ export class HeadersContainer {
         return out;
     }
 
-    private _getResizeList(h: IHeader, size: number, clamp?: (size: number) => number) {
-        if ((!h.$children || !h.$children.length) && clamp) {
-            size = clamp(size);
+    private _getResizeList(h: IHeader, size: number, clamp: HeaderClampFunction) {
+        if (!h.$children || !h.$children.length) {
+            size = clamp({
+                header: h,
+                type: this._state.types[h.$id],
+                size
+            });
         }
 
         let prevSize = h.$size;
@@ -295,7 +306,11 @@ export class HeadersContainer {
         if (clamp) {
             leaves.forEach((c) => {
                 let n = Math.floor(c.$size * size / prevSize);
-                let m = clamp(n - d);
+                let m = clamp({
+                    header: h,
+                    type: this._state.types[h.$id],
+                    size: n - d
+                });
 
                 if (n < m) {
                     d += m - n;
@@ -306,7 +321,11 @@ export class HeadersContainer {
         return leaves.map((c) => {
             return {
                 header: c,
-                size: clamp(Math.floor(c.$size * size / prevSize) - d)
+                size: clamp({
+                    header: c,
+                    type: this._state.types[c.id],
+                    size: Math.floor(c.$size * size / prevSize) - d
+                })
             };
         });
     }
@@ -371,7 +390,7 @@ export class HeadersContainer {
         }
 
         branchList.forEach((branch) => {
-            let address = branch.split('/').map(Number);
+            let address = branch.split('/').filter(v => !!v).map(Number);
             let updateMap = branchMap[branch];
 
             sourceList = this._mapBranch(address, sourceList, (h) => {
@@ -412,6 +431,10 @@ export class HeadersContainer {
 
     public getPosition(h: IHeader) {
         return this._state.positions[h.$id];
+    }
+
+    public getManualResized(h: IHeader) {
+        return !!this._state.manualResized[h.$id];
     }
 
     public getLevel(h: IHeader) {
@@ -496,13 +519,27 @@ export class HeadersContainer {
         return next._recalcHeaders();
     }
 
-    public resizeHeaders(list: { header: IHeader, size: number }[], min = 5, max = Infinity) {
+    /**
+     * Resize all provided headers.
+     * @param list Array of headers.
+     * @param clamp Size clamp function.
+     * @param behavior Defines flag when header was resized by autosize or manually.
+     * Header will not be autosized when it was manually resized. Default `"manual"`.
+     */
+    public resizeHeaders(
+        list: { header: IHeader, size: number }[],
+        clamp: HeaderClampFunction = ({ size }) => size,
+        behavior: HeaderResizeBehavior = 'manual'
+    ) {
         let updates: { header: IHeader, update: IHeader }[] = [];
+        let leaves: IHeader[] = [];
 
         list.forEach((u) => {
-            let resizeList = this._getResizeList(u.header, u.size, (sz: number) => Math.min(Math.max(min, sz), max));
+            let resizeList = this._getResizeList(u.header, u.size, clamp);
 
             resizeList.forEach(({ header, size }) => {
+                leaves.push(header);
+
                 updates.push({
                     header,
                     update: {
@@ -512,7 +549,22 @@ export class HeadersContainer {
             });
         });
 
-        return this.updateHeaders(updates);
+        let c = this.updateHeaders(updates);
+
+        switch (behavior) {
+            case 'manual':
+            case 'reset':
+                let isManual = behavior === 'manual';
+                leaves.forEach((header) => {
+                    if (isManual) {
+                        c._state.manualResized[header.$id] = true;
+                    } else {
+                        delete c._state.manualResized[header.$id];
+                    }
+                });
+        }
+
+        return c;
     }
 
     public resizeLevel(type: HeaderType, level: number, size: number, min = 5, max = Infinity) {
