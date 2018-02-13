@@ -17,8 +17,6 @@ import {
     IGridResizeHeaderLevelEvent, IGridResizeHeadersEvent
 } from './types';
 
-const Style = require('./grid.scss');
-
 export class Grid extends React.PureComponent<IGridProps, any> {
     /** React v17 deprecated */
     static childContextTypes = {
@@ -798,37 +796,23 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
     private _renderHeaderContainers = (event: IScrollViewUpdateEvent) => {
         const { clientWidth, clientHeight, scrollLeft, scrollTop } = event;
-        const cnColumns = [
-            Style.headerMount,
-            Style.headerColumns,
-            this._theme.classNames.columns
-        ].filter(v => !!(v || '').trim()).join(' ');
-
-        const cnRows = [
-            Style.headerMount,
-            Style.headerRows,
-            this._theme.classNames.rows
-        ].filter(v => !!(v || '').trim()).join(' ');
-
-        const cnCorner = [
-            Style.headerMount,
-            Style.headerCorner,
-            this._theme.classNames.gridCorner
-        ].filter(v => !!(v || '').trim()).join(' ');
 
         return (
             <div
-                className={Style.headersRoot}
                 style={{
                     width: clientWidth + this._theme.scrollSize,
-                    height: clientHeight + this._theme.scrollSize
+                    height: clientHeight + this._theme.scrollSize,
+                    pointerEvents: 'none'
                 }}
             >
                 {!!this.props.headers.headersHeight &&
                     <div
-                        className={cnColumns}
+                        className={this._theme.classNames.columns}
                         style={this._shallow.colHeaders({
                             ...this._theme.styles.columns,
+                            pointerEvents: 'initial',
+                            position: 'absolute',
+                            overflow: 'hidden',
                             left: this.props.headers.headersWidth,
                             top: 0,
                             right: 0,
@@ -840,9 +824,12 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 }
                 {!!this.props.headers.headersWidth &&
                     <div
-                        className={cnRows}
+                        className={this._theme.classNames.rows}
                         style={this._shallow.rowHeaders({
                             ...this._theme.styles.rows,
+                            pointerEvents: 'initial',
+                            position: 'absolute',
+                            overflow: 'hidden',
                             left: 0,
                             top: this.props.headers.headersHeight,
                             bottom: 0,
@@ -854,9 +841,12 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 }
                 {!!(this.props.headers.headersHeight || this.props.headers.headersWidth) &&
                     <div
-                        className={cnCorner}
+                        className={this._theme.classNames.gridCorner}
                         style={this._shallow.crnHeaders({
                             ...this._theme.styles.gridCorner,
+                            pointerEvents: 'initial',
+                            position: 'absolute',
+                            overflow: 'hidden',
                             left: 0,
                             top: 0,
                             height: this.props.headers.headersHeight,
@@ -1112,11 +1102,6 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
 
     public render() {
-        const className = [
-            Style.root,
-            this._theme.classNames.grid
-        ].filter(v => !!(v || '').trim()).join(' ');
-
         this._createView();
         this._createOverscan();
 
@@ -1124,12 +1109,20 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         return (
             <div
-                className={className}
+                className={this._theme.classNames.grid}
                 tabIndex={this.props.tabIndex == null ? -1 : this.props.tabIndex}
                 ref={this._onRef}
                 onBlur={this._onBlur}
                 onFocus={this._onFocus}
-                style={this._theme.styles.grid}
+                style={{
+                    height: '100%',
+                    width: '100%',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    userSelect: 'none',
+                    outline: 'none',
+                    ...this._theme.styles.grid
+                }}
                 onKeyDown={this._onKeyDown}
                 onMouseLeave={this._onRootMouseLeave}
                 onMouseEnter={this._onRootMouseEnter}

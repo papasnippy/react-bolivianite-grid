@@ -257,7 +257,7 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
     }
 
     /** Calculates scrollbar size, position and scale ratio. Then updates scrollbars directly. */
-    private _updateScrollbars() {
+    private _updateScrollbars(cb?: () => void) {
         let t = this._r;
         let ss = this.size;
         let sx = this.props.mode === 'x' ? 0 : ss;
@@ -294,17 +294,22 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         this._x.style.width = `${this._xsize}px`;
         this._y.style.height = `${this._ysize}px`;
 
+        let xEnabled = this.state.xEnabled;
+        let yEnabled = this.state.yEnabled;
+
         if (this._xratio === 1 && this.state.xEnabled) {
-            this.setState({ xEnabled: false });
+            xEnabled = false;
         } else if (this._xratio < 1 && !this.state.xEnabled) {
-            this.setState({ xEnabled: true });
+            xEnabled = true;
         }
 
         if (this._yratio === 1 && this.state.yEnabled) {
-            this.setState({ yEnabled: false });
+            yEnabled = false;
         } else if (this._yratio < 1 && !this.state.yEnabled) {
-            this.setState({ yEnabled: true });
+            yEnabled = true;
         }
+
+        this.setState({ xEnabled, yEnabled }, cb);
     }
 
     private _renderPartial(jsx: JSX.Element | ((props?: any) => JSX.Element), getProps?: () => any) {
@@ -516,7 +521,11 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
             }
         }, 20);
 
-        this._updateScrollbars();
+        this._updateScrollbars(() => {
+            if (this.props.onUpdate) {
+                this.props.onUpdate(this._getUpdateEventObject());
+            }
+        });
     }
 
     public componentWillUnmount() {

@@ -41,11 +41,6 @@ module.exports = (env: any = {}) => {
                         emitErrors: false,
                         failOnHint: false
                     },
-                    postcss: [
-                        require('postcss-mixins')(),
-                        require('postcss-each')(),
-                        require('postcss-cssnext')()
-                    ],
                     context: '/'
                 }
             }),
@@ -71,41 +66,6 @@ module.exports = (env: any = {}) => {
                     test: /\.tsx?$/,
                     loader: 'ts-loader'
                 },
-                {
-                    test: /(\.css$|\.scss$)/,
-                    use: [
-                        { loader: 'style-loader' },
-                        {
-                            loader: 'css-loader',
-                            query: {
-                                modules: true,
-                                minimize: false,
-                                sourceMap: true,
-                                localIdentName: '[name]__[local]___[hash:base64:5]'
-                            }
-                        },
-                        {
-                            loader: 'postcss-loader',
-                            options: {
-                                sourceMap: true
-                            }
-                        },
-                        { loader: 'resolve-url-loader' },
-                        {
-                            loader: 'sass-loader',
-                            query: {
-                                sourceMap: true
-                            }
-                        }
-                    ]
-                },
-                {
-                    test: /\.(png|jpg|gif|svg|ttf|eot|woff|woff2)$/,
-                    loader: 'url-loader',
-                    query: {
-                        limit: 65536
-                    }
-                }
             ]
         },
         devServer: {
