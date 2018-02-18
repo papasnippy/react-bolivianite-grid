@@ -146,7 +146,8 @@ export class Example extends React.Component<any, any> {
                                 gridCorner: {
                                     borderRight: 'solid 1px #999',
                                     borderBottom: 'solid 1px #999',
-                                    background: '#ccc'
+                                    background: '#ccc',
+                                    boxSizing: 'border-box'
                                 },
                                 bottomThumb: {
                                     borderRadius: 10

@@ -44,7 +44,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     private _scrollUpdateTrottled = this._rt.create();
     private _ref: HTMLDivElement = null;
     private _refView: ScrollView = null;
-    private _scrollerProps: React.HTMLProps<HTMLDivElement> = { style: { willChange: 'transform' } };
+    private _scrollerProps: React.HTMLProps<HTMLDivElement> = { style: { willChange: 'transform', zIndex: 0 } };
     private _lastView: IGridView = null;
     private _lastOverscan: IGridOverscan = null;
     private _focused = false;
@@ -802,7 +802,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 style={{
                     width: clientWidth + this._theme.scrollSize,
                     height: clientHeight + this._theme.scrollSize,
-                    pointerEvents: 'none'
+                    pointerEvents: 'none',
+                    zIndex: 1
                 }}
             >
                 {!!this.props.headers.headersHeight &&
