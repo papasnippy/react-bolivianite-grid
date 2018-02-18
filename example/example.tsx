@@ -9,10 +9,63 @@ export interface State {
     headers?: HeadersContainer;
 }
 
+const LIGHT_THEME = {
+    scrollSize: 12,
+    trackBackground: `rgba(128, 128, 128, 0.8)`,
+    thumbBackground: `rgba(0, 0, 0, 0.5)`,
+    styles: {
+        columns: {
+            background: '#ccc'
+        },
+        rows: {
+            background: '#ccc'
+        },
+        gridCorner: {
+            borderRight: 'solid 1px #999',
+            borderBottom: 'solid 1px #999',
+            background: '#ccc',
+            boxSizing: 'border-box'
+        },
+        bottomThumb: {
+            borderRadius: 10
+        },
+        rightThumb: {
+            borderRadius: 10
+        },
+    }
+};
+
+const DARK_THEME = {
+    scrollSize: 12,
+    trackBackground: `rgba(0, 0, 0, 0.8)`,
+    thumbBackground: `rgba(150, 150, 150, 0.8)`,
+    styles: {
+        columns: {
+            background: '#444'
+        },
+        rows: {
+            background: '#444'
+        },
+        gridCorner: {
+            borderRight: 'solid 1px #999',
+            borderBottom: 'solid 1px #999',
+            background: '#444',
+            boxSizing: 'border-box'
+        },
+        bottomThumb: {
+            borderRadius: 10
+        },
+        rightThumb: {
+            borderRadius: 10
+        },
+    }
+};
+
 export class Example extends React.Component<any, any> {
     state = {
         history: [this._getInitialState()],
-        index: 0
+        index: 0,
+        dark: false
     };
 
     private _getInitialState(): State {
@@ -83,13 +136,16 @@ export class Example extends React.Component<any, any> {
                     right: 0,
                     bottom: 0,
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontFamily: 'Verdana',
-                    fontSize: 14
+                    fontSize: 14,
+                    background: this.state.dark ? '#333' : '#fff',
+                    color: this.state.dark ? '#eee' : '#000'
                 }}
             >
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
                     <button
                         onClick={() => {
                             if (!this.state.index) {
@@ -119,12 +175,21 @@ export class Example extends React.Component<any, any> {
                     >
                         REDO
                     </button>
+                    <button
+                        onClick={() => {
+                            this.setState({
+                                dark: !this.state.dark
+                            });
+                        }}
+                    >
+                        {this.state.dark ? 'DARK' : 'LIGHT'} THEME
+                    </button>
                 </div>
                 <div
                     style={{
                         width: '80vw',
                         height: '80vh',
-                        border: '2px dashed #ddd',
+                        border: 'solid 2px black',
                         boxSizing: 'border-box'
                     }}
                 >
@@ -132,46 +197,27 @@ export class Example extends React.Component<any, any> {
                         headers={state.headers}
                         overscanRows={3}
                         source={state.data}
-                        theme={{
-                            scrollSize: 12,
-                            trackBackground: `rgba(128, 128, 128, 0.8)`,
-                            thumbBackground: `rgba(0, 0, 0, 0.5)`,
-                            styles: {
-                                columns: {
-                                    background: '#ccc'
-                                },
-                                rows: {
-                                    background: '#ccc'
-                                },
-                                gridCorner: {
-                                    borderRight: 'solid 1px #999',
-                                    borderBottom: 'solid 1px #999',
-                                    background: '#ccc',
-                                    boxSizing: 'border-box'
-                                },
-                                bottomThumb: {
-                                    borderRadius: 10
-                                },
-                                rightThumb: {
-                                    borderRadius: 10
-                                },
-                            }
-                        }}
+                        theme={this.state.dark ? DARK_THEME : LIGHT_THEME}
                         onRenderCell={({ style, columnIndex, rowIndex, source }) => {
                             let key = `${rowIndex} x ${columnIndex}`;
                             let display = source[key] === void 0 ? key : source[key];
+                            let borderColor = this.state.dark ? `#555` : `#aaa`;
 
                             return (
                                 <div
                                     style={{
                                         ...style,
                                         boxSizing: 'border-box',
-                                        borderRight: 'solid 1px #aaa',
-                                        borderBottom: 'solid 1px #aaa',
+                                        borderRight: `solid 1px ${borderColor}`,
+                                        borderBottom: `solid 1px ${borderColor}`,
                                         padding: '0 3px',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        background: rowIndex % 2 ? `#eee` : `#fff`
+                                        background: (
+                                            rowIndex % 2
+                                                ? this.state.dark ? `#222` : `#eee`
+                                                : this.state.dark ? `#111` : `#fff`
+                                        )
                                     }}
                                 >
                                     {display}
