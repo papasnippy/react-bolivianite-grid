@@ -22,7 +22,7 @@ module.exports = (env: any = {}) => {
             'main': Path.resolve(__dirname, './src/index.tsx')
         },
         output: {
-            path: Path.resolve(__dirname, './build'),
+            path: Path.resolve(__dirname, '../docs'),
             filename: `content/[name].[${CHUNK_TYPE}].js`
         },
         resolve: {
