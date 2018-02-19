@@ -1,3 +1,8 @@
+export enum HeaderType {
+    Row = 1,
+    Column
+}
+
 export interface IHeader {
     /** Unique header identifier for **all** headers in container. Do not edit. Assigned by header container if not provided. */
     $id?: number | string;

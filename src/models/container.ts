@@ -1,5 +1,4 @@
-import { HeaderType } from '../index';
-import { IHeader } from './header';
+import { IHeader, HeaderType } from './header';
 
 export type HeaderResizeBehavior = 'auto' | 'manual' | 'reset';
 

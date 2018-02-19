@@ -1,5 +1,5 @@
 import { KeyboardEvent } from 'react';
-import { IGridAddress, IGridSelection } from '../types';
+import { IGridAddress, IGridSelection } from '../components';
 import { Controller, IControllerProps } from './controller';
 
 export interface IKeyboardControllerRemoveEvent {

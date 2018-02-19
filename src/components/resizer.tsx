@@ -1,8 +1,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import { HeadersContainer, IHeader } from '../models';
+import { HeadersContainer, IHeader, HeaderType } from '../models';
 import { Grid } from '../components/grid';
-import { HeaderType } from '../types';
 
 export interface IResizerProps {
     header: IHeader;

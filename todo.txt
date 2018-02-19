@@ -1,7 +1,9 @@
 * todo
-    - native scroller fallback
-    - clean types declaration files
-    - lazy grid component (themed and with copy-paste)
+    - copy/paste controller
+    - expand/collapse
+    - header level autosize
+
+* finalizing
     - documentation
     - home page with demo
     - beta release
@@ -20,6 +22,12 @@
         - large 27x42
     - safari
         - not tested
+    - ie (unsupported)
+        - bottom scrollbar bugged
+        - performance
+            - small poor
+            - medium unusable
+            - large unusable
     - edge
         - performance
             - small good

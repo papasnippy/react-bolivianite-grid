@@ -9,57 +9,56 @@ export interface State {
     headers?: HeadersContainer;
 }
 
-const LIGHT_THEME: IGridTheme = {
+const THEME: IGridTheme = {
     scrollSize: 15,
     scrollSizeMinimized: 5,
     hover: 100,
-    trackBackground: `rgba(0, 0, 0, 0.2)`,
-    thumbBackground: `rgba(0, 0, 0, 0.5)`,
+    trackBackground: `rgba(15, 1, 38, 0.2)`,
+    thumbBackground: `rgba(15, 1, 38, 0.8)`,
     styles: {
         columns: {
-            background: '#ccc'
+            background: '#3C3744',
+            boxShadow: '0 0 5px #000',
+            color: '#DBDADD'
         },
         rows: {
-            background: '#ccc'
+            background: '#3C3744',
+            boxShadow: '0 0 5px #000',
+            color: '#DBDADD'
         },
         gridCorner: {
-            borderRight: 'solid 1px #999',
-            borderBottom: 'solid 1px #999',
-            background: '#ccc',
+            borderRight: 'solid 1px #000',
+            borderBottom: 'solid 1px #000',
+            background: '#3C3744',
+            color: '#DBDADD',
             boxSizing: 'border-box'
         },
         trackRoot: {
             transition: 'ease all 100ms'
         }
-    }
-};
+    },
 
-const DARK_THEME: IGridTheme = {
-    ...LIGHT_THEME,
-    trackBackground: `rgba(0, 0, 0, 0.8)`,
-    thumbBackground: `rgba(150, 150, 150, 0.8)`,
-    styles: {
-        ...LIGHT_THEME.styles,
-        columns: {
-            background: '#444'
-        },
-        rows: {
-            background: '#444'
-        },
-        gridCorner: {
-            borderRight: 'solid 1px #999',
-            borderBottom: 'solid 1px #999',
-            background: '#444',
-            boxSizing: 'border-box'
-        }
-    }
+    // custom properties
+    cellTextColor: '#211E26',
+    cellBorderColor: '#918B9C',
+    cellBackgroundEven: '#EFEFEF',
+    cellBackgroundOdd: '#FFFFFF',
+    editorBorderColor: '#918B9C',
+    editorBackground: '#FFFFFF',
+    headerBorderColor: '#000000',
+    headerBorderColorSelected: '#0F0126',
+    headerBackgroundColorSelected: '#0F0126',
+    selectionBackground: 'rgba(15, 1, 38, 0.2)',
+    selectionBackgroundActive: 'transparent',
+    selectionBorder: 'solid 1px #0F0126',
+    selectionBorderActive: 'solid 2px #0F0126',
+    resizerBackground: 'rgba(0, 0, 0, 0.4)'
 };
 
 export class Example extends React.Component<any, any> {
     state = {
         history: [this._getInitialState()],
-        index: 0,
-        dark: false
+        index: 0
     };
 
     private _getInitialState(): State {
@@ -135,8 +134,8 @@ export class Example extends React.Component<any, any> {
                     justifyContent: 'center',
                     fontFamily: 'Verdana',
                     fontSize: 14,
-                    background: this.state.dark ? '#333' : '#fff',
-                    color: this.state.dark ? '#eee' : '#000'
+                    background: '#fff',
+                    color: '#000'
                 }}
             >
                 <div style={{ display: 'flex', flexDirection: 'row', marginBottom: 10 }}>
@@ -169,16 +168,6 @@ export class Example extends React.Component<any, any> {
                     >
                         ⭮
                     </button>
-                    <button
-                        style={{ marginLeft: 200 }}
-                        onClick={() => {
-                            this.setState({
-                                dark: !this.state.dark
-                            });
-                        }}
-                    >
-                        {this.state.dark ? 'DARK' : 'LIGHT'} THEME
-                    </button>
                 </div>
                 <div
                     style={{
@@ -192,26 +181,33 @@ export class Example extends React.Component<any, any> {
                         headers={state.headers}
                         overscanRows={3}
                         source={state.data}
-                        theme={this.state.dark ? DARK_THEME : LIGHT_THEME}
-                        onRenderCell={({ style, columnIndex, rowIndex, source }) => {
+                        theme={THEME}
+                        onCopy={({ cells, withHeaders }) => {
+                            console.log('copy', { cells, withHeaders });
+                        }}
+                        onPaste={({ target, clipboard, getLastSelectedCells }) => {
+                            const selection = getLastSelectedCells();
+                            console.log('paste', { target, clipboard, selection });
+                        }}
+                        onRenderCell={({ style, columnIndex, rowIndex, source, theme }) => {
                             let key = `${rowIndex} x ${columnIndex}`;
                             let display = source[key] === void 0 ? key : source[key];
-                            let borderColor = this.state.dark ? `#555` : `#aaa`;
 
                             return (
                                 <div
                                     style={{
                                         ...style,
                                         boxSizing: 'border-box',
-                                        borderRight: `solid 1px ${borderColor}`,
-                                        borderBottom: `solid 1px ${borderColor}`,
+                                        borderRight: `solid 1px ${theme.cellBorderColor}`,
+                                        borderBottom: `solid 1px ${theme.cellBorderColor}`,
                                         padding: '0 3px',
                                         display: 'flex',
                                         alignItems: 'center',
+                                        color: theme.cellTextColor,
                                         background: (
                                             rowIndex % 2
-                                                ? this.state.dark ? `#222` : `#eee`
-                                                : this.state.dark ? `#111` : `#fff`
+                                                ? theme.cellBackgroundEven
+                                                : theme.cellBackgroundOdd
                                         )
                                     }}
                                 >
@@ -219,7 +215,7 @@ export class Example extends React.Component<any, any> {
                                 </div>
                             );
                         }}
-                        onRenderEditor={({ style, columnIndex, rowIndex, update, source }) => {
+                        onRenderEditor={({ style, columnIndex, rowIndex, update, source, theme }) => {
                             let key = `${rowIndex} x ${columnIndex}`;
                             let initialValue = source[key] === void 0 ? key : source[key];
                             return (
@@ -227,12 +223,12 @@ export class Example extends React.Component<any, any> {
                                     style={{
                                         ...style,
                                         boxSizing: 'border-box',
-                                        borderRight: 'solid 1px #aaa',
-                                        borderBottom: 'solid 1px #aaa',
+                                        borderRight: `solid 1px ${theme.editorBorderColor}`,
+                                        borderBottom: `solid 1px ${theme.editorBorderColor}`,
                                         padding: '0 3px',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        background: rowIndex % 2 ? `#eee` : `#fff`
+                                        background: theme.editorBackground
                                     }}
                                 >
                                     <Editor
@@ -242,19 +238,31 @@ export class Example extends React.Component<any, any> {
                                 </div>
                             );
                         }}
-                        onRenderHeader={({ style, type, selection, header, viewIndex }) => {
+                        onRenderHeader={({ style, type, selection, header, viewIndex, theme }) => {
+                            let rcolor = (
+                                type === HeaderType.Row && selection
+                                    ? theme.headerBorderColorSelected
+                                    : theme.headerBorderColor
+                            );
+
+                            let bcolor = (
+                                type === HeaderType.Column && selection
+                                    ? theme.headerBorderColorSelected
+                                    : theme.headerBorderColor
+                            );
+
                             let nextStyle: React.CSSProperties = {
                                 ...style,
                                 boxSizing: 'border-box',
-                                borderRight: `solid 1px #${type === HeaderType.Row && selection ? '0af' : '999'}`,
-                                borderBottom: `solid 1px #${type === HeaderType.Column && selection ? '0af' : '999'}`,
+                                borderRight: `solid 1px ${rcolor}`,
+                                borderBottom: `solid 1px ${bcolor}`,
                                 padding: '0 3px',
                                 display: 'flex',
                                 alignItems: 'center'
                             };
 
                             if (selection) {
-                                nextStyle.backgroundColor = `rgba(0, 0, 0, 0.1)`;
+                                nextStyle.backgroundColor = theme.headerBackgroundColorSelected;
                             }
 
                             if (type === HeaderType.Row) {
@@ -272,7 +280,7 @@ export class Example extends React.Component<any, any> {
                                 </div>
                             );
                         }}
-                        onRenderSelection={({ key, style, active, edit }) => {
+                        onRenderSelection={({ key, style, active, edit, theme }) => {
                             style.left--;
                             style.top--;
                             style.width++;
@@ -284,8 +292,8 @@ export class Example extends React.Component<any, any> {
                                     style={{
                                         ...style,
                                         boxSizing: 'border-box',
-                                        backgroundColor: (edit || active) ? null : `rgba(0, 125, 255, 0.2)`,
-                                        border: `solid ${active ? 2 : 1}px #0af`
+                                        backgroundColor: (active || edit) ? theme.selectionBackgroundActive : theme.selectionBackground,
+                                        border: active ? theme.selectionBorderActive : theme.selectionBorder
                                     }}
                                 />
                             );
@@ -326,8 +334,8 @@ export class Example extends React.Component<any, any> {
                                 headers: state.headers.resizeLevel(type, level, size, type === HeaderType.Column ? 25 : 50)
                             });
                         }}
-                        onRenderResizer={({ style }) => {
-                            style.background = `rgba(0, 0, 0, 0.4)`;
+                        onRenderResizer={({ style, theme }) => {
+                            style.background = theme.resizerBackground;
                             return (
                                 <div style={style} />
                             );

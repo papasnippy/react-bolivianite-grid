@@ -1,5 +1,6 @@
 import { MouseEvent } from 'react';
-import { IGridAddress, HeaderType } from '../types';
+import { IGridAddress } from '../components';
+import { HeaderType } from '../models';
 import { Controller, IControllerProps } from './controller';
 
 export interface IMouseControllerProps extends IControllerProps {

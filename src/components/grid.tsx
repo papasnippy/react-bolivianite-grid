@@ -7,14 +7,11 @@ import {
     MouseController, IKeyboardControllerPasteEvent
 } from '../controllers';
 import {
-    IGridAddress, IGridSelection, IGridView, IGridOverscan, HeaderType
-} from '../types';
-import {
-    IHeader, HeaderResizeBehavior, HeadersContainer
+    IHeader, HeaderResizeBehavior, HeadersContainer, HeaderType
 } from '../models';
 import {
     IGridProps, ICellMeasureResult, ICellRenderBaseEvent, ICellRendererEvent,
-    IGridResizeHeaderLevelEvent, IGridResizeHeadersEvent
+    IGridResizeHeaderLevelEvent, IGridResizeHeadersEvent, IGridAddress, IGridSelection, IGridView, IGridOverscan
 } from './types';
 
 export class Grid extends React.PureComponent<IGridProps, any> {
@@ -501,6 +498,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             columnHeader: ch,
             active: row === this.state.active.row && col === this.state.active.column,
             source: this.props.source,
+            theme: this.props.theme,
             style: {
                 top: this.props.headers.getPosition(rh),
                 left: this.props.headers.getPosition(ch),
@@ -668,6 +666,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             type, header, style, parent,
             selection: parent ? false : selection,
             parentHeader: headerParent,
+            theme: this.props.theme,
             viewIndex: this.props.headers.getViewIndex(header)
         });
 
@@ -784,8 +783,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         if (this.state.resizeHeaderPreview || this.state.resizeLevelPreview) {
             return (
                 <>
-                    {this.props.onRenderResizer({ type, orientation, style: styleInitial, resizer: 'initial' })}
-                    {this.props.onRenderResizer({ type, orientation, style: styleChanged, resizer: 'changed' })}
+                    {this.props.onRenderResizer({ type, orientation, style: styleInitial, resizer: 'initial', theme: this.props.theme })}
+                    {this.props.onRenderResizer({ type, orientation, style: styleChanged, resizer: 'changed', theme: this.props.theme })}
                 </>
             );
         }
@@ -875,6 +874,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 key: i,
                 active: false,
                 edit: !!this.state.edit,
+                theme: this.props.theme,
                 style: {
                     position: 'absolute',
                     zIndex: i,
@@ -895,6 +895,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             key: ax,
             active: true,
             edit: !!this.state.edit,
+            theme: this.props.theme,
             style: {
                 position: 'absolute',
                 zIndex: ax,

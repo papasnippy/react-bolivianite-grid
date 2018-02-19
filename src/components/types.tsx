@@ -1,7 +1,34 @@
-import { IGridAddress, HeaderType } from '../types';
-import { IHeader, HeaderResizeBehavior, HeadersContainer } from '../models';
+import { IHeader, HeaderResizeBehavior, HeadersContainer, HeaderType } from '../models';
 import { IKeyboardControllerRemoveEvent, IKeyboardControllerPasteEvent } from '../controllers';
 import { IScrollViewThemeStyles, IScrollViewThemeClassNames, IScrollViewTheme } from './scrollview';
+
+export interface IGridSelection {
+    row: number;
+    column: number;
+    width: number;
+    height: number;
+}
+
+export interface IGridAddress {
+    row: number;
+    column: number;
+}
+
+export interface IGridView {
+    firstRow: number;
+    lastRow: number;
+    firstColumn: number;
+    lastColumn: number;
+    rowsHeight: number;
+    columnsWidth: number;
+}
+
+export interface IGridOverscan {
+    firstRow: number;
+    lastRow: number;
+    firstColumn: number;
+    lastColumn: number;
+}
 
 export interface ICellRenderBaseEvent {
     rowIndex: number;
@@ -14,6 +41,7 @@ export interface ICellRenderBaseEvent {
 export interface ICellRendererEvent extends ICellRenderBaseEvent {
     active: boolean;
     style: React.CSSProperties;
+    theme: IGridTheme;
 }
 
 export interface ICellsMeasureEvent {
@@ -33,6 +61,7 @@ export interface ICellEditorEvent extends ICellRendererEvent {
     close: (commit: boolean) => void;
     /** Set update for this cell. */
     update: (nextValue: any) => void;
+    theme: IGridTheme;
 }
 
 export interface IResizerRenderEvent {
@@ -40,6 +69,7 @@ export interface IResizerRenderEvent {
     orientation: 'horizontal' | 'vertical';
     resizer: 'initial' | 'changed';
     style: React.CSSProperties;
+    theme: IGridTheme;
 }
 
 export interface IHeaderRendererEvent {
@@ -50,6 +80,7 @@ export interface IHeaderRendererEvent {
     parent: boolean;
     viewIndex: number;
     parentHeader: IHeader;
+    theme: IGridTheme;
 }
 
 export interface ISelectionRendererEvent {
@@ -57,6 +88,7 @@ export interface ISelectionRendererEvent {
     style: React.CSSProperties;
     active: boolean;
     edit: boolean;
+    theme: IGridTheme;
 }
 
 export interface IGridSpaceEvent {
@@ -120,6 +152,7 @@ export interface IGridTheme extends IScrollViewTheme {
     hover?: number;
     classNames?: IGridThemeClassNames;
     styles?: IGridThemeStyles;
+    [key: string]: any;
 }
 
 export interface IGridProps {
