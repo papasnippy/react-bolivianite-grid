@@ -27,5 +27,4 @@
 npm-debug.log
 testem.log
 yarn-error.log
-/build/
 webpack-test/
