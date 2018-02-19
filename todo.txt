@@ -1,11 +1,11 @@
 * todo
     - native scroller fallback
-    - scroller over mode with autohide scrollbars
     - build
     - lazy grid component (themed and with copy-paste)
     - license
     - documentation
     - scroller separate component package
+    - rendering optimizations
     - beta release
 
 * noted

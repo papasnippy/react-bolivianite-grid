@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { getScrollbarSize } from '../controllers';
+import { getScrollbarSize, getRelativePosition, Shallow } from '../controllers';
 
 export interface IScrollViewUpdateEvent {
     scrollLeft: number;
@@ -13,6 +13,9 @@ export interface IScrollViewUpdateEvent {
 export type TScrollViewPartial<T = any> = JSX.Element | ((props: T) => JSX.Element);
 
 export interface IScrollViewThemeClassNames {
+    trackRoot?: string;
+    track?: string;
+    thumb?: string;
     bottomTrack?: string;
     bottomThumb?: string;
     rightTrack?: string;
@@ -21,6 +24,9 @@ export interface IScrollViewThemeClassNames {
 }
 
 export interface IScrollViewThemeStyles {
+    trackRoot?: React.CSSProperties;
+    track?: React.CSSProperties;
+    thumb?: React.CSSProperties;
     bottomTrack?: React.CSSProperties;
     bottomThumb?: React.CSSProperties;
     rightTrack?: React.CSSProperties;
@@ -30,6 +36,7 @@ export interface IScrollViewThemeStyles {
 
 export interface IScrollViewTheme {
     scrollSize?: number;
+    scrollSizeMinimized?: number;
     scrollMinimum?: number;
     trackBackground?: string;
     thumbBackground?: string;
@@ -40,10 +47,10 @@ export interface IScrollViewTheme {
 export interface IScrollViewProps {
     height?: number | string;
     width?: number | string;
-    /** If true - scrollbars will be rendered over content. No padding for scrollbars */
-    over?: boolean;
+    /** If defined scrollbars will be rendered over content. No padding for scrollbars. Value defines hover detect size. */
+    hover?: number;
     /** If defined - scrollbar will br enabled only for x or y axis */
-    mode?: 'x' | 'y';
+    lock?: 'x' | 'y';
     /** Css props passed to scroller element */
     scrollerProps?: React.HTMLProps<HTMLDivElement>;
 
@@ -65,7 +72,22 @@ export interface IScrollViewProps {
 export class ScrollView extends React.Component<IScrollViewProps, any> {
     state = {
         xEnabled: false,
-        yEnabled: false
+        yEnabled: false,
+        minimized: true
+    };
+
+    private _sh = {
+        root: Shallow<React.CSSProperties>(),
+        body: Shallow<React.CSSProperties>(),
+        bodyPadding: Shallow<React.CSSProperties>(),
+        xRoot: Shallow<React.CSSProperties>(),
+        xTrack: Shallow<React.CSSProperties>(),
+        xThumb: Shallow<React.CSSProperties>(),
+        yRoot: Shallow<React.CSSProperties>(),
+        yTrack: Shallow<React.CSSProperties>(),
+        yThumb: Shallow<React.CSSProperties>(),
+        zRoot: Shallow<React.CSSProperties>(),
+        zTrack: Shallow<React.CSSProperties>(),
     };
 
     private _scrollBarSize = getScrollbarSize();
@@ -96,7 +118,11 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         theme.classNames = theme.classNames || {};
         theme.styles = theme.styles || {};
         theme.scrollSize = theme.scrollSize || 17;
+        theme.scrollSizeMinimized = theme.scrollSizeMinimized || 5;
         theme.scrollMinimum = theme.scrollMinimum || 20;
+        theme.styles.trackRoot = theme.styles.trackRoot || {};
+        theme.styles.track = theme.styles.track || {};
+        theme.styles.thumb = theme.styles.thumb || {};
         theme.styles.bottomThumb = theme.styles.bottomThumb || {};
         theme.styles.bottomTrack = theme.styles.bottomTrack || {};
         theme.styles.rightTrack = theme.styles.rightTrack || {};
@@ -106,7 +132,17 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
     }
 
     public get size() {
-        return Math.max(0, this._theme.scrollSize || 0);
+        return this.props.hover ? 0 : Math.max(0, this._theme.scrollSize || 0);
+    }
+
+    public get scrollbarSize() {
+        const size = (
+            this.props.hover && this.state.minimized
+                ? this._theme.scrollSizeMinimized
+                : this._theme.scrollSize
+        );
+
+        return Math.max(0, size || 0);
     }
 
     public get scrollLeft() {
@@ -126,23 +162,23 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
     }
 
     public get scrollWidth() {
-        let size = this.props.mode === 'x' ? 0 : this.size;
-        return this._r.scrollWidth - (this.props.over ? 0 : size);
+        let size = this.props.lock === 'x' ? 0 : this.size;
+        return this._r.scrollWidth - (this.props.hover ? 0 : size);
     }
 
     public get scrollHeight() {
-        let size = this.props.mode === 'y' ? 0 : this.size;
-        return this._r.scrollHeight - (this.props.over ? 0 : size);
+        let size = this.props.lock === 'y' ? 0 : this.size;
+        return this._r.scrollHeight - (this.props.hover ? 0 : size);
     }
 
     public get clientWidth() {
-        let size = this.props.mode === 'x' ? 0 : this.size;
-        return this._a.clientWidth - (this.props.over ? 0 : size);
+        let size = this.props.lock === 'x' ? 0 : this.size;
+        return this._a.clientWidth - (this.props.hover ? 0 : size);
     }
 
     public get clientHeight() {
-        let size = this.props.mode === 'y' ? 0 : this.size;
-        return this._a.clientHeight - (this.props.over ? 0 : size);
+        let size = this.props.lock === 'y' ? 0 : this.size;
+        return this._a.clientHeight - (this.props.hover ? 0 : size);
     }
 
     private _onRef = (r: HTMLDivElement) => {
@@ -195,6 +231,22 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         if (this._ymove > -1) {
             this._r.scrollTop = this._ymoveScrollPos + (e.clientY - this._ymove) / this._yratio;
         }
+    }
+
+    private _onRootMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+        let { x, y } = getRelativePosition(e.pageX, e.pageY, this._a);
+        let h = this._a.clientHeight;
+        let w = this._a.clientWidth;
+        let t = this.props.hover;
+        let minimized = (w - x > t) && (h - y > t);
+
+        if (minimized !== this.state.minimized) {
+            this.setState({ minimized });
+        }
+    }
+
+    private _onRootMouseLeave = () => {
+        this.setState({ minimized: true });
     }
 
     private _onMouseUp = () => {
@@ -260,8 +312,8 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
     private _updateScrollbars(cb?: () => void) {
         let t = this._r;
         let ss = this.size;
-        let sx = this.props.mode === 'x' ? 0 : ss;
-        let sy = this.props.mode === 'y' ? 0 : ss;
+        let sx = this.props.lock === 'x' ? 0 : ss;
+        let sy = this.props.lock === 'y' ? 0 : ss;
         let sm = this._theme.scrollMinimum; // scrollbar minimum length
 
         // size of the canvas
@@ -318,22 +370,15 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         }
 
         const props = getProps ? getProps() : {};
-
-        if (typeof jsx === 'function') {
-            jsx = jsx(props);
-        } else {
-            jsx = React.cloneElement(React.Children.only(jsx), props);
-        }
-
-        return jsx;
+        return typeof jsx === 'function' ? jsx(props) : React.cloneElement(React.Children.only(jsx), props);
     }
 
     private _renderBody(paddingSize: number) {
         let ap: any = {};
 
-        if (this.props.mode === 'x') {
+        if (this.props.lock === 'x') {
             ap['overflowY'] = 'hidden';
-        } else if (this.props.mode === 'y') {
+        } else if (this.props.lock === 'y') {
             ap['overflowX'] = 'hidden';
         }
 
@@ -341,24 +386,24 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
             <div
                 {...this.props.scrollerProps}
                 ref={this._onRef}
-                style={{
+                style={this._sh.body({
                     ...(this.props.scrollerProps && this.props.scrollerProps.style || {}),
                     position: 'absolute',
                     left: 0,
                     top: 0,
-                    right: this.props.mode === 'x' ? 0 : -this._scrollBarSize,
-                    bottom: this.props.mode === 'y' ? 0 : -this._scrollBarSize,
+                    right: this.props.lock === 'x' ? 0 : -this._scrollBarSize,
+                    bottom: this.props.lock === 'y' ? 0 : -this._scrollBarSize,
                     overflow: 'scroll',
                     boxSizing: 'content-box',
                     ...ap
-                }}
+                })}
             >
                 <div
-                    style={{
+                    style={this._sh.bodyPadding({
                         display: 'inline-flex',
-                        paddingRight: this.props.mode === 'x' ? 0 : paddingSize,
-                        paddingBottom: this.props.mode === 'y' ? 0 : paddingSize
-                    }}
+                        paddingRight: this.props.lock === 'x' ? 0 : paddingSize,
+                        paddingBottom: this.props.lock === 'y' ? 0 : paddingSize
+                    })}
                 >
                     {this.props.children}
                 </div>
@@ -369,20 +414,23 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
     private _renderXScrollbar(scrollSize: number) {
         return (
             <div
-                style={{
+                className={this._theme.classNames.trackRoot}
+                style={this._sh.xRoot({
+                    ...this._theme.styles.trackRoot,
                     background: this._theme.trackBackground,
                     position: 'absolute',
                     left: 0,
-                    right: this.props.mode === 'x' ? 0 : scrollSize,
+                    right: this.props.lock === 'x' ? 0 : scrollSize,
                     bottom: 0,
                     height: scrollSize,
-                    display: this.props.mode === 'y' ? 'none' : '',
+                    display: this.props.lock === 'y' ? 'none' : '',
                     zIndex: 1
-                }}
+                })}
             >
                 <div
-                    className={this._theme.classNames.bottomTrack}
-                    style={{
+                    className={[this._theme.classNames.track, this._theme.classNames.bottomTrack].filter(v => !!v).join(' ')}
+                    style={this._sh.xTrack({
+                        ...this._theme.styles.track,
                         ...this._theme.styles.bottomTrack,
                         position: 'absolute',
                         left: 0,
@@ -390,7 +438,7 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                         right: 0,
                         bottom: 0,
                         overflow: 'hidden'
-                    }}
+                    })}
                     onMouseDown={this._onScrollMouseX}
                 >
                     {this._renderPartial(this.props.xBackgroundContent)}
@@ -398,14 +446,15 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                 <div
                     className={this._theme.classNames.bottomThumb}
                     ref={this._onRefX}
-                    style={{
+                    style={this._sh.xThumb({
                         background: this._theme.thumbBackground,
+                        ...this._theme.styles.thumb,
                         ...this._theme.styles.bottomThumb,
                         position: 'absolute',
                         top: 0,
                         height: '100%',
                         display: this.state.xEnabled ? '' : 'none'
-                    }}
+                    })}
                 >
                     {this._renderPartial(this.props.xScrollContent)}
                 </div>
@@ -416,20 +465,23 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
     private _renderYScrollbar(scrollSize: number) {
         return (
             <div
-                style={{
+                className={this._theme.classNames.trackRoot}
+                style={this._sh.yRoot({
+                    ...this._theme.styles.trackRoot,
                     background: this._theme.trackBackground,
                     position: 'absolute',
                     right: 0,
-                    bottom: this.props.mode === 'y' ? 0 : scrollSize,
+                    bottom: this.props.lock === 'y' ? 0 : scrollSize,
                     top: 0,
                     width: scrollSize,
-                    display: this.props.mode === 'x' ? 'none' : '',
+                    display: this.props.lock === 'x' ? 'none' : '',
                     zIndex: 1
-                }}
+                })}
             >
                 <div
-                    className={this._theme.classNames.rightTrack}
-                    style={{
+                    className={[this._theme.classNames.track, this._theme.classNames.rightTrack].filter(v => !!v).join(' ')}
+                    style={this._sh.yTrack({
+                        ...this._theme.styles.track,
                         ...this._theme.styles.rightTrack,
                         position: 'absolute',
                         left: 0,
@@ -437,7 +489,7 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                         right: 0,
                         bottom: 0,
                         overflow: 'hidden'
-                    }}
+                    })}
                     onMouseDown={this._onScrollMouseY}
                 >
                     {this._renderPartial(this.props.yBackgroundContent)}
@@ -445,14 +497,15 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                 <div
                     className={this._theme.classNames.rightTrack}
                     ref={this._onRefY}
-                    style={{
+                    style={this._sh.yThumb({
                         background: this._theme.thumbBackground,
+                        ...this._theme.styles.thumb,
                         ...this._theme.styles.rightThumb,
                         position: 'absolute',
                         right: 0,
                         width: '100%',
                         display: this.state.yEnabled ? '' : 'none'
-                    }}
+                    })}
                 >
                     {this._renderPartial(this.props.yScrollContent)}
                 </div>
@@ -464,20 +517,22 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
     private _renderZScrollbar(scrollSize: number) {
         return (
             <div
-                style={{
+                className={this._theme.classNames.trackRoot}
+                style={this._sh.zRoot({
+                    ...this._theme.styles.trackRoot,
                     background: this._theme.trackBackground,
                     position: 'absolute',
                     bottom: 0,
                     right: 0,
                     height: scrollSize,
                     width: scrollSize,
-                    display: (this.props.mode === 'x' || this.props.mode === 'y') ? 'none' : '',
+                    display: (this.props.lock === 'x' || this.props.lock === 'y') ? 'none' : '',
                     zIndex: 1
-                }}
+                })}
             >
                 <div
                     className={this._theme.classNames.scrollCorner}
-                    style={{
+                    style={this._sh.zTrack({
                         ...this._theme.styles.scrollCorner,
                         position: 'absolute',
                         left: 0,
@@ -486,7 +541,7 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                         bottom: 0,
                         overflow: 'hidden',
                         pointerEvents: 'none'
-                    }}
+                    })}
                 >
                     {this._renderPartial(this.props.zBackgroundContent)}
                 </div>
@@ -538,20 +593,20 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
     }
 
     public render() {
-        let ss = this.size;
-        let ps = this.props.over ? 0 : ss;
-
+        let ss = this.scrollbarSize;
         return (
             <div
                 ref={this._onRefA}
-                style={{
+                style={this._sh.root({
                     height: this.props.height == void 0 ? '100%' : this.props.height,
                     width: this.props.width == void 0 ? '100%' : this.props.width,
                     boxSizing: 'border-box',
                     position: 'relative'
-                }}
+                })}
+                onMouseMove={this._onRootMouseMove}
+                onMouseLeave={this._onRootMouseLeave}
             >
-                {this._renderBody(ps)}
+                {this._renderBody(this.size)}
                 {this._renderPartial(this.props.after, () => this._getUpdateEventObject())}
                 {this._renderXScrollbar(ss)}
                 {this._renderYScrollbar(ss)}
@@ -562,4 +617,3 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
 }
 
 export default ScrollView;
-

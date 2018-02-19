@@ -116,6 +116,8 @@ export interface IGridThemeStyles extends IScrollViewThemeStyles {
 }
 
 export interface IGridTheme extends IScrollViewTheme {
+    /** If defined scrollbars will be rendered over content. No padding for scrollbars. Value defines hover detect size. */
+    hover?: number;
     classNames?: IGridThemeClassNames;
     styles?: IGridThemeStyles;
 }

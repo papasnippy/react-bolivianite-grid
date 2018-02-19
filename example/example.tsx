@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Grid, Resizer, HeadersContainer, HeaderType, ICellMeasureResult } from '../src';
+import { Grid, Resizer, HeadersContainer, HeaderType, ICellMeasureResult, IGridTheme } from '../src';
 import Editor from './editor';
 
 export interface State {
@@ -9,9 +9,11 @@ export interface State {
     headers?: HeadersContainer;
 }
 
-const LIGHT_THEME = {
-    scrollSize: 12,
-    trackBackground: `rgba(128, 128, 128, 0.8)`,
+const LIGHT_THEME: IGridTheme = {
+    scrollSize: 15,
+    scrollSizeMinimized: 5,
+    hover: 100,
+    trackBackground: `rgba(0, 0, 0, 0.2)`,
     thumbBackground: `rgba(0, 0, 0, 0.5)`,
     styles: {
         columns: {
@@ -26,20 +28,18 @@ const LIGHT_THEME = {
             background: '#ccc',
             boxSizing: 'border-box'
         },
-        bottomThumb: {
-            borderRadius: 10
-        },
-        rightThumb: {
-            borderRadius: 10
-        },
+        trackRoot: {
+            transition: 'ease all 100ms'
+        }
     }
 };
 
-const DARK_THEME = {
-    scrollSize: 12,
+const DARK_THEME: IGridTheme = {
+    ...LIGHT_THEME,
     trackBackground: `rgba(0, 0, 0, 0.8)`,
     thumbBackground: `rgba(150, 150, 150, 0.8)`,
     styles: {
+        ...LIGHT_THEME.styles,
         columns: {
             background: '#444'
         },
@@ -51,13 +51,7 @@ const DARK_THEME = {
             borderBottom: 'solid 1px #999',
             background: '#444',
             boxSizing: 'border-box'
-        },
-        bottomThumb: {
-            borderRadius: 10
-        },
-        rightThumb: {
-            borderRadius: 10
-        },
+        }
     }
 };
 
@@ -145,7 +139,7 @@ export class Example extends React.Component<any, any> {
                     color: this.state.dark ? '#eee' : '#000'
                 }}
             >
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                <div style={{ display: 'flex', flexDirection: 'row', marginBottom: 10 }}>
                     <button
                         onClick={() => {
                             if (!this.state.index) {
@@ -157,9 +151,9 @@ export class Example extends React.Component<any, any> {
                             });
                         }}
                     >
-                        UNDO
+                        ⮌
                     </button>
-                    <div>
+                    <div style={{ margin: '0 10px' }}>
                         H: {this.state.index}/{this.state.history.length - 1}
                     </div>
                     <button
@@ -173,9 +167,10 @@ export class Example extends React.Component<any, any> {
                             });
                         }}
                     >
-                        REDO
+                        ⭮
                     </button>
                     <button
+                        style={{ marginLeft: 200 }}
                         onClick={() => {
                             this.setState({
                                 dark: !this.state.dark

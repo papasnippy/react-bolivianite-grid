@@ -179,7 +179,6 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
     private get _theme() {
         let theme = this.props.theme || {};
-        theme.scrollSize = theme.scrollSize || 15;
         theme.classNames = theme.classNames || {};
         theme.styles = theme.styles || {};
         theme.styles.grid = theme.styles.grid || {};
@@ -1130,6 +1129,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 onMouseDown={this._onRootMouseDown}
             >
                 <ScrollView
+                    hover={this._theme.hover}
                     ref={this._onRefView}
                     onUpdate={this._onScrollViewUpdate}
                     scrollerProps={this._scrollerProps}
