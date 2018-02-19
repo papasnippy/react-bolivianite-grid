@@ -1,8 +1,10 @@
 {
   "name": "react-flat-grid",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "react grid component",
   "main": "index.js",
+  "module": "__es_module/index.js",
+  "typings": "index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "w": "./node_modules/.bin/webpack-dev-server --open",

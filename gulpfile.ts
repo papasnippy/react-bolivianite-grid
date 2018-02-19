@@ -1,11 +1,8 @@
-/**
- * THIS FILE SHOULD BE REWRITTEN!
- */
 import * as  gts from 'gulp-typescript';
 import * as sourcemaps from 'gulp-sourcemaps';
 const gulp = require('gulp');
 
-const tsCommonjs = gts.createProject('tsconfig.json', { declaration: true });
+const tsCommonjs = gts.createProject('tsconfig.json', { declaration: true, allowJs: false });
 const tsModule = gts.createProject('tsconfig.json', { module: 'es2015', target: 'es6' });
 
 function createBuild(type: 'cjs' | 'es') {
@@ -15,24 +12,17 @@ function createBuild(type: 'cjs' | 'es') {
             .pipe(sourcemaps.init())
             .pipe(type === 'cjs' ? tsCommonjs() : tsModule())
             .pipe(sourcemaps.write('.'))
-            .pipe(gulp.dest(`build${type === 'es' ? '/es' : ''}`));
+            .pipe(gulp.dest(`build${type === 'es' ? '/__es_module' : ''}`));
     });
 }
 
-gulp.task(`package.json`, () => {
+gulp.task(`copy`, () => {
     return gulp
-        .src(['./package.json'])
+        .src(['./package.json', './LICENSE'])
         .pipe(gulp.dest('build'));
-});
-
-gulp.task(`scss`, () => {
-    return gulp
-        .src(['./src/**/*.scss'])
-        .pipe(gulp.dest('build'))
-        .pipe(gulp.dest('build/es'));
 });
 
 createBuild('cjs');
 createBuild('es');
 
-gulp.task('default', ['build::cjs', 'build::es', 'package.json', 'scss']);
+gulp.task('default', ['build::cjs', 'build::es', 'copy']);
