@@ -1,0 +1,17 @@
+:local {
+    .root {
+        display: flex;
+        flex: 1;
+        height: 100%;
+        flex-direction: column;
+        background: var(--app--background);
+        font-family: var(--app--font-family);
+        font-size: var(--app--font-size);
+        
+        .content {
+            display: flex;
+            flex: 1;
+            height: 100%;
+        }
+    }
+}

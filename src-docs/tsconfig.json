@@ -4,7 +4,9 @@
         "baseUrl": ".",
         "paths": {
             "react-bolivianite-grid": ["../src"],
-            "react-bolivianite-grid/*": ["../react-bolivianite-grid/*"]
+            "react-bolivianite-grid/*": ["../react-bolivianite-grid/*"],
+            "~": ["./src"],
+            "~/*": ["./src/*"]
         }
     }
 }

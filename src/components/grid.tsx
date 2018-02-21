@@ -1130,6 +1130,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 onMouseDown={this._onRootMouseDown}
             >
                 <ScrollView
+                    middleLayer
                     hover={this._theme.hover}
                     ref={this._onRefView}
                     onUpdate={this._onScrollViewUpdate}

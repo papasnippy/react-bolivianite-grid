@@ -10,6 +10,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 module.exports = (env: any = {}) => {
     const PORT = env['port'] || 18001;
     const IS_PROD = env['production'];
+    const IS_REPORT = env['report'];
     const CHUNK_TYPE = IS_PROD ? 'chunkhash' : 'hash';
 
     return {
@@ -28,7 +29,8 @@ module.exports = (env: any = {}) => {
         resolve: {
             extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.scss', '.css'],
             alias: {
-                'react-bolivianite-grid': Path.resolve(__dirname, '../src')
+                'react-bolivianite-grid': Path.resolve(__dirname, '../src'),
+                '~': Path.resolve(__dirname, './src')
             },
             modules: [
                 'node_modules',
@@ -40,7 +42,7 @@ module.exports = (env: any = {}) => {
                 parallel: true,
                 sourceMap: true
             }),
-            IS_PROD && new BundleAnalyzerPlugin({
+            IS_REPORT && new BundleAnalyzerPlugin({
                 analyzerMode: 'static'
             }),
             IS_PROD && new Webpack.optimize.CommonsChunkPlugin({
@@ -50,6 +52,25 @@ module.exports = (env: any = {}) => {
             IS_PROD && new Webpack.optimize.CommonsChunkPlugin({
                 name: 'runtime',
                 minChunks: Infinity
+            }),
+            new Webpack.LoaderOptionsPlugin({
+                options: {
+                    tslint: {
+                        emitErrors: IS_PROD,
+                        failOnHint: false
+                    },
+                    postcss: [
+                        require('postcss-mixins')(),
+                        require('postcss-each')(),
+                        require('postcss-cssnext')()
+                    ],
+                    context: '/'
+                }
+            }),
+            new ExtractTextPlugin({
+                filename: `content/[name].[${CHUNK_TYPE}].css`,
+                disable: false,
+                allChunks: true
             }),
             new Webpack.DefinePlugin({
                 'process.env': {

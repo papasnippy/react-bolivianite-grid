@@ -1,0 +1,50 @@
+:local {
+    .root {
+        cursor: pointer;
+        display: flex;
+        overflow: hidden;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        min-width: 100px;
+        box-sizing: border-box;
+        font-weight: bold;
+        text-transform: uppercase;
+        user-select: none;
+        padding: 0 var(--padding-small);
+        border-width: 3px;
+        border-color: var(--menu-item--color);
+        color: var(--menu-item--color);
+        background: var(--menu-item--background);
+        &.left {
+            border-left-style: solid;
+        }
+        &.top {
+            border-top-style: solid;
+        }
+        &.right {
+            border-right-style: solid;
+        }
+        &.bottom {
+            border-bottom-style: solid;
+        }
+        &.left,
+        &.right {
+            margin-bottom: 2px;
+        }
+        &.top,
+        &.bottom {
+            margin-right: 2px;
+        }
+        &.selected {
+            color: var(--menu-item--selected-color);
+            border-color: var(--menu-item--selected-color);
+            background: var(--menu-item--selected-background);
+        }
+        &:hover {
+            color: var(--menu-item--hover-color);
+            border-color: var(--menu-item--hover-color);
+            background: var(--menu-item--hover-background);
+        }
+    }
+}

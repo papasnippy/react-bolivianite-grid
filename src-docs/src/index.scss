@@ -1,0 +1,25 @@
+:root {
+    // https://coolors.co/333745-01172f-eae8ff-807f8c-adacb5
+    // http://colorsafe.co/
+
+    --padding-big: 30px;
+    --padding-medium: 20px;
+    --padding-small: 10px;
+
+    --app--max-width: 1920px;
+    --app--background: #333745;
+    --app--font-family: "Open Sans", Verdana, Geneva, Tahoma, sans-serif;
+    --app--font-size: 12px;
+
+    --toolbar--height: 48px;
+    --toolbar--background: #01172F;
+    --toolbar--color: #807F8C;
+    --toolbar--hover-color: #EAE8FF;
+
+    --menu-item--background: #01172F;
+    --menu-item--hover-background: #011123;
+    --menu-item--selected-background: #01172F;
+    --menu-item--color: #807F8C;
+    --menu-item--hover-color: #EAE8FF;
+    --menu-item--selected-color: #EAE8FF;
+}

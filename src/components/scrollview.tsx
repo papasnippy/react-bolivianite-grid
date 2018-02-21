@@ -45,6 +45,8 @@ export interface IScrollViewTheme {
 }
 
 export interface IScrollViewProps {
+    middleLayer?: boolean;
+
     height?: number | string;
     width?: number | string;
     /** If defined scrollbars will be rendered over content. No padding for scrollbars. Value defines hover detect size. */
@@ -55,7 +57,6 @@ export interface IScrollViewProps {
     scrollerProps?: React.HTMLProps<HTMLDivElement>;
 
     after?: TScrollViewPartial<IScrollViewUpdateEvent>;
-
     theme?: IScrollViewTheme;
 
     xScrollContent?: TScrollViewPartial;
@@ -238,7 +239,10 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         let h = this._a.clientHeight;
         let w = this._a.clientWidth;
         let t = this.props.hover;
-        let minimized = (w - x > t) && (h - y > t);
+        let minimized = (
+            (this.props.lock && this.props.lock !== 'y' || w - x > t) &&
+            (this.props.lock && this.props.lock !== 'x' || h - y > t)
+        );
 
         if (minimized !== this.state.minimized) {
             this.setState({ minimized });
@@ -398,15 +402,22 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                     ...ap
                 })}
             >
-                <div
-                    style={this._sh.bodyPadding({
-                        display: 'inline-flex',
-                        paddingRight: this.props.lock === 'x' ? 0 : paddingSize,
-                        paddingBottom: this.props.lock === 'y' ? 0 : paddingSize
-                    })}
-                >
-                    {this.props.children}
-                </div>
+                {this.props.middleLayer
+                    ? (
+                        <div
+                            style={this._sh.bodyPadding({
+                                display: 'inline-flex',
+                                paddingRight: this.props.lock === 'x' ? 0 : paddingSize,
+                                paddingBottom: this.props.lock === 'y' ? 0 : paddingSize
+                            })}
+                        >
+                            {this.props.children}
+                        </div>
+                    )
+                    : (
+                        this.props.children
+                    )
+                }
             </div>
         );
     }
@@ -601,7 +612,8 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                     height: this.props.height == void 0 ? '100%' : this.props.height,
                     width: this.props.width == void 0 ? '100%' : this.props.width,
                     boxSizing: 'border-box',
-                    position: 'relative'
+                    position: 'relative',
+                    overflow: 'hidden'
                 })}
                 onMouseMove={this._onRootMouseMove}
                 onMouseLeave={this._onRootMouseLeave}

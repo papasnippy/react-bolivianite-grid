@@ -1,0 +1,12 @@
+:local {
+    .root {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+    }
+    .layer {
+        display: flex;
+        width: 100%;
+        max-width: var(--app--max-width);
+    }
+}

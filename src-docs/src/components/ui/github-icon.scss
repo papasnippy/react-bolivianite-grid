@@ -1,0 +1,12 @@
+:local {
+    .root {
+        display: inline-block;
+        height: var(--svg-icon--size);
+        width: var(--svg-icon--size);
+        fill: var(--svg-icon--color);
+
+        &:hover {
+            fill: var(--svg-icon--hover-color);
+        }
+    }
+}

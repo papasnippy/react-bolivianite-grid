@@ -1,0 +1,24 @@
+:local {
+    .root {
+        --svg-icon--color: var(--toolbar--color);
+        --svg-icon--hover-color: var(--toolbar--hover-color);
+        display: flex;
+        overflow: hidden;
+        height: var(--toolbar--height);
+        background: var(--toolbar--background);
+    }
+    .layer {
+        display: flex;
+        flex: 1;
+        height: 100%;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 var(--padding-big);
+        &>div {
+            display: flex;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+}
