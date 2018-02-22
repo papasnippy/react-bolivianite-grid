@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Toolbar, MenuItem, GitHubIcon } from './ui';
+import { Toolbar, NavigationItem, GitHubIcon, Page } from './ui';
+import { Switch, Route } from 'react-router-dom';
 const Style = require('./app.scss');
 
 export class App extends React.Component<any, any> {
@@ -8,18 +9,18 @@ export class App extends React.Component<any, any> {
             <div className={Style.root}>
                 <Toolbar>
                     <div>
-                        <MenuItem selected>
+                        <NavigationItem exact location="/">
                             Home
-                        </MenuItem>
-                        <MenuItem>
+                        </NavigationItem>
+                        <NavigationItem location="/examples">
                             Examples
-                        </MenuItem>
-                        <MenuItem>
+                        </NavigationItem>
+                        <NavigationItem location="/tutorial">
                             Tutorial
-                        </MenuItem>
-                        <MenuItem>
+                        </NavigationItem>
+                        <NavigationItem location="/api">
                             Api
-                        </MenuItem>
+                        </NavigationItem>
                     </div>
                     <div>
                         <a target="blank" href="https://github.com/papasnippy/react-bolivianite-grid">
@@ -28,6 +29,20 @@ export class App extends React.Component<any, any> {
                     </div>
                 </Toolbar>
                 <div className={Style.content}>
+                    <Switch>
+                        <Route exact path="/">
+                            <div>?Home?</div>
+                        </Route>
+                        <Route exact path="/examples/:article?">
+                            <Page>?Examples?</Page>
+                        </Route>
+                        <Route exact path="/tutorial/:article?">
+                            <div>?Tutorial?</div>
+                        </Route>
+                        <Route exact path="/api/:article?">
+                            <div>?Api?</div>
+                        </Route>
+                    </Switch>
                 </div>
             </div>
         );

@@ -5,7 +5,8 @@ import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-// const packageJson = require('../package.json');
+const packageJson = require('../package.json');
+console.log(packageJson.name);
 
 module.exports = (env: any = {}) => {
     const PORT = env['port'] || 18001;
@@ -73,10 +74,9 @@ module.exports = (env: any = {}) => {
                 allChunks: true
             }),
             new Webpack.DefinePlugin({
-                'process.env': {
-                    'ENV': JSON.stringify(IS_PROD ? 'production' : 'development'),
-                    'NODE_ENV': JSON.stringify(IS_PROD ? 'production' : 'development')
-                }
+                'process.env.ENV': JSON.stringify(IS_PROD ? 'production' : 'development'),
+                'process.env.NODE_ENV': JSON.stringify(IS_PROD ? 'production' : 'development'),
+                'process.env.PACKAGE_NAME': JSON.stringify(packageJson.name)
             }),
             new Webpack.LoaderOptionsPlugin({
                 options: {
