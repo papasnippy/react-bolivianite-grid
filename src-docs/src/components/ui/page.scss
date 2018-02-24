@@ -1,7 +1,10 @@
 :local {
     .root {
-        --app--max-width: 1000px;
         height: 100%;
         overflow: hidden;
+    }
+    .content {
+        padding: var(--padding-small) var(--padding-big);
+        box-sizing: border-box;
     }
 }

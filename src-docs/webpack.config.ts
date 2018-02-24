@@ -109,6 +109,10 @@ module.exports = (env: any = {}) => {
                     test: /\.tsx?$/,
                     loader: 'ts-loader'
                 },
+                /*{
+                    test: /\.raw.tsx?$/,
+                    use: 'raw-loader'
+                },*/
                 {
                     test: /\.json$/,
                     loader: 'json-loader'

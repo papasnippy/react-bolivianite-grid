@@ -18,6 +18,7 @@ export interface IScrollViewThemingProps {
     scrollbarTrackMinimum?: number;
     scrollbarMinimizeDistance?: number;
 
+    className?: string;
     classNameTrackCorner?: string;
     classNameTrackRoot?: string;
     classNameTrack?: string;
@@ -29,6 +30,7 @@ export interface IScrollViewThemingProps {
     classNameTrackBottom?: string;
     classNameThumbBottom?: string;
 
+    style?: React.CSSProperties;
     styleTrackCorner?: React.CSSProperties;
     styleTrackRoot?: React.CSSProperties;
     styleTrack?: React.CSSProperties;
@@ -42,6 +44,7 @@ export interface IScrollViewThemingProps {
 }
 
 export interface IScrollViewProps extends IScrollViewThemingProps {
+    middleLayer?: boolean;
     height?: number | string;
     width?: number | string;
     lock?: 'x' | 'y';
@@ -372,7 +375,11 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                     ...ap
                 }}
             >
-                {this.props.children}
+                {
+                    this.props.middleLayer
+                        ? <div>{this.props.children}</div>
+                        : this.props.children
+                }
             </div>
         );
     }
@@ -558,13 +565,15 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
 
         return (
             <div
+                className={this.props.className}
                 ref={this._onRefA}
                 style={{
                     height: props.height == void 0 ? '100%' : props.height,
                     width: props.width == void 0 ? '100%' : props.width,
                     boxSizing: 'border-box',
                     position: 'relative',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    ...this.props.style
                 }}
                 onMouseMove={this._onRootMouseMove}
                 onMouseLeave={this._onRootMouseLeave}

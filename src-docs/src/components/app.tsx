@@ -31,16 +31,16 @@ export class App extends React.Component<any, any> {
                 <div className={Style.content}>
                     <Switch>
                         <Route exact path="/">
-                            <div>?Home?</div>
+                            <Page>?Home?</Page>
                         </Route>
                         <Route exact path="/examples/:article?">
                             <Page>?Examples?</Page>
                         </Route>
                         <Route exact path="/tutorial/:article?">
-                            <div>?Tutorial?</div>
+                            <Page>?Tutorial?</Page>
                         </Route>
                         <Route exact path="/api/:article?">
-                            <div>?Api?</div>
+                            <Page>?Api?</Page>
                         </Route>
                     </Switch>
                 </div>
