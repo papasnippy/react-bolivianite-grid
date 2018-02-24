@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "baseUrl": ".",
         "declaration": false,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
@@ -19,6 +20,9 @@
         "skipLibCheck": true,
         "lib": ["es2015", "dom"]
     },
+    "exclude": [
+        "./src-docs"
+    ],
     "compileOnSave": false,
     "buildOnSave": false
 }

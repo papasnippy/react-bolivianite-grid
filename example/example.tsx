@@ -10,35 +10,38 @@ export interface State {
 }
 
 const THEME: IGridTheme = {
-    scrollSize: 15,
-    scrollSizeMinimized: 5,
-    hover: 100,
-    trackBackground: `rgba(15, 1, 38, 0.2)`,
-    thumbBackground: `rgba(15, 1, 38, 0.8)`,
-    styles: {
-        columns: {
-            background: '#3C3744',
-            boxShadow: '0 0 5px #000',
-            color: '#DBDADD'
-        },
-        rows: {
-            background: '#3C3744',
-            boxShadow: '0 0 5px #000',
-            color: '#DBDADD'
-        },
-        gridCorner: {
-            borderRight: 'solid 1px #000',
-            borderBottom: 'solid 1px #000',
-            background: '#3C3744',
-            color: '#DBDADD',
-            boxSizing: 'border-box'
-        },
-        trackRoot: {
-            transition: 'ease all 100ms'
-        }
+    // Scroller theme
+    scrollbarWidth: 15,
+    scrollbarWidthMinimized: 5,
+    scrollbarMinimizeDistance: 100,
+    styleTrackRoot: {
+        transition: 'ease all 100ms',
+        background: `rgba(15, 1, 38, 0.2)`
+    },
+    styleThumb: {
+        background: `rgba(15, 1, 38, 0.8)`
     },
 
-    // custom properties
+    // Grid theme
+    styleGridColumns: {
+        background: '#3C3744',
+        boxShadow: '0 0 5px #000',
+        color: '#DBDADD'
+    },
+    styleGridRows: {
+        background: '#3C3744',
+        boxShadow: '0 0 5px #000',
+        color: '#DBDADD'
+    },
+    styleGridCorner: {
+        borderRight: 'solid 1px #000',
+        borderBottom: 'solid 1px #000',
+        background: '#3C3744',
+        color: '#DBDADD',
+        boxSizing: 'border-box'
+    },
+
+    // Custom grid theme properties
     cellTextColor: '#211E26',
     cellBorderColor: '#918B9C',
     cellBackgroundEven: '#EFEFEF',
@@ -79,7 +82,7 @@ export class Example extends React.Component<any, any> {
                 // ],
                 // columns: [{}, {}, {}],
                 // rows: [{}],
-                columns: new Array(50).fill(null).map(() => ({})),
+                columns: new Array(100).fill(null).map(() => ({})),
                 rows: new Array(200).fill(null).map(() => ({})),
                 columnWidth: 100,
                 rowHeight: 24,

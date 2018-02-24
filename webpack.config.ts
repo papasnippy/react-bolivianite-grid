@@ -80,7 +80,10 @@ module.exports = (env: any = {}) => {
                 },
                 {
                     test: /\.tsx?$/,
-                    loader: 'ts-loader'
+                    loader: 'ts-loader',
+                    exclude: [
+                        Path.resolve(__dirname, 'src-docs')
+                    ]
                 },
             ]
         },

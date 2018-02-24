@@ -1,6 +1,6 @@
 import { IHeader, HeaderResizeBehavior, HeadersContainer, HeaderType } from '../models';
 import { IKeyboardControllerRemoveEvent, IKeyboardControllerPasteEvent } from '../controllers';
-import { IScrollViewThemeStyles, IScrollViewThemeClassNames, IScrollViewTheme } from './scrollview';
+import { IScrollViewThemingProps } from './scrollview';
 
 export interface IGridSelection {
     row: number;
@@ -133,25 +133,17 @@ export interface IGridUpdateEvent {
     value: any;
 }
 
-export interface IGridThemeClassNames extends IScrollViewThemeClassNames {
-    grid?: string;
-    gridCorner?: string;
-    rows?: string;
-    columns?: string;
-}
+export interface IGridTheme extends IScrollViewThemingProps {
+    classNameGrid?: string;
+    classNameGridCorner?: string;
+    classNameGridRows?: string;
+    classNameGridColumns?: string;
 
-export interface IGridThemeStyles extends IScrollViewThemeStyles {
-    grid?: React.CSSProperties;
-    gridCorner?: React.CSSProperties;
-    rows?: React.CSSProperties;
-    columns?: React.CSSProperties;
-}
+    styleGrid?: React.CSSProperties;
+    styleGridCorner?: React.CSSProperties;
+    styleGridRows?: React.CSSProperties;
+    styleGridColumns?: React.CSSProperties;
 
-export interface IGridTheme extends IScrollViewTheme {
-    /** If defined scrollbars will be rendered over content. No padding for scrollbars. Value defines hover detect size. */
-    hover?: number;
-    classNames?: IGridThemeClassNames;
-    styles?: IGridThemeStyles;
     [key: string]: any;
 }
 

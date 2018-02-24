@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { getScrollbarSize, getRelativePosition, Shallow } from '../controllers';
+import { getScrollbarSize, getRelativePosition, render } from '../controllers';
 
 export interface IScrollViewUpdateEvent {
     scrollLeft: number;
@@ -12,62 +12,42 @@ export interface IScrollViewUpdateEvent {
 
 export type TScrollViewPartial<T = any> = JSX.Element | ((props: T) => JSX.Element);
 
-export interface IScrollViewThemeClassNames {
-    trackRoot?: string;
-    track?: string;
-    thumb?: string;
-    bottomTrack?: string;
-    bottomThumb?: string;
-    rightTrack?: string;
-    rightThumb?: string;
-    scrollCorner?: string;
+export interface IScrollViewThemingProps {
+    scrollbarWidth?: number;
+    scrollbarWidthMinimized?: number;
+    scrollbarTrackMinimum?: number;
+    scrollbarMinimizeDistance?: number;
+
+    classNameTrackCorner?: string;
+    classNameTrackRoot?: string;
+    classNameTrack?: string;
+    classNameThumb?: string;
+    classNameTrackRootRight?: string;
+    classNameTrackRight?: string;
+    classNameThumbRight?: string;
+    classNameTrackRootBottom?: string;
+    classNameTrackBottom?: string;
+    classNameThumbBottom?: string;
+
+    styleTrackCorner?: React.CSSProperties;
+    styleTrackRoot?: React.CSSProperties;
+    styleTrack?: React.CSSProperties;
+    styleThumb?: React.CSSProperties;
+    styleTrackRootRight?: React.CSSProperties;
+    styleTrackRight?: React.CSSProperties;
+    styleThumbRight?: React.CSSProperties;
+    styleTrackRootBottom?: React.CSSProperties;
+    styleTrackBottom?: React.CSSProperties;
+    styleThumbBottom?: React.CSSProperties;
 }
 
-export interface IScrollViewThemeStyles {
-    trackRoot?: React.CSSProperties;
-    track?: React.CSSProperties;
-    thumb?: React.CSSProperties;
-    bottomTrack?: React.CSSProperties;
-    bottomThumb?: React.CSSProperties;
-    rightTrack?: React.CSSProperties;
-    rightThumb?: React.CSSProperties;
-    scrollCorner?: React.CSSProperties;
-}
-
-export interface IScrollViewTheme {
-    scrollSize?: number;
-    scrollSizeMinimized?: number;
-    scrollMinimum?: number;
-    trackBackground?: string;
-    thumbBackground?: string;
-    classNames?: IScrollViewThemeClassNames;
-    styles?: IScrollViewThemeStyles;
-}
-
-export interface IScrollViewProps {
-    middleLayer?: boolean;
-
+export interface IScrollViewProps extends IScrollViewThemingProps {
     height?: number | string;
     width?: number | string;
-    /** If defined scrollbars will be rendered over content. No padding for scrollbars. Value defines hover detect size. */
-    hover?: number;
-    /** If defined - scrollbar will br enabled only for x or y axis */
     lock?: 'x' | 'y';
-    /** Css props passed to scroller element */
     scrollerProps?: React.HTMLProps<HTMLDivElement>;
-
-    after?: TScrollViewPartial<IScrollViewUpdateEvent>;
-    theme?: IScrollViewTheme;
-
-    xScrollContent?: TScrollViewPartial;
-    xBackgroundContent?: TScrollViewPartial;
-
-    yScrollContent?: TScrollViewPartial;
-    yBackgroundContent?: TScrollViewPartial;
-
-    zBackgroundContent?: TScrollViewPartial;
-
-    onUpdate?: (event: IScrollViewUpdateEvent) => void;
+    renderAfter?: TScrollViewPartial<IScrollViewUpdateEvent>;
+    onScroll?: (event: IScrollViewUpdateEvent) => void;
 }
 
 export class ScrollView extends React.Component<IScrollViewProps, any> {
@@ -75,20 +55,6 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         xEnabled: false,
         yEnabled: false,
         minimized: true
-    };
-
-    private _sh = {
-        root: Shallow<React.CSSProperties>(),
-        body: Shallow<React.CSSProperties>(),
-        bodyPadding: Shallow<React.CSSProperties>(),
-        xRoot: Shallow<React.CSSProperties>(),
-        xTrack: Shallow<React.CSSProperties>(),
-        xThumb: Shallow<React.CSSProperties>(),
-        yRoot: Shallow<React.CSSProperties>(),
-        yTrack: Shallow<React.CSSProperties>(),
-        yThumb: Shallow<React.CSSProperties>(),
-        zRoot: Shallow<React.CSSProperties>(),
-        zTrack: Shallow<React.CSSProperties>(),
     };
 
     private _scrollBarSize = getScrollbarSize();
@@ -114,33 +80,23 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         super(p, c);
     }
 
-    private get _theme() {
-        let theme = this.props.theme || {};
-        theme.classNames = theme.classNames || {};
-        theme.styles = theme.styles || {};
-        theme.scrollSize = theme.scrollSize || 17;
-        theme.scrollSizeMinimized = theme.scrollSizeMinimized || 5;
-        theme.scrollMinimum = theme.scrollMinimum || 20;
-        theme.styles.trackRoot = theme.styles.trackRoot || {};
-        theme.styles.track = theme.styles.track || {};
-        theme.styles.thumb = theme.styles.thumb || {};
-        theme.styles.bottomThumb = theme.styles.bottomThumb || {};
-        theme.styles.bottomTrack = theme.styles.bottomTrack || {};
-        theme.styles.rightTrack = theme.styles.rightTrack || {};
-        theme.styles.rightThumb = theme.styles.rightThumb || {};
-        theme.styles.scrollCorner = theme.styles.scrollCorner || {};
-        return theme;
+    public get scrollbarMinimizeDistance() {
+        return Math.max(0, this.props.scrollbarMinimizeDistance || 100);
     }
 
-    public get size() {
-        return this.props.hover ? 0 : Math.max(0, this._theme.scrollSize || 0);
+    public get scrollbarTrackMinimum() {
+        return Math.max(0, this.props.scrollbarTrackMinimum || 20);
     }
 
     public get scrollbarSize() {
+        return Math.max(0, this.props.scrollbarWidth || 0);
+    }
+
+    public get currentScrollbarSize() {
         const size = (
-            this.props.hover && this.state.minimized
-                ? this._theme.scrollSizeMinimized
-                : this._theme.scrollSize
+            this.state.minimized
+                ? this.props.scrollbarWidthMinimized
+                : this.props.scrollbarWidth
         );
 
         return Math.max(0, size || 0);
@@ -163,23 +119,19 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
     }
 
     public get scrollWidth() {
-        let size = this.props.lock === 'x' ? 0 : this.size;
-        return this._r.scrollWidth - (this.props.hover ? 0 : size);
+        return this._r.scrollWidth;
     }
 
     public get scrollHeight() {
-        let size = this.props.lock === 'y' ? 0 : this.size;
-        return this._r.scrollHeight - (this.props.hover ? 0 : size);
+        return this._r.scrollHeight;
     }
 
     public get clientWidth() {
-        let size = this.props.lock === 'x' ? 0 : this.size;
-        return this._a.clientWidth - (this.props.hover ? 0 : size);
+        return this._a.clientWidth;
     }
 
     public get clientHeight() {
-        let size = this.props.lock === 'y' ? 0 : this.size;
-        return this._a.clientHeight - (this.props.hover ? 0 : size);
+        return this._a.clientHeight;
     }
 
     private _onRef = (r: HTMLDivElement) => {
@@ -207,8 +159,8 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
             this._updateScrollbars();
         }
 
-        if (this.props.onUpdate) {
-            this.props.onUpdate(this._getUpdateEventObject());
+        if (this.props.onScroll) {
+            this.props.onScroll(this._getUpdateEventObject());
         }
     }
 
@@ -238,7 +190,7 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         let { x, y } = getRelativePosition(e.pageX, e.pageY, this._a);
         let h = this._a.clientHeight;
         let w = this._a.clientWidth;
-        let t = this.props.hover;
+        let t = this.scrollbarMinimizeDistance;
         let minimized = (
             (this.props.lock && this.props.lock !== 'y' || w - x > t) &&
             (this.props.lock && this.props.lock !== 'x' || h - y > t)
@@ -312,17 +264,44 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         };
     }
 
+    private _joinClassNames(...cn: string[]) {
+        return cn.map(v => (v || '').trim()).filter(v => !!v).join(' ');
+    }
+
+    private _joinStyles(...s: React.CSSProperties[]): React.CSSProperties {
+        return Object.assign({}, ...(s.map(v => v || {})));
+    }
+
+    private _getClassNames(type: 'Right' | 'Bottom') {
+        const p = this.props as any;
+        return {
+            classNameTrackRoot: this._joinClassNames(p.classNameTrackRoot, p[`classNameTrackRoot${type}`]),
+            classNameTrack: this._joinClassNames(p.classNameTrack, p[`classNameTrack${type}`]),
+            classNameThumb: this._joinClassNames(p.classNameThumb, p[`classNameThumb${type}`]),
+        };
+    }
+
+    private _getStyles(type: 'Right' | 'Bottom') {
+        const p = this.props as any;
+        return {
+            styleTrackRoot: this._joinStyles(p.styleTrackRoot, p[`styleTrackRoot${type}`]),
+            styleTrack: this._joinStyles(p.styleTrack, p[`styleTrack${type}`]),
+            styleThumb: this._joinStyles(p.styleThumb, p[`styleThumb${type}`]),
+        };
+    }
+
     /** Calculates scrollbar size, position and scale ratio. Then updates scrollbars directly. */
     private _updateScrollbars(cb?: () => void) {
         let t = this._r;
-        let ss = this.size;
+        let ss = this.scrollbarSize;
         let sx = this.props.lock === 'x' ? 0 : ss;
         let sy = this.props.lock === 'y' ? 0 : ss;
-        let sm = this._theme.scrollMinimum; // scrollbar minimum length
+        let sm = this.scrollbarTrackMinimum; // scrollbar minimum length
 
         // size of the canvas
-        this._xlen = t.children[0].clientWidth;
-        this._ylen = t.children[0].clientHeight;
+        let c = t.children[0] as HTMLElement;
+        this._xlen = c.clientWidth + c.offsetLeft;
+        this._ylen = c.clientHeight + c.offsetTop;
 
         let viewportWidth = t.clientWidth;
         let viewportHeight = t.clientHeight;
@@ -368,16 +347,7 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         this.setState({ xEnabled, yEnabled }, cb);
     }
 
-    private _renderPartial(jsx: JSX.Element | ((props?: any) => JSX.Element), getProps?: () => any) {
-        if (!jsx) {
-            return jsx;
-        }
-
-        const props = getProps ? getProps() : {};
-        return typeof jsx === 'function' ? jsx(props) : React.cloneElement(React.Children.only(jsx), props);
-    }
-
-    private _renderBody(paddingSize: number) {
+    private _renderBody() {
         let ap: any = {};
 
         if (this.props.lock === 'x') {
@@ -390,7 +360,7 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
             <div
                 {...this.props.scrollerProps}
                 ref={this._onRef}
-                style={this._sh.body({
+                style={{
                     ...(this.props.scrollerProps && this.props.scrollerProps.style || {}),
                     position: 'absolute',
                     left: 0,
@@ -400,127 +370,99 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                     overflow: 'scroll',
                     boxSizing: 'content-box',
                     ...ap
-                })}
+                }}
             >
-                {this.props.middleLayer
-                    ? (
-                        <div
-                            style={this._sh.bodyPadding({
-                                display: 'inline-flex',
-                                paddingRight: this.props.lock === 'x' ? 0 : paddingSize,
-                                paddingBottom: this.props.lock === 'y' ? 0 : paddingSize
-                            })}
-                        >
-                            {this.props.children}
-                        </div>
-                    )
-                    : (
-                        this.props.children
-                    )
-                }
+                {this.props.children}
             </div>
         );
     }
 
     private _renderXScrollbar(scrollSize: number) {
+        const { classNameThumb, classNameTrack, classNameTrackRoot } = this._getClassNames('Bottom');
+        const { styleThumb, styleTrack, styleTrackRoot } = this._getStyles('Bottom');
+
         return (
             <div
-                className={this._theme.classNames.trackRoot}
-                style={this._sh.xRoot({
-                    ...this._theme.styles.trackRoot,
-                    background: this._theme.trackBackground,
+                className={classNameTrackRoot}
+                style={{
+                    ...styleTrackRoot,
                     position: 'absolute',
                     left: 0,
                     right: this.props.lock === 'x' ? 0 : scrollSize,
                     bottom: 0,
                     height: scrollSize,
-                    display: this.props.lock === 'y' ? 'none' : '',
+                    display: !this.state.xEnabled || this.props.lock === 'y' ? 'none' : '',
                     zIndex: 1
-                })}
+                }}
             >
                 <div
-                    className={[this._theme.classNames.track, this._theme.classNames.bottomTrack].filter(v => !!v).join(' ')}
-                    style={this._sh.xTrack({
-                        ...this._theme.styles.track,
-                        ...this._theme.styles.bottomTrack,
+                    className={classNameTrack}
+                    style={{
+                        ...styleTrack,
                         position: 'absolute',
                         left: 0,
                         top: 0,
                         right: 0,
                         bottom: 0,
                         overflow: 'hidden'
-                    })}
+                    }}
                     onMouseDown={this._onScrollMouseX}
-                >
-                    {this._renderPartial(this.props.xBackgroundContent)}
-                </div>
+                />
                 <div
-                    className={this._theme.classNames.bottomThumb}
+                    className={classNameThumb}
                     ref={this._onRefX}
-                    style={this._sh.xThumb({
-                        background: this._theme.thumbBackground,
-                        ...this._theme.styles.thumb,
-                        ...this._theme.styles.bottomThumb,
+                    style={{
+                        ...styleThumb,
                         position: 'absolute',
                         top: 0,
-                        height: '100%',
-                        display: this.state.xEnabled ? '' : 'none'
-                    })}
-                >
-                    {this._renderPartial(this.props.xScrollContent)}
-                </div>
+                        height: '100%'
+                    }}
+                />
             </div>
         );
     }
 
     private _renderYScrollbar(scrollSize: number) {
+        const { classNameThumb, classNameTrack, classNameTrackRoot } = this._getClassNames('Right');
+        const { styleThumb, styleTrack, styleTrackRoot } = this._getStyles('Right');
+
         return (
             <div
-                className={this._theme.classNames.trackRoot}
-                style={this._sh.yRoot({
-                    ...this._theme.styles.trackRoot,
-                    background: this._theme.trackBackground,
+                className={classNameTrackRoot}
+                style={{
+                    ...styleTrackRoot,
                     position: 'absolute',
                     right: 0,
                     bottom: this.props.lock === 'y' ? 0 : scrollSize,
                     top: 0,
                     width: scrollSize,
-                    display: this.props.lock === 'x' ? 'none' : '',
+                    display: !this.state.yEnabled || this.props.lock === 'x' ? 'none' : '',
                     zIndex: 1
-                })}
+                }}
             >
                 <div
-                    className={[this._theme.classNames.track, this._theme.classNames.rightTrack].filter(v => !!v).join(' ')}
-                    style={this._sh.yTrack({
-                        ...this._theme.styles.track,
-                        ...this._theme.styles.rightTrack,
+                    className={classNameTrack}
+                    style={{
+                        ...styleTrack,
                         position: 'absolute',
                         left: 0,
                         top: 0,
                         right: 0,
                         bottom: 0,
                         overflow: 'hidden'
-                    })}
+                    }}
                     onMouseDown={this._onScrollMouseY}
-                >
-                    {this._renderPartial(this.props.yBackgroundContent)}
-                </div>
+                />
                 <div
-                    className={this._theme.classNames.rightTrack}
+                    className={classNameThumb}
                     ref={this._onRefY}
-                    style={this._sh.yThumb({
-                        background: this._theme.thumbBackground,
-                        ...this._theme.styles.thumb,
-                        ...this._theme.styles.rightThumb,
+                    style={{
+                        ...styleThumb,
                         position: 'absolute',
                         right: 0,
-                        width: '100%',
-                        display: this.state.yEnabled ? '' : 'none'
-                    })}
-                >
-                    {this._renderPartial(this.props.yScrollContent)}
-                </div>
-
+                        width: '100%'
+                    }}
+                />
             </div>
         );
     }
@@ -528,35 +470,31 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
     private _renderZScrollbar(scrollSize: number) {
         return (
             <div
-                className={this._theme.classNames.trackRoot}
-                style={this._sh.zRoot({
-                    ...this._theme.styles.trackRoot,
-                    background: this._theme.trackBackground,
+                className={this._joinClassNames(
+                    this.props.classNameTrackRoot,
+                    this.props.classNameTrackCorner
+                )}
+                style={{
+                    ...(this._joinStyles(
+                        this.props.styleTrackRoot || {},
+                        this.props.styleTrackCorner || {}
+                    )),
                     position: 'absolute',
                     bottom: 0,
                     right: 0,
                     height: scrollSize,
                     width: scrollSize,
-                    display: (this.props.lock === 'x' || this.props.lock === 'y') ? 'none' : '',
+                    display: (
+                        (
+                            (!this.state.xEnabled && !this.state.yEnabled) ||
+                            (this.props.lock === 'x' || this.props.lock === 'y')
+                        )
+                            ? 'none'
+                            : ''
+                    ),
                     zIndex: 1
-                })}
-            >
-                <div
-                    className={this._theme.classNames.scrollCorner}
-                    style={this._sh.zTrack({
-                        ...this._theme.styles.scrollCorner,
-                        position: 'absolute',
-                        left: 0,
-                        top: 0,
-                        right: 0,
-                        bottom: 0,
-                        overflow: 'hidden',
-                        pointerEvents: 'none'
-                    })}
-                >
-                    {this._renderPartial(this.props.zBackgroundContent)}
-                </div>
-            </div>
+                }}
+            />
         );
     }
 
@@ -572,24 +510,36 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         window.addEventListener('mousemove', this._onMouseMove);
         window.addEventListener('mouseup', this._onMouseUp);
 
-        let w = this._r.clientWidth;
-        let h = this._r.clientHeight;
+        let t = this._r;
+        let c = t.children[0] as HTMLElement;
+
+        let rootWidth = t.clientWidth;
+        let rootHeight = t.clientHeight;
+        let canvasWidth = c ? c.clientWidth + c.offsetLeft : 0;
+        let canvasHeight = c ? c.clientHeight + c.offsetTop : 0;
 
         this._taskResize = setInterval(() => {
-            let nw = this._r.clientWidth;
-            let nh = this._r.clientHeight;
+            let newRootWidth = t.clientWidth;
+            let newRootHeight = t.clientHeight;
+            let newCanvasWidth = c ? c.clientWidth + c.offsetLeft : 0;
+            let newCanvasHeight = c ? c.clientHeight + c.offsetTop : 0;
 
-            if (nw !== w || nh !== h) {
-                h = nh;
-                w = nw;
+            if (
+                newRootWidth !== rootWidth || newRootHeight !== rootHeight ||
+                newCanvasWidth !== canvasWidth || newCanvasHeight !== canvasHeight
+            ) {
+                rootWidth = newRootWidth;
+                rootHeight = newRootHeight;
+                canvasWidth = newCanvasWidth;
+                canvasHeight = newCanvasHeight;
                 this._updateScrollbars();
                 this._onScroll(null);
             }
         }, 20);
 
         this._updateScrollbars(() => {
-            if (this.props.onUpdate) {
-                this.props.onUpdate(this._getUpdateEventObject());
+            if (this.props.onScroll) {
+                this.props.onScroll(this._getUpdateEventObject());
             }
         });
     }
@@ -604,25 +554,26 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
     }
 
     public render() {
-        let ss = this.scrollbarSize;
+        let { currentScrollbarSize, props } = this;
+
         return (
             <div
                 ref={this._onRefA}
-                style={this._sh.root({
-                    height: this.props.height == void 0 ? '100%' : this.props.height,
-                    width: this.props.width == void 0 ? '100%' : this.props.width,
+                style={{
+                    height: props.height == void 0 ? '100%' : props.height,
+                    width: props.width == void 0 ? '100%' : props.width,
                     boxSizing: 'border-box',
                     position: 'relative',
                     overflow: 'hidden'
-                })}
+                }}
                 onMouseMove={this._onRootMouseMove}
                 onMouseLeave={this._onRootMouseLeave}
             >
-                {this._renderBody(this.size)}
-                {this._renderPartial(this.props.after, () => this._getUpdateEventObject())}
-                {this._renderXScrollbar(ss)}
-                {this._renderYScrollbar(ss)}
-                {this._renderZScrollbar(ss)}
+                {this._renderBody()}
+                {render(props.renderAfter, () => this._getUpdateEventObject())}
+                {this._renderXScrollbar(currentScrollbarSize)}
+                {this._renderYScrollbar(currentScrollbarSize)}
+                {this._renderZScrollbar(currentScrollbarSize)}
             </div>
         );
     }

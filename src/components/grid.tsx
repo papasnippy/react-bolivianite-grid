@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import ScrollView, { IScrollViewUpdateEvent } from './scrollview';
 import {
-    debounce, Shallow, RenderThrottler, KeyboardController,
+    debounce, RenderThrottler, KeyboardController,
     IUpdateSelectionEvent, IKeyboardControllerRemoveEvent,
     MouseController, IKeyboardControllerPasteEvent
 } from '../controllers';
@@ -28,12 +28,6 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             headers: this.props.headers as HeadersContainer /*typescript workaround*/
         };
     }
-
-    private _shallow = {
-        colHeaders: Shallow<React.CSSProperties>(),
-        rowHeaders: Shallow<React.CSSProperties>(),
-        crnHeaders: Shallow<React.CSSProperties>()
-    };
 
     private _blockContextMenu = false;
     private _onContextMenuListener: any = null;
@@ -175,13 +169,11 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
 
     private get _theme() {
-        let theme = this.props.theme || {};
-        theme.classNames = theme.classNames || {};
-        theme.styles = theme.styles || {};
-        theme.styles.grid = theme.styles.grid || {};
-        theme.styles.gridCorner = theme.styles.gridCorner || {};
-        theme.styles.rows = theme.styles.rows || {};
-        theme.styles.columns = theme.styles.columns || {};
+        let theme = { ...(this.props.theme || {}) };
+        theme.styleGrid = theme.styleGrid || {};
+        theme.styleGridColumns = theme.styleGridColumns || {};
+        theme.styleGridRows = theme.styleGridRows || {};
+        theme.styleGridCorner = theme.styleGridCorner || {};
         return theme;
     }
 
@@ -417,7 +409,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
             rowsHeight += rh.$size;
 
-            if (lastRow === -1 && rowsHeight >= st + vh + this._theme.scrollSize) {
+            if (lastRow === -1 && rowsHeight >= st + vh /*+ (this._theme.scrollbarWidth || 0)*/) {
                 lastRow = rowIndex;
                 break;
             }
@@ -441,7 +433,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
             columnsWidth += ch.$size;
 
-            if (lastColumn === -1 && columnsWidth >= sl + vw + this._theme.scrollSize) {
+            if (lastColumn === -1 && columnsWidth >= sl + vw /*+ (this._theme.scrollbarWidth || 0)*/) {
                 lastColumn = colIndex;
                 break;
             }
@@ -798,17 +790,17 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         return (
             <div
                 style={{
-                    width: clientWidth + this._theme.scrollSize,
-                    height: clientHeight + this._theme.scrollSize,
+                    width: clientWidth/* + this._theme.scrollSize*/,
+                    height: clientHeight/* + this._theme.scrollSize*/,
                     pointerEvents: 'none',
                     zIndex: 1
                 }}
             >
                 {!!this.props.headers.headersHeight &&
                     <div
-                        className={this._theme.classNames.columns}
-                        style={this._shallow.colHeaders({
-                            ...this._theme.styles.columns,
+                        className={this._theme.classNameGridColumns}
+                        style={{
+                            ...this._theme.styleGridColumns,
                             pointerEvents: 'initial',
                             position: 'absolute',
                             overflow: 'hidden',
@@ -816,16 +808,16 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                             top: 0,
                             right: 0,
                             height: this.props.headers.headersHeight
-                        })}
+                        }}
                     >
                         {this._renderHeaders(HeaderType.Column, scrollLeft)}
                     </div>
                 }
                 {!!this.props.headers.headersWidth &&
                     <div
-                        className={this._theme.classNames.rows}
-                        style={this._shallow.rowHeaders({
-                            ...this._theme.styles.rows,
+                        className={this._theme.classNameGridRows}
+                        style={{
+                            ...this._theme.styleGridRows,
                             pointerEvents: 'initial',
                             position: 'absolute',
                             overflow: 'hidden',
@@ -833,16 +825,16 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                             top: this.props.headers.headersHeight,
                             bottom: 0,
                             width: this.props.headers.headersWidth
-                        })}
+                        }}
                     >
                         {this._renderHeaders(HeaderType.Row, scrollTop)}
                     </div>
                 }
                 {!!(this.props.headers.headersHeight || this.props.headers.headersWidth) &&
                     <div
-                        className={this._theme.classNames.gridCorner}
-                        style={this._shallow.crnHeaders({
-                            ...this._theme.styles.gridCorner,
+                        className={this._theme.classNameGridCorner}
+                        style={{
+                            ...this._theme.styleGridCorner,
                             pointerEvents: 'initial',
                             position: 'absolute',
                             overflow: 'hidden',
@@ -850,7 +842,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                             top: 0,
                             height: this.props.headers.headersHeight,
                             width: this.props.headers.headersWidth
-                        })}
+                        }}
                     >
                     </div>
                 }
@@ -1110,7 +1102,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         return (
             <div
-                className={this._theme.classNames.grid}
+                className={this._theme.classNameGrid}
                 tabIndex={this.props.tabIndex == null ? -1 : this.props.tabIndex}
                 ref={this._onRef}
                 onBlur={this._onBlur}
@@ -1119,10 +1111,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                     height: '100%',
                     width: '100%',
                     position: 'relative',
-                    overflow: 'hidden',
                     userSelect: 'none',
                     outline: 'none',
-                    ...this._theme.styles.grid
+                    ...this._theme.styleGrid,
+                    overflow: 'hidden'
                 }}
                 onKeyDown={this._onKeyDown}
                 onMouseLeave={this._onRootMouseLeave}
@@ -1130,13 +1122,11 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 onMouseDown={this._onRootMouseDown}
             >
                 <ScrollView
-                    middleLayer
-                    hover={this._theme.hover}
                     ref={this._onRefView}
-                    onUpdate={this._onScrollViewUpdate}
+                    onScroll={this._onScrollViewUpdate}
                     scrollerProps={this._scrollerProps}
-                    after={this._renderHeaderContainers}
-                    theme={this.props.theme}
+                    renderAfter={this._renderHeaderContainers}
+                    {...this.props.theme}
                 >
                     <div
                         style={{
