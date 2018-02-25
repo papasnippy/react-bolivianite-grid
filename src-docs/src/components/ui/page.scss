@@ -1,10 +1,22 @@
 :local {
-    .root {
-        height: 100%;
-        overflow: hidden;
-    }
     .content {
         padding: var(--padding-big);
         box-sizing: border-box;
+    }
+    .navigtaion {
+        position: fixed;
+        width: var(--app--navigation-width);
+        max-height: calc(100vh - var(--toolbar--height) - var(--padding-big) * 3);
+        overflow-x: hidden;
+        overflow-y: auto;
+        &::-webkit-scrollbar {
+            width: 10px;
+        }
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: var(--app--font-color);
+        }
     }
 }

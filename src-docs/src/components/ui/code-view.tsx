@@ -1,18 +1,7 @@
 import * as React from 'react';
 import * as classnames from 'classnames';
-import Code from 'react-syntax-highlighter';
-import { SplitView, ScrollView } from './index';
-const CodeTheme = require('react-syntax-highlighter/styles/hljs/obsidian');
+import { SplitView, ScrollView, Code } from './index';
 const Style = require('./code-view.scss');
-
-const CODE_STYLE_PROPS: React.CSSProperties = {
-    margin: 0,
-    boxSizing: 'border-box',
-    overflowY: 'visible',
-    overflowX: 'visible',
-    display: 'inline-block',
-    background: 'transparent'
-};
 
 export type ICodeViewFile = (
     string | string[]
@@ -65,11 +54,8 @@ export class CodeView extends React.PureComponent<ICodeViewProps & ICodeViewElem
             <Code
                 showLineNumbers
                 language={language}
-                style={CodeTheme.default}
-                customStyle={CODE_STYLE_PROPS}
-            >
-                {content || ''}
-            </Code>
+                source={content}
+            />
         );
     }
 

@@ -1,15 +1,14 @@
 import * as React from 'react';
-import * as Markdown from 'react-markdown';
-import { PageNavigation, Page, CodeView, ICodeViewProps } from './index';
+import { Page, CodeView, ICodeViewProps, Markdown } from './index';
 import { Switch, Route } from 'react-router-dom';
 import { IArticlesSource } from '~/articles';
-const Style = require('./articles.scss');
+const Style = require('./page-articles.scss');
 
-export interface IArticlesProps {
+export interface IPageArticlesProps {
     source?: IArticlesSource;
 }
 
-export interface IArticlesState {
+export interface IPageArticlesState {
     navigation?: [string, string][];
     articles?: {
         url: string;
@@ -17,10 +16,10 @@ export interface IArticlesState {
     }[];
 }
 
-export class Articles extends React.Component<IArticlesProps, IArticlesState> {
-    state: IArticlesState = {};
+export class PageArticles extends React.Component<IPageArticlesProps, IPageArticlesState> {
+    state: IPageArticlesState = {};
 
-    private _onUpdate(prev: IArticlesProps, next: IArticlesProps) {
+    private _onUpdate(prev: IPageArticlesProps, next: IPageArticlesProps) {
         if (prev.source === next.source || !next.source) {
             return;
         }
@@ -57,9 +56,7 @@ export class Articles extends React.Component<IArticlesProps, IArticlesState> {
                         className={Style.chunk}
                         key={i}
                     >
-                        <Markdown
-                            source={p || ''}
-                        />
+                        <Markdown source={p}/>
                     </div>
                 );
             }
@@ -82,7 +79,7 @@ export class Articles extends React.Component<IArticlesProps, IArticlesState> {
         this._onUpdate({}, this.props);
     }
 
-    public componentDidUpdate(prev: IArticlesProps) {
+    public componentDidUpdate(prev: IPageArticlesProps) {
         this._onUpdate(prev, this.props);
     }
 
@@ -92,15 +89,14 @@ export class Articles extends React.Component<IArticlesProps, IArticlesState> {
         }
 
         return (
-            <Page>
-                <PageNavigation items={this.state.navigation} />
+            <Page navigation={this.state.navigation}>
                 <Switch>
                     {this.state.articles.map(({ url, body }) => {
                         return (
                             <Route exact path={url} key={url}>
-                                <div className={Style.body}>
+                                <article className={Style.body}>
                                     {this._renderArticle(body)}
-                                </div>
+                                </article>
                             </Route>
                         );
                     })};

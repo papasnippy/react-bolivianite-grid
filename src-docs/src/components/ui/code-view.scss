@@ -1,7 +1,6 @@
 :local {
     .root {
         display: flex;
-        flex: 1;
         flex-direction: column;
         height: calc(100vh - var(--toolbar--height) - var(--padding-big) * 2);
         box-sizing: border-box;
@@ -10,6 +9,7 @@
         display: flex;
         height: 40px;
         box-sizing: border-box;
+        flex-shrink: 0;
     }
     .container {
         box-sizing: border-box;

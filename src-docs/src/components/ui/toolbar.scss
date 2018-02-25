@@ -6,6 +6,9 @@
         overflow: hidden;
         height: var(--toolbar--height);
         background: var(--toolbar--background);
+        position: fixed;
+        width: 100%;
+        z-index: 99999;
     }
     .layer {
         display: flex;
@@ -15,7 +18,7 @@
         align-items: center;
         padding: 0 var(--padding-big);
         box-sizing: border-box;
-        &>div {
+        nav {
             display: flex;
             height: 100%;
             justify-content: center;

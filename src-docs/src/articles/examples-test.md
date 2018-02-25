@@ -6,10 +6,14 @@ test
 - b
 - c
 
-`inline code`
+pre text `inline code` post text
 
-```
-private _renderArticle(body: (string | ICodeViewProps)[]): JSX.Element[] {
+> quoted text
+
+> quoted text
+
+```javascript
+function renderArticle(body: (string | ICodeViewProps)[]): JSX.Element[] {
     return body.map((p, i) => {
         if (typeof p === 'string') {
             return (

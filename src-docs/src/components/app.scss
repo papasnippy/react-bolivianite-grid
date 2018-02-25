@@ -1,19 +1,15 @@
 :local {
-    .root {
+    .main {
+        padding-top: var(--toolbar--height);
+        flex: 1 0 auto;
+    }
+    .footer {
+        background: var(--toolbar--background);
+        flex-shrink: 0;
         display: flex;
-        flex: 1;
-        height: 100%;
-        flex-direction: column;
-        background: var(--app--background);
-        font-family: var(--app--font-family);
-        font-size: var(--app--font-size);
-        color: var(--app--font-color);
-
-        .content {
-            display: flex;
-            flex: 1;
-            height: 100%;
-            flex-direction: column;
-        }
+    }
+    .footerContent {
+        box-sizing: border-box;
+        padding: var(--padding-small) var(--padding-big);
     }
 }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Toolbar, NavigationItem, GitHubIcon, Page, Articles } from './ui';
+import { Toolbar, NavigationItem, GitHubIcon, Page, PageArticles, AppMaxWidth } from './ui';
 import { Switch, Route } from 'react-router-dom';
 
 import articlesExample from '~/articles/examples';
@@ -9,9 +9,9 @@ const Style = require('./app.scss');
 export class App extends React.Component<any, any> {
     public render() {
         return (
-            <div className={Style.root}>
+            <>
                 <Toolbar>
-                    <div>
+                    <nav>
                         <NavigationItem exact location="/">
                             Home
                         </NavigationItem>
@@ -24,20 +24,20 @@ export class App extends React.Component<any, any> {
                         <NavigationItem location="/api">
                             Api
                         </NavigationItem>
-                    </div>
+                    </nav>
                     <div>
                         <a target="blank" href="https://github.com/papasnippy/react-bolivianite-grid">
                             <GitHubIcon />
                         </a>
                     </div>
                 </Toolbar>
-                <div className={Style.content}>
+                <main className={Style.main}>
                     <Switch>
                         <Route exact path="/">
                             <Page>?Home?</Page>
                         </Route>
                         <Route exact path="/examples/:article?">
-                            <Articles source={articlesExample} />
+                            <PageArticles source={articlesExample} />
                         </Route>
                         <Route exact path="/tutorial/:article?">
                             <Page>?Tutorial?</Page>
@@ -46,8 +46,13 @@ export class App extends React.Component<any, any> {
                             <Page>?Api?</Page>
                         </Route>
                     </Switch>
-                </div>
-            </div>
+                </main>
+                <footer className={Style.footer}>
+                    <AppMaxWidth classNameLayer={Style.footerContent}>
+                        ?Footer?
+                    </AppMaxWidth>
+                </footer>
+            </>
         );
     }
 }
