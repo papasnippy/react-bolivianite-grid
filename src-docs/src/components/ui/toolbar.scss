@@ -1,7 +1,7 @@
 :local {
     .root {
-        --svg-icon--color: var(--toolbar--color);
-        --svg-icon--hover-color: var(--toolbar--hover-color);
+        --svg-icon--color: var(--color--text-blur);
+        --svg-icon--hover-color: var(--color--highlight);
         display: flex;
         overflow: hidden;
         height: var(--toolbar--height);
@@ -9,6 +9,7 @@
         position: fixed;
         width: 100%;
         z-index: 99999;
+        box-shadow: var(--shadow--medium);
     }
     .layer {
         display: flex;

@@ -5,12 +5,15 @@
     }
     .navigtaion {
         position: fixed;
-        width: var(--app--navigation-width);
+        width: var(--article--navigation);
         max-height: calc(100vh - var(--toolbar--height) - var(--padding-big) * 3);
         overflow-x: hidden;
         overflow-y: auto;
+        background: var(--color--accent);
+        box-shadow: var(--shadow--medium);
+
         &::-webkit-scrollbar {
-            width: 10px;
+            width: 5px;
         }
         &::-webkit-scrollbar-track {
             background: transparent;

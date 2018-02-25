@@ -2,8 +2,10 @@
     .root {
         display: flex;
         flex-direction: column;
-        height: calc(100vh - var(--toolbar--height) - var(--padding-big) * 2);
+        height: calc(100vh - var(--toolbar--height) - var(--padding-big) * 3);
         box-sizing: border-box;
+        box-shadow: var(--shadow--medium);
+        background: var(--code-view--background);
     }
     .controls {
         display: flex;
@@ -13,7 +15,7 @@
     }
     .container {
         box-sizing: border-box;
-        background: var(--toolbar--background);
+        background: var(--code-view--container-background);
         height: 100%;
         width: 100%;
         overflow: hidden;
@@ -29,11 +31,12 @@
         color: var(--app--font-color);
         cursor: pointer;
         user-select: none;
+        background: var(--code-view--tab-background);
         &:hover {
-            background: var(--toolbar--background);
+            background: var(--code-view--tab-selected-background);
         }
         &.tabSelected {
-            background: var(--toolbar--background);
+            background: var(--code-view--tab-selected-background);
         }
     }
 }

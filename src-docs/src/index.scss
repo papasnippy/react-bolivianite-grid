@@ -1,27 +1,49 @@
 :root {
-    // https://coolors.co/333745-01172f-eae8ff-807f8c-adacb5
-    // http://colorsafe.co/
+    // https://coolors.co/161925-eff9f0-ffffff-746d75-f0c808
+
+    --color--environment: #746D75;
+    --color--accent: #161925;
+    --color--background: rgba(0, 0, 0, 0.5);
+    --color--highlight: #F0C808;
+    --color--text-main: #EFF9F0;
+    --color--text-blur: #807F8C;
+    --color--shadow: rgba(0, 0, 0, 0.3);
+
+    --shadow--small: 0 0 5px var(--color--shadow);
+    --shadow--medium: 0 2px 10px var(--color--shadow);
+
     --padding-big: 30px;
     --padding-medium: 20px;
     --padding-small: 10px;
     --border-radius-medium: 5px;
-    --scrollview--thumb-color: rgba(255, 255, 255, 0.3);
-    --app--navigation-width: 200px;
+    --scrollview--thumb-color: var(--color--text-main);
+
     --app--max-width: 1920px;
-    --app--background: #333745;
+    --app--background: var(--color--environment);
     --app--font-family: "Open Sans", Verdana, Geneva, Tahoma, sans-serif;
     --app--font-size: 12px;
-    --app--font-color: #EAE8FF;
+    --app--font-color: var(--color--text-main);
+
     --toolbar--height: 48px;
-    --toolbar--background: #01172F;
-    --toolbar--color: #807F8C;
-    --toolbar--hover-color: #EAE8FF;
-    --menu-item--background: #01172F;
-    --menu-item--hover-background: #011123;
-    --menu-item--selected-background: #01172F;
-    --menu-item--color: #807F8C;
-    --menu-item--hover-color: #EAE8FF;
-    --menu-item--selected-color: #EAE8FF;
+    --toolbar--background: var(--color--accent);
+
+    --footer--background: var(--color--accent);
+
+    --code-view--background: var(--color--background);
+    --code-view--tab-background: transparent;
+    --code-view--tab-selected-background: var(--color--accent);
+    --code-view--container-background: var(--color--accent);
+
+    --markdown--block-background: var(--color--accent);
+
+    --article--navigation: 200px;
+    --article--background: var(--color--background);
+
+    --menu-item--background: var(--color--accent);
+    --menu-item--selected-background: var(--color--accent);
+    --menu-item--color: var(--color--text-blur);
+    --menu-item--hover-color: var(--color--highlight);
+    --menu-item--selected-color: var(--color--highlight);
 }
 
 html,
@@ -33,6 +55,7 @@ body {
     font-size: var(--app--font-size);
     color: var(--app--font-color);
     background: var(--app--background);
+    /*filter: saturate(0);*/
 }
 
 app {

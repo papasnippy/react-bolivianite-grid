@@ -3,7 +3,7 @@
         display: flex;
         flex: 1;
         box-sizing: border-box;
-        padding-left: calc(var(--app--navigation-width) + var(--padding-big));
+        padding-left: calc(var(--article--navigation) + var(--padding-big));
         flex-direction: column;
     }
     .chunk {
