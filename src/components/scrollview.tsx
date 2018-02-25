@@ -83,6 +83,10 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         super(p, c);
     }
 
+    public get minimized() {
+        return this._xmove === -1 && this._ymove === -1 && this.state.minimized;
+    }
+
     public get scrollbarMinimizeDistance() {
         return Math.max(0, this.props.scrollbarMinimizeDistance || 100);
     }
@@ -97,7 +101,7 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
 
     public get currentScrollbarSize() {
         const size = (
-            this.state.minimized
+            this.minimized
                 ? this.props.scrollbarWidthMinimized
                 : this.props.scrollbarWidth
         );
@@ -209,8 +213,14 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
     }
 
     private _onMouseUp = () => {
+        if (this._xmove === -1 && this._ymove === -1) {
+            return;
+        }
+
         this._xmove = -1;
         this._ymove = -1;
+
+        this.forceUpdate();
     }
 
     private _onScrollMouseY = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -309,8 +319,8 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         let viewportWidth = t.clientWidth;
         let viewportHeight = t.clientHeight;
 
-        this._xratio = Math.max(0, Math.min(1, (viewportWidth - ss) / this._xlen));
-        this._yratio = Math.max(0, Math.min(1, (viewportHeight - ss) / this._ylen));
+        this._xratio = viewportWidth === this._xlen ? 1 : Math.max(0, Math.min(1, (viewportWidth - ss) / this._xlen));
+        this._yratio = viewportHeight === this._ylen ? 1 : Math.max(0, Math.min(1, (viewportHeight - ss) / this._ylen));
         this._xsize = Math.round(this._xratio * viewportWidth);
         this._ysize = Math.round(this._yratio * viewportHeight);
 

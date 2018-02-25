@@ -1,6 +1,9 @@
 import * as React from 'react';
-import { Toolbar, NavigationItem, GitHubIcon, Page } from './ui';
+import { Toolbar, NavigationItem, GitHubIcon, Page, Articles } from './ui';
 import { Switch, Route } from 'react-router-dom';
+
+import articlesExample from '~/articles/examples';
+
 const Style = require('./app.scss');
 
 export class App extends React.Component<any, any> {
@@ -34,7 +37,7 @@ export class App extends React.Component<any, any> {
                             <Page>?Home?</Page>
                         </Route>
                         <Route exact path="/examples/:article?">
-                            <Page>?Examples?</Page>
+                            <Articles source={articlesExample} />
                         </Route>
                         <Route exact path="/tutorial/:article?">
                             <Page>?Tutorial?</Page>

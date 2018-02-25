@@ -1,8 +1,7 @@
 :local {
     .root {
-        position: fixed;
-        height: 200px;
-        width: 200px;
-        margin-top: var(--padding-big);
+        position: fixed !important;
+        height: 50vh !important;
+        width: var(--app--navigation-width) !important;
     }
 }

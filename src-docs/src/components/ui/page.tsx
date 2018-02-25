@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { AppMaxWidth } from './app-max-width';
-import { ScrollView } from '~/components';
+import { ScrollView, AppMaxWidth } from './index';
 const Style = require('./page.scss');
 
 export interface IPageProps {
@@ -11,7 +10,7 @@ export class Page extends React.Component<IPageProps, {}> {
         return (
             <div className={Style.root}>
                 <ScrollView>
-                    <AppMaxWidth className={Style.content}>
+                    <AppMaxWidth classNameLayer={Style.content}>
                         {this.props.children}
                     </AppMaxWidth>
                 </ScrollView>

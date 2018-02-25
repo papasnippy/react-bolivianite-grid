@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ScrollView as SV, IScrollViewProps } from 'react-bolivianite-grid';
-const Style = require('./scrollview.scss');
+const Style = require('./scroll-view.scss');
 
 export class ScrollView extends React.Component<IScrollViewProps, {}> {
     public render() {

@@ -1,0 +1,12 @@
+:local {
+    .body {
+        display: flex;
+        flex: 1;
+        box-sizing: border-box;
+        padding-left: calc(var(--app--navigation-width) + var(--padding-big));
+        flex-direction: column;
+    }
+    .chunk {
+        margin-bottom: var(--padding-small);
+    }
+}

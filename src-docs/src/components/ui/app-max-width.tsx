@@ -6,7 +6,7 @@ export class AppMaxWidth extends React.PureComponent<any, any> {
     public render() {
         return (
             <div className={classnames(Style.root, this.props.className)}>
-                <div className={Style.layer}>
+                <div className={classnames(Style.layer, this.props.classNameLayer)}>
                     {this.props.children}
                 </div>
             </div>

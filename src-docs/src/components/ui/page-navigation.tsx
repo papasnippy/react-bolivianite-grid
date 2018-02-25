@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { ScrollView } from '~/components';
-import { NavigationItem } from './navigation-item';
+import { NavigationItem, ScrollView } from './';
 const Style = require('./page-navigation.scss');
 
 export interface IPageNavigationProps {

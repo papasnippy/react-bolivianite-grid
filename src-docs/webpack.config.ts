@@ -31,7 +31,8 @@ module.exports = (env: any = {}) => {
             extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.scss', '.css'],
             alias: {
                 'react-bolivianite-grid': Path.resolve(__dirname, '../src'),
-                '~': Path.resolve(__dirname, './src')
+                '~': Path.resolve(__dirname, './src'),
+                '~Content': Path.resolve(__dirname, './src/articles/content')
             },
             modules: [
                 'node_modules',
@@ -109,10 +110,10 @@ module.exports = (env: any = {}) => {
                     test: /\.tsx?$/,
                     loader: 'ts-loader'
                 },
-                /*{
-                    test: /\.raw.tsx?$/,
+                {
+                    test: /(\.txt$|\.md)/,
                     use: 'raw-loader'
-                },*/
+                },
                 {
                     test: /\.json$/,
                     loader: 'json-loader'

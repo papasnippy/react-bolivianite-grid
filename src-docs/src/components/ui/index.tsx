@@ -5,3 +5,6 @@ export * from './app-max-width';
 export * from './page';
 export * from './page-navigation';
 export * from './code-view';
+export * from './split-view';
+export * from './scroll-view';
+export * from './articles';

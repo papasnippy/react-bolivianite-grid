@@ -1,4 +1,39 @@
 :local {
     .root {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        height: calc(100vh - var(--toolbar--height) - var(--padding-big) * 2);
+        box-sizing: border-box;
+    }
+    .controls {
+        display: flex;
+        height: 40px;
+        box-sizing: border-box;
+    }
+    .container {
+        box-sizing: border-box;
+        background: var(--toolbar--background);
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        padding: var(--padding-small);
+    }
+    .tab {
+        box-sizing: border-box;
+        margin: 0;
+        padding: var(--padding-small) var(--padding-medium);
+        outline: none;
+        background: transparent;
+        border: 0;
+        color: var(--app--font-color);
+        cursor: pointer;
+        user-select: none;
+        &:hover {
+            background: var(--toolbar--background);
+        }
+        &.tabSelected {
+            background: var(--toolbar--background);
+        }
     }
 }
