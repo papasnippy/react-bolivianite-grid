@@ -21,6 +21,9 @@
         overflow: hidden;
         padding: var(--padding-small);
     }
+    .file {
+        display: inline-block;
+    }
     .tab {
         box-sizing: border-box;
         margin: 0;

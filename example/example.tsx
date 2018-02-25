@@ -23,6 +23,9 @@ const THEME: IGridTheme = {
     },
 
     // Grid theme
+    style: {
+        background: '#FFFFFF'
+    },
     styleGridColumns: {
         background: '#3C3744',
         boxShadow: '0 0 5px #000',

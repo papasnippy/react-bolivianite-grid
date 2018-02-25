@@ -26,7 +26,7 @@ export class App extends React.Component<any, any> {
                         </NavigationItem>
                     </nav>
                     <div>
-                        <a target="blank" href="https://github.com/papasnippy/react-bolivianite-grid">
+                        <a target="blank" href={process.env.GITHUB_URL}>
                             <GitHubIcon />
                         </a>
                     </div>

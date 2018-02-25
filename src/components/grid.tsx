@@ -950,6 +950,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
 
     public openEditor = (cell: IGridAddress) => {
+        if (this.props.readOnly) {
+            return;
+        }
+
         let e = this.state.edit;
 
         if (e) {

@@ -53,6 +53,7 @@ export class CodeView extends React.PureComponent<ICodeViewProps & ICodeViewElem
         return (
             <Code
                 showLineNumbers
+                className={Style.file}
                 language={language}
                 source={content}
             />

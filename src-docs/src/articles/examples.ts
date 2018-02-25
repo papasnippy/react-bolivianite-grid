@@ -1,32 +1,22 @@
 import Article from './index';
 
 export default Article.create('examples', [{
+    // Index article
     name: '',
-    caption: 'Fallback',
+    caption: '',
     body: [
-        require('./examples-test.md')
     ]
 }, {
-    name: 'test1',
-    caption: 'Test 1',
+    name: 'simple',
+    caption: 'Simple',
     body: [
-        require('./examples-test.md'),
+        // require('./examples-test.md'),
         Article.example({
             height: 600,
-            example: 'test.tsx',
+            example: 'example-grid-simple.tsx',
             files: [
-                'test.tsx',
-                ['test.txt', 'text'],
-                ['test.scss', 'css']
-            ]
-        }),
-        Article.example({
-            height: 600,
-            example: 'test.tsx',
-            files: [
-                'test.tsx',
-                ['test.txt', 'text'],
-                ['test.scss', 'css']
+                ['example-grid-simple.tsx', 'javascript', 'main.tsx'],
+                ['grid-theme.ts', 'typescript', 'theme.ts']
             ]
         })
     ]

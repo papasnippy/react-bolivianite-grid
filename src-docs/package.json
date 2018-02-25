@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "w": "./node_modules/.bin/webpack-dev-server --open"
+    "w": "./node_modules/.bin/webpack-dev-server --open",
+    "b": "./node_modules/.bin/webpack --env.production"
   },
   "author": "Aliaksei Kubiatski <papasnippynpm@gmail.com>",
   "license": "MIT",

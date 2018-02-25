@@ -75,9 +75,12 @@ module.exports = (env: any = {}) => {
                 allChunks: true
             }),
             new Webpack.DefinePlugin({
-                'process.env.ENV': JSON.stringify(IS_PROD ? 'production' : 'development'),
-                'process.env.NODE_ENV': JSON.stringify(IS_PROD ? 'production' : 'development'),
-                'process.env.PACKAGE_NAME': JSON.stringify(packageJson.name)
+                'process.env': {
+                    'ENV': JSON.stringify(IS_PROD ? 'production' : 'development'),
+                    'NODE_ENV': JSON.stringify(IS_PROD ? 'production' : 'development'),
+                    'PACKAGE_NAME': JSON.stringify(packageJson.name),
+                    'GITHUB_URL': JSON.stringify('https://github.com/papasnippy/react-bolivianite-grid')
+                }
             }),
             new Webpack.LoaderOptionsPlugin({
                 options: {
