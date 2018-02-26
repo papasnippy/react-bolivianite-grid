@@ -3,11 +3,6 @@
     - expand/collapse
     - header level autosize
 
-* finalizing
-    - documentation
-    - home page with demo
-    - beta release
-
 * noted
     - rendering optimizations
     - headers selection by down and move

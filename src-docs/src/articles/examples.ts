@@ -10,13 +10,13 @@ export default Article.create('examples', [{
     name: 'simple',
     caption: 'Simple',
     body: [
-        // require('./examples-test.md'),
+        require('./example-simple.md'),
         Article.example({
             height: 600,
             example: 'example-grid-simple.tsx',
             files: [
                 ['example-grid-simple.tsx', 'javascript', 'main.tsx'],
-                ['grid-theme.ts', 'typescript', 'theme.ts']
+                ['grid-theme.ts', 'typescript']
             ]
         })
     ]
