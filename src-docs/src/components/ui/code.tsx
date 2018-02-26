@@ -12,7 +12,7 @@ const CODE_STYLE_PROPS: React.CSSProperties = {
 };
 
 export interface ICodeProps {
-    className?: string;
+        className?: string;
     showLineNumbers?: boolean;
     language: string;
     source: string;

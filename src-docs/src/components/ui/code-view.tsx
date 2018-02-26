@@ -52,7 +52,6 @@ export class CodeView extends React.PureComponent<ICodeViewProps & ICodeViewElem
 
         return (
             <Code
-                showLineNumbers
                 className={Style.file}
                 language={language}
                 source={content}
@@ -98,6 +97,7 @@ export class CodeView extends React.PureComponent<ICodeViewProps & ICodeViewElem
     public render() {
         return (
             <div
+                area-hidden="true"
                 className={classnames(Style.root, this.props.className)}
                 style={{
                     maxHeight: this.props.height

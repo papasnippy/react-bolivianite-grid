@@ -31,7 +31,7 @@ export class App extends React.Component<any, any> {
                         </a>
                     </div>
                 </Toolbar>
-                <div className={Style.main}>
+                <main className={Style.main}>
                     <Switch>
                         <Route exact path="/">
                             <Page>?Home?</Page>
@@ -46,7 +46,7 @@ export class App extends React.Component<any, any> {
                             <Page>?Api?</Page>
                         </Route>
                     </Switch>
-                </div>
+                </main>
                 <footer className={Style.footer}>
                     <AppMaxWidth classNameLayer={Style.footerContent}>
                         ?Footer?

@@ -52,12 +52,12 @@ export class PageArticles extends React.Component<IPageArticlesProps, IPageArtic
         return body.map((p, i) => {
             if (typeof p === 'string') {
                 return (
-                    <article
+                    <section
                         className={Style.chunk}
                         key={i}
                     >
-                        <Markdown source={p}/>
-                    </article>
+                        <Markdown source={p} />
+                    </section>
                 );
             }
 
@@ -94,9 +94,9 @@ export class PageArticles extends React.Component<IPageArticlesProps, IPageArtic
                     {this.state.articles.map(({ url, body }) => {
                         return (
                             <Route exact path={url} key={url}>
-                                <main className={Style.body}>
+                                <article className={Style.body}>
                                     {this._renderArticle(body)}
-                                </main>
+                                </article>
                             </Route>
                         );
                     })};
