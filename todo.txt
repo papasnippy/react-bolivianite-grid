@@ -1,7 +1,10 @@
 * todo
+    - header level autosize ability
+    - manual resize example
+    - autosize example
+    - grouped columns example
+    - expand/collapse example
     - copy/paste controller
-    - expand/collapse
-    - header level autosize
 
 * noted
     - rendering optimizations
