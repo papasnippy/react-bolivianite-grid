@@ -1,0 +1,26 @@
+:local {
+    .exampleContainer {
+        height: 100%;
+        width: 100%;
+    }
+    .historyButton {
+        border: 0;
+        padding: 5px;
+        margin: 0;
+        box-sizing: border-box;
+        background: none;
+        cursor: pointer;
+        outline: none;
+        fill: #808080;
+        &:last-child {
+            margin-right: 5px;
+        }
+        &:hover {
+            fill: #FFFFFF;
+        }
+        &[disabled] {
+            fill: #505050 !important;
+            cursor: default;
+        }
+    }
+}

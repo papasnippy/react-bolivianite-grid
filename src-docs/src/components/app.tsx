@@ -18,9 +18,6 @@ export class App extends React.Component<any, any> {
                         <NavigationItem location="/examples">
                             Examples
                         </NavigationItem>
-                        <NavigationItem location="/tutorial">
-                            Tutorial
-                        </NavigationItem>
                         <NavigationItem location="/api">
                             Api
                         </NavigationItem>
@@ -38,9 +35,6 @@ export class App extends React.Component<any, any> {
                         </Route>
                         <Route exact path="/examples/:article?">
                             <PageArticles source={articlesExample} />
-                        </Route>
-                        <Route exact path="/tutorial/:article?">
-                            <Page>?Tutorial?</Page>
                         </Route>
                         <Route exact path="/api/:article?">
                             <Page>?Api?</Page>

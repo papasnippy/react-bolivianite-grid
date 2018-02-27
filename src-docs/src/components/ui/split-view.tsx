@@ -92,7 +92,9 @@ export class SplitView extends React.PureComponent<ISplitViewProps, any> {
                     {a[0]}
                 </div>
                 <div
-                    className={Style.resizer}
+                    className={classnames(Style.resizer, {
+                        [Style.highlight]: this.state.drag
+                    })}
                     style={{
                         left: `${100 * this.state.position}%`
                     }}

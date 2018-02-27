@@ -15,7 +15,7 @@ module.exports = (env: any = {}) => {
     const CHUNK_TYPE = IS_PROD ? 'chunkhash' : 'hash';
 
     return {
-        devtool: 'source-map',
+        devtool: IS_PROD ? 'none' : 'source-map',
         context: __dirname + '',
         performance: {
             hints: false

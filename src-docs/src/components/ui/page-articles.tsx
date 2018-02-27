@@ -52,12 +52,11 @@ export class PageArticles extends React.Component<IPageArticlesProps, IPageArtic
         return body.map((p, i) => {
             if (typeof p === 'string') {
                 return (
-                    <section
-                        className={Style.chunk}
+                    <Markdown
                         key={i}
-                    >
-                        <Markdown source={p} />
-                    </section>
+                        className={Style.chunk}
+                        source={p}
+                    />
                 );
             }
 

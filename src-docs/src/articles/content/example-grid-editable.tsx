@@ -1,33 +1,16 @@
 import * as React from 'react';
 import Grid, {
-    HeadersContainer, HeaderType, ICellRendererEvent, IHeaderRendererEvent, ISelectionRendererEvent
+    HeaderType, ICellRendererEvent, IHeaderRendererEvent, ISelectionRendererEvent,
+    ICellEditorEvent, IGridNullifyEvent, IGridUpdateEvent
 } from 'react-bolivianite-grid';
+import BaseExample from './base-example';
+import Editor from './simple-editor';
 import Theme from './style';
 
-export class SimpleGridExample extends React.Component {
-    state = {
-        headers: new HeadersContainer({
-            columns: new Array(100).fill(null).map(() => ({})),
-            rows: new Array(200).fill(null).map(() => ({})),
-            columnWidth: 100,
-            rowHeight: 24,
-            headersHeight: 24,
-            headersWidth: 50
-        })
-    };
-
-    excelIndex(index: number) {
-        index++;
-        let c = '';
-
-        for (let a = 1, b = 26; (index -= a) >= 0; a = b, b *= 26) {
-            c = String.fromCharCode(~~((index % b) / a) + 65) + c;
-        }
-
-        return c;
-    }
-
-    renderCell = ({ style, columnIndex, rowIndex, theme }: ICellRendererEvent) => {
+export class EditableGridExample extends BaseExample {
+    renderCell = ({ style, columnIndex, rowIndex, source, theme }: ICellRendererEvent) => {
+        const key = `${rowIndex} x ${columnIndex}`;
+        const display = source[key] === void 0 ? key : source[key];
         return (
             <div
                 style={{
@@ -36,7 +19,7 @@ export class SimpleGridExample extends React.Component {
                     background: rowIndex % 2 ? theme.cellBackgroundEven : theme.cellBackgroundOdd
                 }}
             >
-                {`${rowIndex} x ${columnIndex}`}
+                {display}
             </div>
         );
     }
@@ -87,20 +70,71 @@ export class SimpleGridExample extends React.Component {
         );
     }
 
-    render() {
+    editorRenderer = ({ style, columnIndex, rowIndex, update, source, theme }: ICellEditorEvent) => {
+        let key = `${rowIndex} x ${columnIndex}`;
+        let initialValue = source[key] === void 0 ? key : source[key];
+        return (
+            <div
+                style={{
+                    ...style,
+                    boxSizing: 'border-box',
+                    borderRight: `solid 1px ${theme.editorBorderColor}`,
+                    borderBottom: `solid 1px ${theme.editorBorderColor}`,
+                    padding: '0 3px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    background: theme.editorBackground
+                }}
+            >
+                <Editor
+                    initialValue={initialValue}
+                    update={update}
+                />
+            </div>
+        );
+    }
+
+    onNullify = ({ cells }: IGridNullifyEvent) => {
+        let data = {
+            ...this.currentState.data
+        };
+
+        cells.forEach(({ column, row }) => {
+            data[`${row} x ${column}`] = null;
+        });
+
+        this.pushHistory({ data });
+    }
+
+    onUpdate = ({ cell, value }: IGridUpdateEvent) => {
+        let { column, row } = cell;
+        let key = `${row} x ${column}`;
+
+        this.pushHistory({
+            data: {
+                ...this.currentState.data,
+                [key]: value
+            }
+        });
+    }
+
+    renderGrid() {
+        const { data, headers } = this.currentState;
         return (
             <Grid
-                readOnly
-                headers={this.state.headers}
+                headers={headers}
                 overscanRows={3}
-                source={null}
+                source={data}
                 theme={Theme}
                 onRenderCell={this.renderCell}
                 onRenderHeader={this.renderHeader}
                 onRenderSelection={this.renderSelection}
+                onRenderEditor={this.editorRenderer}
+                onNullify={this.onNullify}
+                onUpdate={this.onUpdate}
             />
         );
     }
 }
 
-export default SimpleGridExample;
+export default EditableGridExample;

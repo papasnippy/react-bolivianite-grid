@@ -2,6 +2,10 @@
     .content {
         padding: var(--padding-big);
         box-sizing: border-box;
+
+        @media screen and (max-width: 450px) {
+            padding: var(--padding-small);
+        }
     }
     .navigtaion {
         position: fixed;
@@ -9,7 +13,6 @@
         max-height: calc(100vh - var(--toolbar--height) - var(--padding-big) * 3);
         overflow-x: hidden;
         overflow-y: auto;
-        background: var(--color--accent);
         box-shadow: var(--shadow--medium);
 
         &::-webkit-scrollbar {
@@ -20,6 +23,16 @@
         }
         &::-webkit-scrollbar-thumb {
             background: var(--app--font-color);
+        }
+
+        @media screen and (max-width: 450px) {
+            position: static;
+            width: 100%;
+            margin-bottom: var(--padding-small);
+
+            a {
+                min-height: var(--toolbar--height) !important;
+            }
         }
     }
 }

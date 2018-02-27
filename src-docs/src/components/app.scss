@@ -12,4 +12,9 @@
         box-sizing: border-box;
         padding: var(--padding-small) var(--padding-big);
     }
+    @media screen and (max-width: 450px) {
+        .footer {
+            display: none;
+        }
+    }
 }

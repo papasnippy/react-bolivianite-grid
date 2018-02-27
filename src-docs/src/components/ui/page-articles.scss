@@ -5,6 +5,10 @@
         box-sizing: border-box;
         padding-left: calc(var(--article--navigation) + var(--padding-big));
         flex-direction: column;
+
+        @media screen and (max-width: 450px) {
+            padding-left: 0;
+        }
     }
     .chunk {
         margin-bottom: var(--padding-small);

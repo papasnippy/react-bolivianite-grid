@@ -1,10 +1,12 @@
 import * as React from 'react';
 import * as MDRenderer from 'react-markdown';
+import * as classnames from 'classnames';
 import { Code } from './index';
 
 const Style = require('./markdown.scss');
 
 export interface IMarkdownProps {
+    className?: string;
     source?: string;
 }
 
@@ -37,7 +39,7 @@ export class Markdown extends React.Component<IMarkdownProps, any> {
     public render() {
         return (
             <MDRenderer
-                className={Style.main}
+                className={classnames(Style.main, this.props.className)}
                 source={this.props.source || ''}
                 renderers={{
                     inlineCode: this._codeInlineRenderer,

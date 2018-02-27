@@ -7,11 +7,21 @@
         box-shadow: var(--shadow--medium);
         background: var(--code-view--background);
     }
+    .tabs {
+        display: flex;
+        min-height: 40px;
+        box-sizing: border-box;
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    .panel {
+        display: flex;
+        justify-content: space-between;
+    }
     .controls {
         display: flex;
-        height: 40px;
-        box-sizing: border-box;
-        flex-shrink: 0;
+        justify-content: center;
+        align-items: center;
     }
     .container {
         box-sizing: border-box;
@@ -27,6 +37,7 @@
     .tab {
         box-sizing: border-box;
         margin: 0;
+        height: 40px;
         padding: var(--padding-small) var(--padding-medium);
         outline: none;
         background: transparent;
@@ -40,6 +51,11 @@
         }
         &.tabSelected {
             background: var(--code-view--tab-selected-background);
+        }
+    }
+    @media screen and (max-width: 450px) {
+        .tab {
+            padding: 0 var(--padding-small);
         }
     }
 }

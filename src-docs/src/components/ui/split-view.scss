@@ -10,11 +10,32 @@
     }
     .resizer {
         height: 100%;
-        width: 10px;
+        width: var(--padding-small);
         cursor: col-resize;
         flex-shrink: 0;
         display: flex;
         justify-content: center;
         align-items: center;
+
+        &.highlight,
+        &:hover {
+            background: var(--color--highlight);
+        }
+    }
+
+    @media screen and (max-width: 450px) {
+        .root {
+            flex-direction: column;
+        }
+        .container {
+            width: 100% !important;
+
+            &:first-child {
+                margin-bottom: var(--padding-small);
+            }
+        }
+        .resizer {
+            display: none;
+        }
     }
 }

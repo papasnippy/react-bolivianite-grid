@@ -8,6 +8,7 @@ export interface IScrollViewUpdateEvent {
     scrollHeight: number;
     clientWidth: number;
     clientHeight: number;
+    scrollbarSize: number;
 }
 
 export type TScrollViewPartial<T = any> = JSX.Element | ((props: T) => JSX.Element);
@@ -263,7 +264,8 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
                 scrollWidth: 0,
                 scrollHeight: 0,
                 clientWidth: 0,
-                clientHeight: 0
+                clientHeight: 0,
+                scrollbarSize: this.scrollbarSize
             };
         }
 
@@ -273,7 +275,8 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
             scrollWidth: this.scrollWidth,
             scrollHeight: this.scrollHeight,
             clientWidth: this.clientWidth,
-            clientHeight: this.clientHeight
+            clientHeight: this.clientHeight,
+            scrollbarSize: this.scrollbarSize
         };
     }
 

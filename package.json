@@ -1,6 +1,6 @@
 {
   "name": "react-bolivianite-grid",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "description": "react grid component",
   "main": "index.js",
   "module": "__es_module/index.js",

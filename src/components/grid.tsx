@@ -49,6 +49,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     } = null;
 
     state = {
+        scrollbarSize: 0,
         scrollLeft: 0,
         scrollTop: 0,
         viewHeight: 0,
@@ -212,15 +213,15 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     private _onScrollViewUpdate = (e: IScrollViewUpdateEvent) => {
         this._scrollUpdateTrottled(() => {
             if (this.state.viewWidth !== e.clientWidth || this.state.viewHeight !== e.clientHeight) {
-                this.setState({ viewWidth: e.clientWidth, viewHeight: e.clientHeight });
+                this.setState({ viewWidth: e.clientWidth, viewHeight: e.clientHeight, scrollbarSize: e.scrollbarSize });
             }
 
             if (this.state.scrollLeft !== e.scrollLeft) {
-                this.setState({ scrollLeft: e.scrollLeft });
+                this.setState({ scrollLeft: e.scrollLeft, scrollbarSize: e.scrollbarSize });
             }
 
             if (this.state.scrollTop !== e.scrollTop) {
-                this.setState({ scrollTop: e.scrollTop });
+                this.setState({ scrollTop: e.scrollTop, scrollbarSize: e.scrollbarSize });
             }
         });
     }
@@ -1088,7 +1089,11 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         });
     }
 
-    public componentDidUpdate() {
+    public componentDidUpdate(pp: IGridProps) {
+        if (this.state.edit && pp.source !== this.props.source) {
+            this.closeEditor(false);
+        }
+
         this._onAfterUpdate();
     }
 
@@ -1134,8 +1139,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 >
                     <div
                         style={{
-                            height: rowsHeight,
-                            width: columnsWidth,
+                            height: rowsHeight + this.state.scrollbarSize,
+                            width: columnsWidth + this.state.scrollbarSize,
                             boxSizing: 'border-box',
                             position: 'relative',
                             marginLeft: this._headersWidth,

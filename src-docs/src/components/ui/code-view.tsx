@@ -22,6 +22,12 @@ export class CodeView extends React.PureComponent<ICodeViewProps & ICodeViewElem
         tab: 0
     };
 
+    private _refControls: HTMLElement = null;
+
+    private _onRef = (r: HTMLElement) => {
+        this._refControls = r;
+    }
+
     private _extractFile(file: ICodeViewFile) {
         let filename = '';
         let language = 'javascript';
@@ -67,7 +73,7 @@ export class CodeView extends React.PureComponent<ICodeViewProps & ICodeViewElem
             return null;
         }
 
-        return <D />;
+        return <D refControls={this._refControls}/>;
     }
 
     private _renderTabs() {
@@ -94,6 +100,12 @@ export class CodeView extends React.PureComponent<ICodeViewProps & ICodeViewElem
         });
     }
 
+    public componentDidMount() {
+        if (this._refControls) {
+            this.forceUpdate();
+        }
+    }
+
     public render() {
         return (
             <div
@@ -103,8 +115,11 @@ export class CodeView extends React.PureComponent<ICodeViewProps & ICodeViewElem
                     maxHeight: this.props.height
                 }}
             >
-                <div className={Style.controls}>
-                    {this._renderTabs()}
+                <div className={Style.panel}>
+                    <div className={Style.tabs}>
+                        {this._renderTabs()}
+                    </div>
+                    <div className={Style.controls} ref={this._onRef} />
                 </div>
                 <SplitView>
                     <ScrollView className={Style.container} lock={null}>
@@ -118,4 +133,3 @@ export class CodeView extends React.PureComponent<ICodeViewProps & ICodeViewElem
         );
     }
 }
-
