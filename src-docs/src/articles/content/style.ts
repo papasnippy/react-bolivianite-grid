@@ -28,8 +28,8 @@ const REQUIRED_THEME: IGridTheme = {
         color: '#DBDADD'
     },
     styleGridCorner: {
-        borderRight: 'solid 1px #000',
-        borderBottom: 'solid 1px #000',
+        borderRight: 'solid 1px #4d5160',
+        borderBottom: 'solid 1px #4d5160',
         background: '#363944',
         color: '#DBDADD',
         boxSizing: 'border-box'
@@ -42,10 +42,9 @@ const THEME = {
     // Custom grid theme properties
     cellBackgroundEven: '#EFEFEF',
     cellBackgroundOdd: '#FFFFFF',
-    editorBorderColor: '#918B9C',
+    editorBorderColor: '#BFBFBF',
     editorBackground: '#FFFFFF',
-    headerBorderColor: '#000000',
-    headerBorderColorSelected: '#24262d',
+    headerBorderColor: '#4d5160',
     headerBackgroundColorSelected: '#24262d',
     selectionBackground: 'rgba(1, 9, 40, 0.2)',
     selectionBackgroundActive: 'transparent',
@@ -54,8 +53,8 @@ const THEME = {
     resizerBackground: 'rgba(0, 0, 0, 0.4)',
     cellStyle: {
         boxSizing: 'border-box',
-        borderRight: `solid 1px #918B9C`,
-        borderBottom: `solid 1px #918B9C`,
+        borderRight: `solid 1px #BFBFBF`,
+        borderBottom: `solid 1px #BFBFBF`,
         padding: '0 3px',
         display: 'flex',
         alignItems: 'center',
@@ -63,8 +62,8 @@ const THEME = {
     } as React.CSSProperties,
     headerStyle: {
         boxSizing: 'border-box',
-        borderRight: `solid 1px black`,
-        borderBottom: `solid 1px black`,
+        borderRight: `solid 1px transparent`,
+        borderBottom: `solid 1px transparent`,
         padding: '0 3px',
         display: 'flex',
         alignItems: 'center',

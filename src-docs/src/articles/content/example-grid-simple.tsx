@@ -44,18 +44,24 @@ export class SimpleGridExample extends React.Component {
     renderHeader = ({ style, type, selection, viewIndex, theme }: IHeaderRendererEvent) => {
         const nextStyle: React.CSSProperties = {
             ...style,
-            ...theme.headerStyle,
-            borderRightColor: type === HeaderType.Row && selection ? theme.headerBorderColorSelected : theme.headerBorderColor,
-            borderBottomColor: type === HeaderType.Column && selection ? theme.headerBorderColorSelected : theme.headerBorderColor
+            ...theme.headerStyle
         };
+
+        switch (type) {
+            case HeaderType.Row:
+                nextStyle.borderBottomColor = theme.headerBorderColor;
+                break;
+
+            case HeaderType.Column:
+                nextStyle.borderRightColor = theme.headerBorderColor;
+                break;
+        }
 
         if (selection) {
             nextStyle.background = theme.headerBackgroundColorSelected;
         }
 
-        if (type === HeaderType.Row) {
-            nextStyle.justifyContent = 'flex-end';
-        }
+        nextStyle.justifyContent = type === HeaderType.Row ? 'flex-end' : 'center';
 
         return (
             <div style={nextStyle}>
