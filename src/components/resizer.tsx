@@ -118,12 +118,12 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
             case 'column':
             case 'row':
                 this._grid.resizeHeaders({
+                    behavior: 'manual',
                     headers: [{
                         type: type === 'row' ? HeaderType.Row : HeaderType.Column,
                         header: header,
                         size: header.$size + change
-                    }],
-                    behavior: 'manual'
+                    }]
                 });
                 break;
 
@@ -135,12 +135,12 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
                         : this._container.getTopLevelHeight(this._container.getLevel(header))
                 );
                 this._grid.resizeHeaders({
+                    behavior: 'manual',
                     levels: [{
                         type: type === 'left-level' ? HeaderType.Row : HeaderType.Column,
                         level: this._container.getLevel(header),
                         size: start + change
-                    }],
-                    behavior: 'manual'
+                    }]
                 });
                 break;
         }

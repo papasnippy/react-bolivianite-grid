@@ -662,9 +662,9 @@ export class HeadersContainer {
                     let isManual = behavior === 'manual';
                     let key = `${type}:${level}`;
                     if (isManual) {
-                        next._state.headerManualResized[key] = true;
+                        next._state.levelManualResized[key] = true;
                     } else {
-                        delete next._state.headerManualResized[key];
+                        delete next._state.levelManualResized[key];
                     }
             }
         }

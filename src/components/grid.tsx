@@ -251,10 +251,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
             let ch = Object
                 .keys(columns)
-                .map(k => ({ columnIndex: Number(k), width: columns[k] }))
+                .map(k => ({ columnIndex: Number(k), width: Math.round(columns[k]) }))
                 .filter(({ width, columnIndex }) => {
                     let h = columnHeaders[columnIndex];
-                    return h && (isReset || !ctr.getManualResized(h) && h.$size < width);
+                    return h && (isReset || !ctr.getManualResized(h) && Math.round(h.$size) < width);
                 })
                 .map(({ columnIndex, width }) => ({
                     header: columnHeaders[columnIndex],
@@ -264,10 +264,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
             let rh = Object
                 .keys(rows)
-                .map(k => ({ rowIndex: Number(k), height: rows[k] }))
+                .map(k => ({ rowIndex: Number(k), height: Math.round(rows[k]) }))
                 .filter(({ rowIndex, height }) => {
                     let h = rowHeaders[rowIndex];
-                    return h && (isReset || !ctr.getManualResized(h) && h.$size < height);
+                    return h && (isReset || !ctr.getManualResized(h) && Math.round(h.$size) < height);
                 })
                 .map(({ rowIndex, height }) => ({
                     header: rowHeaders[rowIndex],
@@ -303,7 +303,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 const level = Number(k);
                 const size = topLevels[level];
 
-                if (size == null || !isReset && size < ctr.getTopLevelHeight(level)) {
+                if (size == null || !isReset && Math.round(size) <= Math.round(ctr.getTopLevelHeight(level))) {
                     return null;
                 }
 
@@ -317,7 +317,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 const level = Number(k);
                 const size = leftLevels[level];
 
-                if (size == null || !isReset && size < ctr.getLeftLevelWidth(level)) {
+                if (size == null || !isReset && Math.round(size) <= Math.round(ctr.getLeftLevelWidth(level))) {
                     return null;
                 }
 
