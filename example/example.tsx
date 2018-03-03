@@ -90,7 +90,7 @@ export class Example extends React.Component<any, any> {
                 columnWidth: 100,
                 rowHeight: 24,
                 headersHeight: 24,
-                headersWidth: 50
+                headersWidth: 30
             })
         };
     }
@@ -326,19 +326,36 @@ export class Example extends React.Component<any, any> {
                                 }
                             });
                         }}
-                        onHeaderResize={({ headers, behavior }) => {
+                        onHeaderResize={({ headers, levels, behavior }) => {
+                            let next = state.headers;
+
+                            if (headers) {
+                                next = next.resizeHeaders({
+                                    behavior,
+                                    list: headers,
+                                    clamp: ({ type, size }) => Math.max(size, type === HeaderType.Column ? 30 : 24)
+                                });
+                            }
+
+                            if (levels) {
+                                next = next.resizeLevels({
+                                    behavior,
+                                    levels: levels.map(({ level, size, type }) => {
+                                        return {
+                                            type, level, size,
+                                            min: type === HeaderType.Column ? 25 : 30
+                                        };
+                                    })
+                                });
+                            }
+
+                            if (state.headers === next) {
+                                return;
+                            }
+
                             this._push({
-                                headers: state.headers.resizeHeaders(
-                                    headers,
-                                    ({ type, size }) => Math.max(size, type === HeaderType.Column ? 50 : 24),
-                                    behavior
-                                )
+                                headers: next
                             }, behavior === 'auto');
-                        }}
-                        onHeaderLevelResize={({ type, level, size }) => {
-                            this._push({
-                                headers: state.headers.resizeLevel(type, level, size, type === HeaderType.Column ? 25 : 50)
-                            });
                         }}
                         onRenderResizer={({ style, theme }) => {
                             style.background = theme.resizerBackground;
@@ -346,26 +363,40 @@ export class Example extends React.Component<any, any> {
                                 <div style={style} />
                             );
                         }}
-                        onAutoMeasure={({ cells, callback }) => {
-                            let ctx = document.createElement('canvas').getContext('2d');
+                        onAutoMeasure={({ cells, headers, callback }) => {
+                            const ctx = document.createElement('canvas').getContext('2d');
                             ctx.font = `14px Verdana`;
 
-                            let values = cells.map(({ columnIndex, rowIndex, source }) => {
-                                let value = source[`${rowIndex} x ${columnIndex}`];
+                            let measuredCells = cells.map(({ columnIndex, rowIndex, source }) => {
+                                const value = source[`${rowIndex} x ${columnIndex}`];
 
                                 if (value == null || value === '') {
                                     return null;
                                 }
 
                                 return {
-                                    rowIndex,
-                                    columnIndex,
+                                    row: rowIndex,
+                                    column: columnIndex,
                                     height: 0,
                                     width: ctx.measureText(String(value)).width + 6 // 6 is cell padding
                                 } as ICellMeasureResult;
                             });
 
-                            callback(values);
+                            let measuredLevels = headers.map(({ index, header, type }) => {
+                                const text = String(
+                                    type === HeaderType.Column && index != null
+                                        ? this.excelIndex(index)
+                                        : index
+                                );
+
+                                const width = ctx.measureText(String(text)).width + 6;
+
+                                return {
+                                    header, width, height: 0
+                                };
+                            });
+
+                            callback({ cells: measuredCells, headers: measuredLevels });
                         }}
                     />
                 </div>

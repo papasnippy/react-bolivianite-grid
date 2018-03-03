@@ -44,16 +44,36 @@ export interface ICellRendererEvent extends ICellRenderBaseEvent {
     theme: IGridTheme;
 }
 
-export interface ICellsMeasureEvent {
-    cells: ICellRenderBaseEvent[];
-    callback: (result: ICellMeasureResult[]) => void;
+export interface IHeaderMeasure {
+    index: number;
+    type: HeaderType;
+    level: number;
+    header: IHeader;
+    source: any;
 }
 
 export interface ICellMeasureResult {
-    rowIndex: number;
-    columnIndex: number;
+    row: number;
+    column: number;
     width: number;
     height: number;
+}
+
+export interface IHeaderMeasureResult {
+    header: IHeader;
+    width: number;
+    height: number;
+}
+
+export interface IMeasureResult {
+    cells?: ICellMeasureResult[];
+    headers?: IHeaderMeasureResult[];
+}
+
+export interface ICellsMeasureEvent {
+    cells: ICellRenderBaseEvent[];
+    headers: IHeaderMeasure[];
+    callback: (result: IMeasureResult) => void;
 }
 
 export interface ICellEditorEvent extends ICellRendererEvent {
@@ -109,19 +129,22 @@ export interface IGridCopyEvent {
     withHeaders: boolean;
 }
 
-export interface IGridResizeHeadersEvent {
-    headers: {
-        type: HeaderType;
-        header: IHeader;
-        size: number;
-    }[];
-    behavior: HeaderResizeBehavior;
+export interface IGridResizeHeader {
+    type: HeaderType;
+    header: IHeader;
+    size: number;
 }
 
-export interface IGridResizeHeaderLevelEvent {
+export interface IGridResizeHeaderLevel {
     type: HeaderType;
     level: number;
     size: number;
+}
+
+export interface IGridResizeCombinedEvent {
+    levels?: IGridResizeHeaderLevel[];
+    headers?: IGridResizeHeader[];
+    behavior: HeaderResizeBehavior;
 }
 
 export interface IGridPasteEvent extends IKeyboardControllerPasteEvent {
@@ -205,7 +228,5 @@ export interface IGridProps {
     /** Invoked on editor close when value was changed. */
     onUpdate?: (e: IGridUpdateEvent) => void;
 
-    onHeaderResize?: (e: IGridResizeHeadersEvent) => void;
-
-    onHeaderLevelResize?: (e: IGridResizeHeaderLevelEvent) => void;
+    onHeaderResize?: (e: IGridResizeCombinedEvent) => void;
 }

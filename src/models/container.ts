@@ -30,7 +30,8 @@ export interface IContainerState extends IContainerProps {
     positions: { [headerId: string]: number };
     levels: { [headerId: string]: number };
     parents: { [headerId: string]: IHeader };
-    manualResized: { [headerId: string]: boolean };
+    headerManualResized: { [headerId: string]: boolean };
+    levelManualResized: { [headerId: string]: boolean };
 }
 
 export class HeadersContainer {
@@ -58,7 +59,8 @@ export class HeadersContainer {
             positions: {},
             levels: {},
             parents: {},
-            manualResized: {}
+            headerManualResized: {},
+            levelManualResized: {}
         };
 
         this._state.viewColumns = this._create(props.columns, [], HeaderType.Column, props.filter);
@@ -142,7 +144,8 @@ export class HeadersContainer {
             positions: { ...this._state.positions },
             levels: { ...this._state.levels },
             parents: { ...this._state.parents },
-            manualResized: { ...this._state.manualResized }
+            headerManualResized: { ...this._state.headerManualResized },
+            levelManualResized: { ...this._state.levelManualResized }
         };
 
         return c;
@@ -271,12 +274,53 @@ export class HeadersContainer {
     }
 
     private _getLeaves(h: IHeader, out: IHeader[] = []) {
-        if (!h.$children || !h.$children.length) {
+        if (!h.$children || !h.$children.length || h.$collapsed) {
             out.push(h);
             return out;
         }
 
         h.$children.forEach(c => this._getLeaves(c, out));
+        return out;
+    }
+
+    private _getAllNodesByChildren(headers: IHeader[], map: { [id: string]: boolean } = {}, out: IHeader[] = []) {
+        headers.forEach((h) => {
+            if (!h) {
+                return;
+            }
+
+            if (!map[h.$id]) {
+                out.push(h);
+                map[h.$id] = true;
+            }
+
+            if (h.$children && h.$children.length) {
+                this._getAllNodesByChildren(h.$children, map, out);
+            }
+        });
+
+        return out;
+    }
+
+    private _getAllNodesByParents(headers: IHeader[], map: { [id: string]: boolean } = {}, out: IHeader[] = []) {
+        const seek = (h: IHeader) => {
+            if (!h) {
+                return;
+
+            }
+
+            if (!map[h.$id]) {
+                out.push(h);
+                map[h.$id] = true;
+            }
+
+            seek(this.getParent(h));
+        };
+
+        headers.forEach((h) => {
+            seek(h);
+        });
+
         return out;
     }
 
@@ -433,7 +477,11 @@ export class HeadersContainer {
     }
 
     public getManualResized(h: IHeader) {
-        return !!this._state.manualResized[h.$id];
+        return !!this._state.headerManualResized[h.$id];
+    }
+
+    public getManualResizedLevel(type: HeaderType, level: number) {
+        return !!this._state.levelManualResized[`${type}:${level}`];
     }
 
     public getLevel(h: IHeader) {
@@ -464,6 +512,16 @@ export class HeadersContainer {
 
     public getHeaderLeaves(h: IHeader) {
         return this._getLeaves(h);
+    }
+
+    /** top-down search */
+    public getNodesByChildren(h: IHeader[]) {
+        return this._getAllNodesByChildren(h);
+    }
+
+    /** bottom-up search */
+    public getNodesByParents(h: IHeader[]) {
+        return this._getAllNodesByParents(h);
     }
 
     public getSource() {
@@ -525,11 +583,18 @@ export class HeadersContainer {
      * @param behavior Defines flag when header was resized by autosize or manually.
      * Header will not be autosized when it was manually resized. Default `"manual"`.
      */
-    public resizeHeaders(
-        list: { header: IHeader, size: number }[],
-        clamp: HeaderClampFunction = ({ size }) => size,
-        behavior: HeaderResizeBehavior = 'manual'
-    ) {
+    public resizeHeaders({ list, clamp, behavior }: {
+        list: { header: IHeader, size: number }[];
+        clamp?: HeaderClampFunction;
+        behavior?: HeaderResizeBehavior;
+    }) {
+        if (!list || !list.length) {
+            return this;
+        }
+
+        clamp = clamp || (({ size }) => size);
+        behavior = behavior || 'manual';
+
         let updates: { header: IHeader, update: IHeader }[] = [];
         let leaves: IHeader[] = [];
 
@@ -556,9 +621,9 @@ export class HeadersContainer {
                 let isManual = behavior === 'manual';
                 leaves.forEach((header) => {
                     if (isManual) {
-                        c._state.manualResized[header.$id] = true;
+                        c._state.headerManualResized[header.$id] = true;
                     } else {
-                        delete c._state.manualResized[header.$id];
+                        delete c._state.headerManualResized[header.$id];
                     }
                 });
         }
@@ -566,15 +631,44 @@ export class HeadersContainer {
         return c;
     }
 
-    public resizeLevel(type: HeaderType, level: number, size: number, min = 5, max = Infinity) {
-        let t: 'leftLevels' | 'topLevels' = type === HeaderType.Column ? 'topLevels' : 'leftLevels';
-        if (size <= min) {
-            size = min;
-        }
+    public resizeLevels({ levels, behavior }: {
+        levels: {
+            type: HeaderType;
+            level: number;
+            size: number;
+            min?: number;
+            max?: number;
+        }[],
+        behavior?: HeaderResizeBehavior
+    }) {
+        behavior = behavior || 'manual';
 
         let next = this._createClone();
 
-        next._state[t][level] = Math.min(Math.max(min, size), max);
+        for (let { level, type, size, max, min } of levels) {
+            min = min == null ? 5 : min;
+            max = max == null ? Infinity : max;
+
+            let t: 'leftLevels' | 'topLevels' = type === HeaderType.Column ? 'topLevels' : 'leftLevels';
+            if (size <= min) {
+                size = min;
+            }
+
+            next._state[t][level] = Math.min(Math.max(min, size), max);
+
+            switch (behavior) {
+                case 'manual':
+                case 'reset':
+                    let isManual = behavior === 'manual';
+                    let key = `${type}:${level}`;
+                    if (isManual) {
+                        next._state.headerManualResized[key] = true;
+                    } else {
+                        delete next._state.headerManualResized[key];
+                    }
+            }
+        }
+
         next._calcLevels();
 
         return next;

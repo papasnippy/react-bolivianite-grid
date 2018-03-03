@@ -10,8 +10,8 @@ import {
     IHeader, HeaderResizeBehavior, HeadersContainer, HeaderType
 } from '../models';
 import {
-    IGridProps, ICellMeasureResult, ICellRenderBaseEvent, ICellRendererEvent,
-    IGridResizeHeaderLevelEvent, IGridResizeHeadersEvent, IGridAddress, IGridSelection, IGridView, IGridOverscan
+    IGridProps, IGridResizeCombinedEvent, IMeasureResult, ICellRenderBaseEvent, ICellRendererEvent,
+    IGridAddress, IGridSelection, IGridView, IGridOverscan
 } from './types';
 
 export class Grid extends React.PureComponent<IGridProps, any> {
@@ -226,56 +226,115 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         });
     }
 
-    private _onAutoMeasureApply(result: ICellMeasureResult[], behavior: HeaderResizeBehavior) {
-        if (!result) {
-            return;
+    private _onAutoMeasureApply({ cells, headers }: IMeasureResult, behavior: HeaderResizeBehavior) {
+        cells = (cells || []).filter(v => !!v);
+        headers = (headers || []).filter(v => !!v);
+
+        const ctr = this.props.headers;
+        const isReset = behavior === 'reset';
+
+        const combinedEvent: IGridResizeCombinedEvent = {
+            behavior
+        };
+
+        if (cells.length) {
+            const columnHeaders = ctr.columns;
+            const rowHeaders = ctr.rows;
+
+            let columns: { [colIndex: string]: number } = {};
+            let rows: { [rowIndex: string]: number } = {};
+
+            for (let { row, column, height, width } of cells) {
+                columns[column] = columns[column] == null ? width : Math.max(width, columns[column]);
+                rows[row] = rows[row] == null ? height : Math.max(height, rows[row]);
+            }
+
+            let ch = Object
+                .keys(columns)
+                .map(k => ({ columnIndex: Number(k), width: columns[k] }))
+                .filter(({ width, columnIndex }) => {
+                    let h = columnHeaders[columnIndex];
+                    return h && (isReset || !ctr.getManualResized(h) && h.$size < width);
+                })
+                .map(({ columnIndex, width }) => ({
+                    header: columnHeaders[columnIndex],
+                    size: width,
+                    type: ctr.getHeaderType(columnHeaders[columnIndex])
+                }));
+
+            let rh = Object
+                .keys(rows)
+                .map(k => ({ rowIndex: Number(k), height: rows[k] }))
+                .filter(({ rowIndex, height }) => {
+                    let h = rowHeaders[rowIndex];
+                    return h && (isReset || !ctr.getManualResized(h) && h.$size < height);
+                })
+                .map(({ rowIndex, height }) => ({
+                    header: rowHeaders[rowIndex],
+                    size: height,
+                    type: ctr.getHeaderType(rowHeaders[rowIndex])
+                }));
+
+            if (ch.length || rh.length) {
+                combinedEvent.headers = [...ch, ...rh];
+            }
         }
 
-        result = result.filter(v => !!v);
+        if (headers.length) {
+            const topLevels: { [level: number]: number } = {};
+            const leftLevels: typeof topLevels = {};
 
-        if (!result.length) {
-            return;
+            for (let { header: h, height, width } of headers) {
+                const type = ctr.getHeaderType(h);
+                const level = ctr.getLevel(h);
+
+                if (ctr.getManualResizedLevel(type, level) && !isReset) {
+                    return;
+                }
+
+                if (type === HeaderType.Column) {
+                    topLevels[level] = (height > (topLevels[level] || 0)) ? height : topLevels[level];
+                } else {
+                    leftLevels[level] = (width > (leftLevels[level] || 0)) ? width : leftLevels[level];
+                }
+            }
+
+            const top = Object.keys(topLevels).map((k) => {
+                const level = Number(k);
+                const size = topLevels[level];
+
+                if (size == null || !isReset && size < ctr.getTopLevelHeight(level)) {
+                    return null;
+                }
+
+                return {
+                    level, size,
+                    type: HeaderType.Column
+                };
+            }).filter(v => !!v);
+
+            const left = Object.keys(leftLevels).map((k) => {
+                const level = Number(k);
+                const size = leftLevels[level];
+
+                if (size == null || !isReset && size < ctr.getLeftLevelWidth(level)) {
+                    return null;
+                }
+
+                return {
+                    level, size,
+                    type: HeaderType.Row
+                };
+            }).filter(v => !!v);
+
+
+            if (top.length || left.length) {
+                combinedEvent.levels = [...top, ...left];
+            }
         }
 
-        const columnHeaders = this.props.headers.columns;
-        const rowHeaders = this.props.headers.rows;
-
-        let columns: { [colIndex: string]: number } = {};
-        let rows: { [rowIndex: string]: number } = {};
-
-        for (let { rowIndex, columnIndex, height, width } of result) {
-            columns[columnIndex] = columns[columnIndex] == null ? width : Math.max(width, columns[columnIndex]);
-            rows[rowIndex] = rows[rowIndex] == null ? height : Math.max(height, rows[rowIndex]);
-        }
-
-        let ch = Object
-            .keys(columns)
-            .map(k => ({ columnIndex: Number(k), width: columns[k] }))
-            .filter(({ width, columnIndex }) => {
-                let h = columnHeaders[columnIndex];
-                return h && (behavior === 'reset' || !this.props.headers.getManualResized(h) && h.$size < width);
-            })
-            .map(({ columnIndex, width }) => ({
-                header: columnHeaders[columnIndex],
-                size: width,
-                type: this.props.headers.getHeaderType(columnHeaders[columnIndex])
-            }));
-
-        let rh = Object
-            .keys(rows)
-            .map(k => ({ rowIndex: Number(k), height: rows[k] }))
-            .filter(({ rowIndex, height }) => {
-                let h = rowHeaders[rowIndex];
-                return h && (behavior === 'reset' || !this.props.headers.getManualResized(h) && h.$size < height);
-            })
-            .map(({ rowIndex, height }) => ({
-                header: rowHeaders[rowIndex],
-                size: height,
-                type: this.props.headers.getHeaderType(rowHeaders[rowIndex])
-            }));
-
-        if (ch.length || rh.length) {
-            this.props.onHeaderResize({ headers: [...ch, ...rh], behavior: behavior });
+        if (combinedEvent.headers || combinedEvent.levels) {
+            this.props.onHeaderResize(combinedEvent);
         }
     }
 
@@ -290,7 +349,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             return;
         }
 
-        const { columns, rows } = this.props.headers;
+        const ctr = this.props.headers;
+        const { columns, rows } = ctr;
         const cells: ICellRenderBaseEvent[] = [];
 
         for (let r = firstRow; r <= lastRow; r++) {
@@ -309,9 +369,23 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             return;
         }
 
+        const headers = [
+            ...columns.slice(firstColumn, lastColumn + 1),
+            ...rows.slice(firstRow, lastRow + 1)
+        ].map((h) => {
+            return {
+                index: ctr.getViewIndex(h),
+                type: ctr.getHeaderType(h),
+                level: ctr.getLevel(h),
+                source: this.props.source,
+                header: h
+            };
+        });
+
         this.props.onAutoMeasure({
             cells,
-            callback: (result: ICellMeasureResult[]) => {
+            headers,
+            callback: (result: IMeasureResult) => {
                 this._onAutoMeasureApply(result, 'auto');
             }
         });
@@ -1022,15 +1096,9 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         });
     }
 
-    public resizeHeaders(e: IGridResizeHeadersEvent) {
+    public resizeHeaders(e: IGridResizeCombinedEvent) {
         if (this.props.onHeaderResize) {
             this.props.onHeaderResize(e);
-        }
-    }
-
-    public resizeLevel(e: IGridResizeHeaderLevelEvent) {
-        if (this.props.onHeaderLevelResize) {
-            this.props.onHeaderLevelResize(e);
         }
     }
 
@@ -1039,22 +1107,23 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             return;
         }
 
+        const ctr = this.props.headers;
         const { firstColumn, firstRow, lastRow, lastColumn } = this._lastView;
 
         if (firstColumn === -1 || firstRow === -1) {
             return;
         }
 
-        const batch = headers.map(h => this.props.headers.getHeaderLeaves(h));
-        const { columns, rows } = this.props.headers;
+        const batch = headers.map(h => ctr.getHeaderLeaves(h));
+        const { columns, rows } = ctr;
         const cells: ICellRenderBaseEvent[] = [];
 
         for (let list of batch) {
             for (let h of list) {
-                let t = this.props.headers.getHeaderType(h);
+                let t = ctr.getHeaderType(h);
 
                 if (t === HeaderType.Column) {
-                    let c = this.props.headers.getViewIndex(h);
+                    let c = ctr.getViewIndex(h);
 
                     for (let r = firstRow; r <= lastRow; r++) {
                         cells.push({
@@ -1066,7 +1135,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                         });
                     }
                 } else {
-                    let r = this.props.headers.getViewIndex(h);
+                    let r = ctr.getViewIndex(h);
 
                     for (let c = firstColumn; c <= lastColumn; c++) {
                         cells.push({
@@ -1085,9 +1154,20 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             return;
         }
 
+        const headerNodes = ctr.getNodesByChildren(headers).map((h) => {
+            return {
+                index: ctr.getViewIndex(h),
+                type: ctr.getHeaderType(h),
+                level: ctr.getLevel(h),
+                source: this.props.source,
+                header: h
+            };
+        });
+
         this.props.onAutoMeasure({
             cells,
-            callback: (result: ICellMeasureResult[]) => {
+            headers: headerNodes,
+            callback: (result: IMeasureResult) => {
                 this._onAutoMeasureApply(result, 'reset');
             }
         });
