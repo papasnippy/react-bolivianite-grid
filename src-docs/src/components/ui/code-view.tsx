@@ -10,7 +10,7 @@ export type ICodeViewFile = (
 export interface ICodeViewProps {
     height?: number;
     files: ICodeViewFile[];
-    example: string;
+    main: string;
 }
 
 export interface ICodeViewElementProps {
@@ -66,14 +66,14 @@ export class CodeView extends React.PureComponent<ICodeViewProps & ICodeViewElem
     }
 
     private _renderArticle() {
-        const content = require('~Content/' + this.props.example);
+        const content = require('~Content/' + this.props.main);
         const D = content && content.default;
 
         if (!D) {
             return null;
         }
 
-        return <D refControls={this._refControls}/>;
+        return <D refControls={this._refControls} />;
     }
 
     private _renderTabs() {
@@ -83,7 +83,6 @@ export class CodeView extends React.PureComponent<ICodeViewProps & ICodeViewElem
 
         return this.props.files.map((file, tab) => {
             const { caption } = this._extractFile(file);
-
             return (
                 <button
                     key={tab}

@@ -8,9 +8,12 @@ import Editor from './simple-editor';
 import Theme from './style';
 
 export class EditableGridExample extends BaseExample {
-    renderCell = ({ style, columnIndex, rowIndex, source, theme }: ICellRendererEvent) => {
+    renderCellValue(columnIndex: number, rowIndex: number, source: any) {
         const key = `${rowIndex} x ${columnIndex}`;
-        const display = source[key] === void 0 ? key : source[key];
+        return source[key] === void 0 ? key : source[key];
+    }
+
+    renderCell = ({ style, columnIndex, rowIndex, source, theme }: ICellRendererEvent) => {
         return (
             <div
                 style={{
@@ -19,7 +22,7 @@ export class EditableGridExample extends BaseExample {
                     background: rowIndex % 2 ? theme.cellBackgroundEven : theme.cellBackgroundOdd
                 }}
             >
-                {display}
+                {this.renderCellValue(columnIndex, rowIndex, source )}
             </div>
         );
     }

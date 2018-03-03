@@ -10,12 +10,12 @@ export default Article.create('examples', [{
     name: 'simple',
     caption: 'Simple',
     body: [
-        require('./example-simple.md'),
+        require('./text/example-simple.md'),
         Article.example({
             height: 600,
-            example: 'example-grid-simple.tsx',
+            main: 'simple-grid.tsx',
             files: [
-                ['example-grid-simple.tsx', 'javascript', 'main.tsx'],
+                ['simple-grid.tsx', 'javascript'],
                 ['style.ts', 'typescript']
             ]
         })
@@ -24,17 +24,72 @@ export default Article.create('examples', [{
     name: 'editable',
     caption: 'Editable',
     body: [
-        require('./example-editable.md'),
+        require('./text/example-editable.md'),
         Article.example({
             height: 600,
-            example: 'example-grid-editable.tsx',
+            main: 'editable-grid.tsx',
             files: [
-                ['example-grid-editable.tsx', 'javascript', 'main.tsx'],
+                ['editable-grid.tsx', 'javascript'],
                 ['base-example.tsx', 'javascript'],
                 ['simple-editor.tsx', 'javascript'],
                 ['style.ts', 'javascript'],
                 ['style.scss', 'css']
             ]
         })
+    ]
+}, {
+    name: 'resizing',
+    caption: 'Resizing',
+    body: [
+        require('./text/example-resizing.md'),
+        Article.example({
+            height: 600,
+            main: 'resizing-grid.tsx',
+            files: [
+                ['resizing-grid.tsx', 'javascript'],
+                ['editable-grid.tsx', 'javascript'],
+                ['base-example.tsx', 'javascript'],
+                ['simple-editor.tsx', 'javascript'],
+                ['style.ts', 'javascript'],
+                ['style.scss', 'css']
+            ]
+        })
+    ]
+}, {
+    name: 'autosizing',
+    caption: 'Autosizing',
+    body: [
+        require('./text/example-autosizing.md'),
+        Article.example({
+            height: 600,
+            main: 'autosizing-grid.tsx',
+            files: [
+                ['autosizing-grid.tsx', 'javascript'],
+                ['resizing-grid.tsx', 'javascript'],
+                ['editable-grid.tsx', 'javascript'],
+                ['base-example.tsx', 'javascript'],
+                ['simple-editor.tsx', 'javascript'],
+                ['style.ts', 'javascript'],
+                ['style.scss', 'css']
+            ]
+        })
+    ]
+}, {
+    name: 'grouped-headers',
+    caption: 'Grouped headers',
+    body: [
+        require('./text/example-grouped-headers.md'),
+    ]
+}, {
+    name: 'expand-collapse',
+    caption: 'Expand/Collapse',
+    body: [
+        require('./text/example-expand-collapse.md'),
+    ]
+}, {
+    name: 'copy-paste',
+    caption: 'Copy and paste',
+    body: [
+        require('./text/example-copy-paste.md'),
     ]
 }]);

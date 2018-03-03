@@ -60,14 +60,14 @@ export class PageArticles extends React.Component<IPageArticlesProps, IPageArtic
                 );
             }
 
-            const { files, example, height } = p;
+            const { files, main, height } = p;
 
             return (
                 <CodeView
                     className={Style.chunk}
                     key={i}
                     files={files}
-                    example={example}
+                    main={main}
                     height={height}
                 />
             );

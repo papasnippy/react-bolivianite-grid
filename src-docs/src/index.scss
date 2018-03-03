@@ -56,6 +56,11 @@ body {
     color: var(--app--font-color);
     background: var(--app--background);
     /*filter: saturate(0);*/
+    
+    button {
+        font-family: var(--app--font-family);
+        font-size: var(--app--font-size);
+    }
 }
 
 app {

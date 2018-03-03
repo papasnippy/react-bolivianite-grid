@@ -58,7 +58,9 @@ const THEME = {
         padding: '0 3px',
         display: 'flex',
         alignItems: 'center',
-        color: '#211E26'
+        color: '#211E26',
+        overflow: 'hidden',
+        whiteSpace: 'nowrap'
     } as React.CSSProperties,
     headerStyle: {
         boxSizing: 'border-box',
