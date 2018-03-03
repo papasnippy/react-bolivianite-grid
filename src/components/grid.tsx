@@ -368,6 +368,26 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         this._msCtr.headerdown(e, type, min, max);
     }
 
+    private _onMouseDownCorner = () => {
+        const select = () => {
+            this.setState({
+                selection: [{
+                    row: 0,
+                    column: 0,
+                    width: this._columnCount - 1,
+                    height: this._rowCount - 1
+                }]
+            });
+        };
+
+        if (this.state.edit) {
+            this.closeEditor(true, select);
+            return;
+        }
+
+        select();
+    }
+
     private _onMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
         let row = Number(e.currentTarget.getAttribute('x-row'));
         let column = Number(e.currentTarget.getAttribute('x-col'));
@@ -844,6 +864,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                             height: this.props.headers.headersHeight,
                             width: this.props.headers.headersWidth
                         }}
+                        onMouseDown={this._onMouseDownCorner}
                     >
                     </div>
                 }
