@@ -35,7 +35,8 @@ export class AutosizingGridExample extends ResizingGrid {
             const width = ctx.measureText(String(text)).width + 10;
 
             return {
-                header, width, height: 0
+                header, width,
+                height: this.currentState.headers.headersHeight // default row height
             };
         });
 

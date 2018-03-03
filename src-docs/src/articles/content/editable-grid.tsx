@@ -90,8 +90,8 @@ export class EditableGridExample extends BaseExample {
     }
 
     editorRenderer = ({ style, columnIndex, rowIndex, update, source, theme }: ICellEditorEvent) => {
-        let key = `${rowIndex} x ${columnIndex}`;
-        let initialValue = source[key] === void 0 ? key : source[key];
+        let initialValue = this.renderCellValue(columnIndex, rowIndex, source);
+
         return (
             <div
                 style={{

@@ -451,6 +451,12 @@ body {
   /*filter: saturate(0);*/
 }
 
+html button,
+body button {
+  font-family: var(--app--font-family);
+  font-size: var(--app--font-size);
+}
+
 app {
   height: 100%;
   display: flex;

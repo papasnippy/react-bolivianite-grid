@@ -177,7 +177,14 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
             this._grid.previewResizeHeader(null);
             this._grid.previewResizeLevel(null);
             this._unbind();
-            this._grid.autoMeasure([this.props.header]);
+
+            const workType = (
+                movingType === 'column' || movingType === 'row'
+                    ? 'cells'
+                    : 'headers'
+            );
+
+            this._grid.autoMeasure([this.props.header], workType);
             return;
         }
 

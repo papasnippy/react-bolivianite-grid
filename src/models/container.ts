@@ -70,11 +70,27 @@ export class HeadersContainer {
         this._calcLevels();
     }
 
-    get headersWidth() {
-        return this._headersWidth;
+    get columnWidth() {
+        return this._state.columnWidth;
+    }
+
+    get rowHeight() {
+        return this._state.rowHeight;
     }
 
     get headersHeight() {
+        return this._state.headersHeight;
+    }
+
+    get headersWidth() {
+        return this._state.headersWidth;
+    }
+
+    get canvasWidth() {
+        return this._headersWidth;
+    }
+
+    get canvasHeight() {
         return this._headersHeight;
     }
 
@@ -97,7 +113,14 @@ export class HeadersContainer {
     toJSON() {
         return {
             columns: this.columns,
-            rows: this.rows
+            rows: this.rows,
+            columnWidth: this.columnWidth,
+            rowHeight: this.rowHeight,
+            headersHeight: this.headersHeight,
+            headersWidth: this.headersWidth,
+            canvasHeight: this.canvasHeight,
+            canvasWidth: this.canvasWidth,
+            filter: !!this._state.filter
         };
     }
 

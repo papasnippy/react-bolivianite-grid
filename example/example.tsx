@@ -368,7 +368,8 @@ export class Example extends React.Component<any, any> {
                             ctx.font = `14px Verdana`;
 
                             let measuredCells = cells.map(({ columnIndex, rowIndex, source }) => {
-                                const value = source[`${rowIndex} x ${columnIndex}`];
+                                let key = `${rowIndex} x ${columnIndex}`;
+                                let value = source[key] === void 0 ? key : source[key];
 
                                 if (value == null || value === '') {
                                     return null;
@@ -378,7 +379,7 @@ export class Example extends React.Component<any, any> {
                                     row: rowIndex,
                                     column: columnIndex,
                                     height: 0,
-                                    width: ctx.measureText(String(value)).width + 6 // 6 is cell padding
+                                    width: ctx.measureText(String(value)).width + 10
                                 } as ICellMeasureResult;
                             });
 
@@ -389,10 +390,10 @@ export class Example extends React.Component<any, any> {
                                         : index
                                 );
 
-                                const width = ctx.measureText(String(text)).width + 6;
+                                const width = ctx.measureText(String(text)).width + 10;
 
                                 return {
-                                    header, width, height: 0
+                                    header, width, height: 24
                                 };
                             });
 
