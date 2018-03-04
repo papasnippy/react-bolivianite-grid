@@ -121,4 +121,10 @@ export default Article.create('examples', [{
     body: [
         require('./text/example-copy-paste.md'),
     ]
+}, {
+    name: 'filter',
+    caption: 'Filtering',
+    body: [
+        require('./text/example-filter.md'),
+    ]
 }]);

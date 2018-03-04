@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
-    HeadersContainer, Resizer, IHeaderRendererEvent, HeaderType, ICellMeasureResult, ICellsMeasureEvent, IGridUpdateEvent
+    HeadersContainer, Resizer, IHeaderRendererEvent, HeaderType, ICellMeasureResult,
+    ICellsMeasureEvent, IGridUpdateEvent, IGridNullifyEvent
 } from 'react-bolivianite-grid';
 import { HistoryState } from './base-example';
 import GroupedHeadersExample from './grouped-headers-grid';
@@ -33,12 +34,28 @@ export class ExpandCollapseExample extends GroupedHeadersExample {
         return source[key] === void 0 ? key : source[key];
     }
 
+    onNullify = ({ cells }: IGridNullifyEvent) => {
+        let data = {
+            ...this.currentState.data
+        };
+
+        cells.forEach(({ column, row }) => {
+            const ctr = this.currentState.headers;
+            const c = ctr.columns[column].caption;
+            const r = ctr.rows[row].caption;
+            const key = `${r} x ${c}`;
+            data[key] = null;
+        });
+
+        this.pushHistory({ data });
+    }
+
     onUpdate = ({ cell, value }: IGridUpdateEvent) => {
         const ctr = this.currentState.headers;
         const col = ctr.columns[cell.column].caption;
         const row = ctr.rows[cell.row].caption;
         const key = `${row} x ${col}`;
-        console.log(key, cell);
+
         this.pushHistory({
             data: {
                 ...this.currentState.data,
