@@ -564,12 +564,12 @@ export class HeadersContainer {
     }
 
     /** top-down search */
-    public getNodesByChildren(h: IHeader[]) {
+    public getNodesTopDown(h: IHeader[]) {
         return this._getAllNodesByChildren(h);
     }
 
     /** bottom-up search */
-    public getNodesByParents(h: IHeader[]) {
+    public getNodesBottomUp(h: IHeader[]) {
         return this._getAllNodesByParents(h);
     }
 

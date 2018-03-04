@@ -11,7 +11,7 @@ import {
 } from '../models';
 import {
     IGridProps, IGridResizeCombinedEvent, IMeasureResult, ICellRenderBaseEvent, ICellRendererEvent,
-    IGridAddress, IGridSelection, IGridView, IGridOverscan, IHeaderMeasure
+    IGridAddress, IGridSelection, IGridView, IGridOverscan
 } from './types';
 
 export class Grid extends React.PureComponent<IGridProps, any> {
@@ -229,7 +229,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     private _onAutoMeasureApply(
         { cells, headers }: IMeasureResult,
         behavior: HeaderResizeBehavior,
-        workType: 'headers' | 'cells' | 'all',
+        workType: 'levels' | 'cells' | 'all',
         headerType: HeaderType | 'all',
     ) {
         cells = (cells || []).filter(v => !!v);
@@ -303,7 +303,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             }
         }
 
-        if ((workType === 'all' || workType === 'headers') && headers.length) {
+        if ((workType === 'all' || workType === 'levels') && headers.length) {
             const topLevels: { [level: number]: number } = {};
             const leftLevels: typeof topLevels = {};
 
@@ -402,10 +402,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             return;
         }
 
-        const headers = [
-            ...columns.slice(firstColumn, lastColumn + 1),
-            ...rows.slice(firstRow, lastRow + 1)
-        ].map((h) => {
+        const columnHeaders = ctr.getNodesBottomUp(columns.slice(firstColumn, lastColumn + 1));
+        const rowHeaders = ctr.getNodesBottomUp(rows.slice(firstRow, lastRow + 1));
+
+        const headers = [...columnHeaders, ...rowHeaders].map((h) => {
             return {
                 index: ctr.getViewIndex(h),
                 type: ctr.getHeaderType(h),
@@ -1146,13 +1146,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         }
     }
 
-    /**
-     * Work type:
-     * - `headers` - auto measure header levels
-     * - `cells` - auto measure rows and columns
-     * - `all` - auto measure all
-     */
-    public autoMeasure(headers: IHeader[], workType: 'headers' | 'cells' | 'all' = 'all') {
+    public autoMeasure(headers: IHeader[], type: 'levels' | 'cells' = 'cells') {
         if (!headers || !headers.length || this.state.edit || !this.props.onAutoMeasure || !this.props.onHeaderResize || !this._lastView) {
             return;
         }
@@ -1166,19 +1160,17 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         const headerType = ctr.getHeaderType(headers[0]);
         const diffHeaders = headers.filter(h => ctr.getHeaderType(h) !== headerType);
-
-        if (diffHeaders.length) {
-            this.autoMeasure(diffHeaders, workType);
-        }
-
+        const cellNodes: ICellRenderBaseEvent[] = [];
         headers = headers.filter(h => ctr.getHeaderType(h) === headerType);
 
-        const batch = headers.map(h => ctr.getHeaderLeaves(h));
-        const { columns, rows } = ctr;
-        let cellNodes: ICellRenderBaseEvent[] = [];
-        let headerNodes: IHeaderMeasure[] = [];
+        if (diffHeaders.length) {
+            this.autoMeasure(diffHeaders, type);
+        }
 
-        if (workType === 'cells' || workType === 'all') {
+        if (type === 'cells') {
+            const batch = headers.map(h => ctr.getHeaderLeaves(h));
+            const { columns, rows } = ctr;
+
             for (let list of batch) {
                 for (let h of list) {
                     let t = ctr.getHeaderType(h);
@@ -1212,23 +1204,38 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             }
         }
 
-        if (workType === 'headers' || workType === 'all') {
-            headerNodes = ctr.getNodesByChildren(headers).map((h) => {
-                return {
-                    index: ctr.getViewIndex(h),
-                    type: ctr.getHeaderType(h),
-                    level: ctr.getLevel(h),
-                    source: this.props.source,
-                    header: h
-                };
+        if (type === 'cells') {
+            headers = ctr.getNodesTopDown(headers);
+        } else {
+            const levels: { [level: number]: boolean } = [];
+            headers.forEach((h) => {
+                levels[ctr.getLevel(h)] = true;
             });
+
+            const list = (
+                headerType === HeaderType.Column
+                    ? ctr.columns.slice(firstColumn, lastColumn + 1)
+                    : ctr.rows.slice(firstRow, lastRow + 1)
+            );
+
+            headers = ctr.getNodesBottomUp(list).filter(h => !!levels[ctr.getLevel(h)]);
         }
+
+        const headerNodes = headers.map((h) => {
+            return {
+                index: ctr.getViewIndex(h),
+                type: ctr.getHeaderType(h),
+                level: ctr.getLevel(h),
+                source: this.props.source,
+                header: h
+            };
+        });
 
         this.props.onAutoMeasure({
             cells: cellNodes,
             headers: headerNodes,
             callback: (result: IMeasureResult) => {
-                this._onAutoMeasureApply(result, 'reset', workType, headerType);
+                this._onAutoMeasureApply(result, 'reset', type, headerType);
             }
         });
     }

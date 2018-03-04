@@ -62,7 +62,11 @@ export class ExpandCollapseExample extends GroupedHeadersExample {
                             border: 0,
                             color: '#FFFFFF'
                         }}
-                        onClick={() => {
+                        onMouseDown={(e) => {
+                            // stop grid from selecting
+                            e.stopPropagation();
+                            e.preventDefault();
+
                             let { data, headers } = this.currentState;
 
                             headers = headers.updateHeaders([{

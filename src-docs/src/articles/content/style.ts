@@ -70,6 +70,7 @@ const THEME = {
         padding: 3,
         display: 'flex',
         alignItems: 'center',
+        overflow: 'hidden',
         fontWeight: 'bold'
     } as React.CSSProperties
 };
