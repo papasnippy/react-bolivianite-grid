@@ -29,6 +29,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         };
     }
 
+    private _detached = false;
     private _blockContextMenu = false;
     private _onContextMenuListener: any = null;
     private _rt = new RenderThrottler();
@@ -73,6 +74,12 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             header: IHeader;
             change: number;
         }
+    };
+
+    // https://bugs.chromium.org/p/chromium/issues/detail?id=769390
+    private _chromeFix = {
+        row: -1,
+        column: -1
     };
 
     constructor(p: IGridProps, c: any) {
@@ -426,6 +433,19 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
     private _onAfterUpdate() {
         this._onAutoMeasure();
+
+        if (this._refView) {
+            let style = this._refView.scrollerStyle as any;
+            style.willChange = '';
+
+            setTimeout(() => {
+                if (this._detached) {
+                    return;
+                }
+
+                style.willChange = 'transform';
+            }, 500);
+        }
     }
 
     private _onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -438,9 +458,22 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         let row = Number(e.currentTarget.getAttribute('x-row'));
         let column = Number(e.currentTarget.getAttribute('x-col'));
 
+        if (e.button === 1) {
+            this._chromeFix = { row, column };
+        }
+
         this.focus();
 
         this._msCtr.mousedown(e, row, column);
+    }
+
+    private _onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+        let row = Number(e.currentTarget.getAttribute('x-row'));
+        let column = Number(e.currentTarget.getAttribute('x-col'));
+
+        this._chromeFix = { row, column };
+
+        this.focus();
     }
 
     private _onMouseDownHeader = (e: React.MouseEvent<HTMLElement>) => {
@@ -641,7 +674,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             'x-col': col,
             key: `C${row}x${col}`,
             onMouseDown: this._onMouseDown,
-            onMouseEnter: this._onMouseEnter
+            onMouseEnter: this._onMouseEnter,
+            onTouchStart: this._onTouchStart
         });
     }
 
@@ -649,7 +683,6 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         if (!this.props.onRenderEditor) {
             return this._renderCell(row, col);
         }
-
 
         if (!this._currentEdit || (this._currentEdit.row !== row || this._currentEdit.col !== col)) {
             this._currentEdit = {
@@ -713,9 +746,16 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         if (edit && (
             (edit.column < firstColumn) || (edit.column > lastColumn) ||
             (edit.row < firstRow) || (edit.row > lastRow)
-        )
-        ) {
+        )) {
             jsx.push(this._renderEditor(edit.row, edit.column));
+        }
+
+        let wkfix = this._chromeFix;
+        if (wkfix.column !== -1 && wkfix.row !== -1 && (
+            (wkfix.column < firstColumn) || (wkfix.column > lastColumn) ||
+            (wkfix.row < firstRow) || (wkfix.row > lastRow)
+        )) {
+            jsx.push(this._renderCell(wkfix.row, wkfix.column));
         }
 
         return jsx;
@@ -1266,6 +1306,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
 
     public componentWillUnmount() {
+        this._detached = true;
         document.body.removeEventListener('contextmenu', this._onContextMenuListener);
         this._kbCtr.dispose();
         this._msCtr.dispose();
@@ -1301,8 +1342,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 <ScrollView
                     ref={this._onRefView}
                     onScroll={this._onScrollViewUpdate}
-                    scrollerProps={this._scrollerProps}
                     renderAfter={this._renderHeaderContainers}
+                    scrollerProps={this._scrollerProps}
                     {...this.props.theme}
                 >
                     <div

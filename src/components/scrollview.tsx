@@ -110,6 +110,10 @@ export class ScrollView extends React.Component<IScrollViewProps, any> {
         return Math.max(0, size || 0);
     }
 
+    public get scrollerStyle() {
+        return this._r.style;
+    }
+
     public get scrollLeft() {
         return this._r.scrollLeft;
     }
