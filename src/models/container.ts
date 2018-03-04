@@ -352,7 +352,7 @@ export class HeadersContainer {
     }
 
     private _getResizeList(h: IHeader, size: number, clamp: HeaderClampFunction) {
-        if (!h.$children || !h.$children.length) {
+        if (h.$collapsed || !h.$children || !h.$children.length) {
             size = clamp({
                 header: h,
                 type: this._state.types[h.$id],
@@ -362,7 +362,7 @@ export class HeadersContainer {
 
         let prevSize = this.getSize(h);
 
-        if (!h.$children || !h.$children.length) {
+        if (h.$collapsed || !h.$children || !h.$children.length) {
             return [{
                 header: h,
                 size
@@ -657,13 +657,11 @@ export class HeadersContainer {
 
                 updates.push({
                     header,
-                    update: header.$collapsed
-                        ? {
-                            $sizeCollapsed: size
-                        }
-                        : {
-                            $size: size
-                        }
+                    update: (
+                        header.$collapsed
+                            ? { $sizeCollapsed: size }
+                            : { $size: size }
+                    )
                 });
             });
         });

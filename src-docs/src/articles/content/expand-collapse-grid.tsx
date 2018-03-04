@@ -13,8 +13,8 @@ export class ExpandCollapseExample extends GroupedHeadersExample {
                     [key: string]: string;
                 },
                 headers: new HeadersContainer({
-                    columns: this.generateHeaders('C', 2, 2, 2),
-                    rows: this.generateHeaders('R', 2, 2, 2),
+                    columns: this.generateHeaders('C', 2, 3, 4),
+                    rows: this.generateHeaders('R', 3, 4, 5),
                     columnWidth: 100,
                     rowHeight: 24,
                     headersHeight: 24,
@@ -80,9 +80,13 @@ export class ExpandCollapseExample extends GroupedHeadersExample {
                     <button
                         style={{
                             cursor: 'pointer',
-                            background: 'transparent',
+                            background: 'rgba(255, 255, 255, 0.1)',
                             border: 0,
-                            color: '#FFFFFF'
+                            borderRadius: 3,
+                            color: '#FFFFFF',
+                            marginBottom: 3,
+                            marginRight: 3,
+                            height: 18
                         }}
                         onMouseDown={(e) => {
                             // stop grid from selecting

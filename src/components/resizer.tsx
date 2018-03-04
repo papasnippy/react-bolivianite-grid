@@ -122,7 +122,7 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
                     headers: [{
                         type: type === 'row' ? HeaderType.Row : HeaderType.Column,
                         header: header,
-                        size: header.$size + change
+                        size: this._container.getSize(header) + change
                     }]
                 });
                 break;
