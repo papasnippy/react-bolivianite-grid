@@ -1027,6 +1027,22 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         );
     }
 
+    private _isAddressOutOfBounds(cell: IGridAddress) {
+        let lastRow = this.props.headers.rows.length - 1;
+        let lastCol = this.props.headers.columns.length - 1;
+
+        return cell.column < 0 || cell.column > lastCol || cell.row < 0 || cell.row > lastRow;
+    }
+
+    private _getFilteredSelections() {
+        let lastCol = this.props.headers.columns.length - 1;
+        let lastRow = this.props.headers.rows.length - 1;
+
+        return this.state.selection.filter(({ column, row }) => {
+            return row <= lastRow && column <= lastCol;
+        });
+    }
+
     private _renderSelections(): JSX.Element[] {
         const ctr = this.props.headers;
 
@@ -1034,7 +1050,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             return null;
         }
 
-        let jsx = this.state.selection.map(({ row, column, width, height }, i) => {
+        let jsx = this._getFilteredSelections().map(({ row, column, width, height }, i) => {
             let l = ctr.getPosition(ctr.columns[column]);
             let t = ctr.getPosition(ctr.rows[row]);
             let w = ctr.columns.slice(column, column + width + 1).reduce((r, n) => r + ctr.getSize(n), 0);
@@ -1058,23 +1074,25 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         let ax = jsx.length;
 
-        let rh = ctr.rows[this.state.active.row];
-        let ch = ctr.columns[this.state.active.column];
+        if (!this._isAddressOutOfBounds(this.state.active)) {
+            let rh = ctr.rows[this.state.active.row];
+            let ch = ctr.columns[this.state.active.column];
 
-        jsx.push(this.props.onRenderSelection({
-            key: ax,
-            active: true,
-            edit: !!this.state.edit,
-            theme: this.props.theme,
-            style: {
-                position: 'absolute',
-                zIndex: ax,
-                left: ctr.getPosition(ch),
-                top: ctr.getPosition(rh),
-                width: ctr.getSize(ch),
-                height: ctr.getSize(rh)
-            }
-        }));
+            jsx.push(this.props.onRenderSelection({
+                key: ax,
+                active: true,
+                edit: !!this.state.edit,
+                theme: this.props.theme,
+                style: {
+                    position: 'absolute',
+                    zIndex: ax,
+                    left: ctr.getPosition(ch),
+                    top: ctr.getPosition(rh),
+                    width: ctr.getSize(ch),
+                    height: ctr.getSize(rh)
+                }
+            }));
+        }
 
         return jsx;
     }
@@ -1297,8 +1315,11 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         });
     }
 
-    public componentDidUpdate(pp: IGridProps) {
-        if (this.state.edit && (pp.source !== this.props.source || pp.headers !== this.props.headers)) {
+    public async componentDidUpdate(pp: IGridProps) {
+        const isSourceChanged = pp.source !== this.props.source;
+        const isHeadersChanged = pp.headers !== this.props.headers;
+
+        if (this.state.edit && (isSourceChanged || isHeadersChanged)) {
             this.closeEditor(false);
         }
 
