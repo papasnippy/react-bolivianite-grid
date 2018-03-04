@@ -140,11 +140,11 @@ export class HeadersContainer {
                 this._state.parents[h.$id] = assignParent;
             }
 
-            if (h.$collapsed || (filter && !filter(h, type))) {
+            if (filter && !filter(h, type)) {
                 return;
             }
 
-            if ((h.$children && h.$children.length)) {
+            if (!h.$collapsed && h.$children && h.$children.length) {
                 this._create(h.$children, out, type, filter, h);
                 return;
             }
@@ -204,7 +204,7 @@ export class HeadersContainer {
             let last = h.$children[h.$children.length - 1];
 
             this._state.positions[h.$id] = this._state.positions[first.$id];
-            h.$size = this._state.positions[last.$id] + last.$size - this._state.positions[first.$id];
+            h.$size = this._state.positions[last.$id] + this.getSize(last) - this._state.positions[first.$id];
 
             let parent = this._state.parents[h.$id];
 
@@ -238,9 +238,13 @@ export class HeadersContainer {
                 h.$size = size;
             }
 
-            this._state.indices[h.$id] = (h.$children && h.$children[0]) ? -1 : i;
+            if (!h.$sizeCollapsed) {
+                h.$sizeCollapsed = size;
+            }
+
+            this._state.indices[h.$id] = (!h.$collapsed && h.$children && h.$children[0]) ? -1 : i;
             this._state.positions[h.$id] = cursor;
-            cursor += h.$size;
+            cursor += this.getSize(h);
 
             this._state.types[h.$id] = type;
 
@@ -297,7 +301,7 @@ export class HeadersContainer {
     }
 
     private _getLeaves(h: IHeader, out: IHeader[] = []) {
-        if (!h.$children || !h.$children.length || h.$collapsed) {
+        if (h.$collapsed || !h.$children || !h.$children.length) {
             out.push(h);
             return out;
         }
@@ -356,7 +360,7 @@ export class HeadersContainer {
             });
         }
 
-        let prevSize = h.$size;
+        let prevSize = this.getSize(h);
 
         if (!h.$children || !h.$children.length) {
             return [{
@@ -371,7 +375,7 @@ export class HeadersContainer {
 
         if (clamp) {
             leaves.forEach((c) => {
-                let n = Math.floor(c.$size * size / prevSize);
+                let n = Math.floor(this.getSize(c) * size / prevSize);
                 let m = clamp({
                     header: h,
                     type: this._state.types[h.$id],
@@ -390,20 +394,25 @@ export class HeadersContainer {
                 size: clamp({
                     header: c,
                     type: this._state.types[c.id],
-                    size: Math.floor(c.$size * size / prevSize) - d
+                    size: Math.floor(this.getSize(c) * size / prevSize) - d
                 })
             };
         });
     }
 
-    private _getHeaderAddress(h: IHeader) {
+    private _getHeaderAddress(h: IHeader, root: IHeader[]) {
         let ix: number[] = [];
         let seek = h;
 
         while (seek) {
-            ix.push(this._state.indices[h.$id]);
-            seek = this._state.parents[seek.$id];
+            let p = this.getParent(seek);
+            let list = p ? p.$children : root;
+            let index = list.findIndex(c => c.$id === seek.$id);
+            ix.push(index);
+            seek = p;
         }
+
+        ix.push(-1); // -1 means root
 
         return ix.reverse();
     }
@@ -411,7 +420,7 @@ export class HeadersContainer {
     private _mapBranch(address: number[], list: IHeader[], map: (h: IHeader) => IHeader): IHeader[] {
         let len = address.length;
 
-        return list.map((h) => {
+        let output = list.map((h) => {
             if (!len) {
                 return map(h);
             }
@@ -421,6 +430,8 @@ export class HeadersContainer {
                 $children: this._mapBranch(address.slice(1), h.$children, map)
             };
         });
+
+        return output;
     }
 
     private _recalcHeaders() {
@@ -458,6 +469,9 @@ export class HeadersContainer {
         branchList.forEach((branch) => {
             let address = branch.split('/').filter(v => !!v).map(Number);
             let updateMap = branchMap[branch];
+
+            // removing first -1 element, that represents root
+            address.shift();
 
             sourceList = this._mapBranch(address, sourceList, (h) => {
                 let update = updateMap[h.$id];
@@ -523,12 +537,24 @@ export class HeadersContainer {
         return this._getLevelPosition('left', level);
     }
 
-    public getLeftLevelWidth(level: number) {
+    public getSize(h: IHeader) {
+        return h ? h.$collapsed ? h.$sizeCollapsed : h.$size : 0;
+    }
+
+    public getLeftLevelWidth(level: number, isCollapsed?: boolean) {
+        if (isCollapsed) {
+            return this.canvasWidth - this.getLeftLevelPosition(level);
+        }
+
         let v = this._state.leftLevels[level];
         return v == null ? this._state.headersWidth : v;
     }
 
-    public getTopLevelHeight(level: number) {
+    public getTopLevelHeight(level: number, isCollapsed?: boolean) {
+        if (isCollapsed) {
+            return this.canvasHeight - this.getTopLevelPosition(level);
+        }
+
         let v = this._state.topLevels[level];
         return v == null ? this._state.headersHeight : v;
     }
@@ -580,7 +606,7 @@ export class HeadersContainer {
 
         updates.forEach(({ header, update }) => {
             let headerType = this._state.types[header.$id];
-            let address = this._getHeaderAddress(header);
+            let address = this._getHeaderAddress(header, headerType === HeaderType.Row ? this._state.rows : this._state.columns);
             let map = headerType === HeaderType.Column ? mapColumns : mapRows;
             let branchName = address.slice(0, address.length - 1).join('/');
 
@@ -596,7 +622,9 @@ export class HeadersContainer {
         next._state.columns = this._updateHeaders(mapColumns, next._state.columns);
         next._state.rows = this._updateHeaders(mapRows, next._state.rows);
 
-        return next._recalcHeaders();
+        next = next._recalcHeaders();
+
+        return next;
     }
 
     /**
@@ -629,9 +657,13 @@ export class HeadersContainer {
 
                 updates.push({
                     header,
-                    update: {
-                        $size: size
-                    }
+                    update: header.$collapsed
+                        ? {
+                            $sizeCollapsed: size
+                        }
+                        : {
+                            $size: size
+                        }
                 });
             });
         });
@@ -692,9 +724,7 @@ export class HeadersContainer {
             }
         }
 
-        next._calcLevels();
-
-        return next;
+        return next._recalcHeaders();
     }
 
     public update(props: IContainerProps) {

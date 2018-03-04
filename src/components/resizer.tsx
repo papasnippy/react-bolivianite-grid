@@ -178,11 +178,22 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
             this._grid.previewResizeLevel(null);
             this._unbind();
 
-            const workType = (
-                movingType === 'column' || movingType === 'row'
-                    ? 'cells'
-                    : 'headers'
-            );
+            let workType: 'headers' | 'cells' | 'all' = null;
+
+            switch (movingType) {
+                case 'column':
+                    workType = 'all';
+                    break;
+
+                case 'row':
+                    workType = 'cells';
+                    break;
+
+                case 'left-level':
+                case 'top-level':
+                    workType = 'headers';
+                    break;
+            }
 
             this._grid.autoMeasure([this.props.header], workType);
             return;

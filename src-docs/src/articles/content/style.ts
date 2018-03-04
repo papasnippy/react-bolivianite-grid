@@ -60,13 +60,14 @@ const THEME = {
         alignItems: 'center',
         color: '#211E26',
         overflow: 'hidden',
-        whiteSpace: 'nowrap'
+        whiteSpace: 'nowrap',
+        cursor: 'default'
     } as React.CSSProperties,
     headerStyle: {
         boxSizing: 'border-box',
         borderRight: `solid 1px transparent`,
         borderBottom: `solid 1px transparent`,
-        padding: '0 3px',
+        padding: 3,
         display: 'flex',
         alignItems: 'center',
         fontWeight: 'bold'

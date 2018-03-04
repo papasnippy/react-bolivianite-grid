@@ -10,6 +10,8 @@ export interface IHeader {
     $children?: IHeader[];
     /** Size of current header. */
     $size?: number;
+    /** Size of current header when collapsed. */
+    $sizeCollapsed?: number;
     /** Filter flag. */
     $collapsed?: boolean;
 

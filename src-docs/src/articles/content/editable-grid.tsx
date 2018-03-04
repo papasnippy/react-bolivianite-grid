@@ -36,20 +36,10 @@ export class EditableGridExample extends BaseExample {
         switch (type) {
             case HeaderType.Row:
                 nextStyle.borderBottomColor = theme.headerBorderColor;
-
-                // viewIndex is undefined for parent headers, it will be covered later
-                if (viewIndex == null) {
-                    nextStyle.borderRightColor = theme.headerBorderColor;
-                }
                 break;
 
             case HeaderType.Column:
                 nextStyle.borderRightColor = theme.headerBorderColor;
-
-                // viewIndex is undefined for parent headers, it will be covered later
-                if (viewIndex == null) {
-                    nextStyle.borderBottomColor = theme.headerBorderColor;
-                }
                 break;
         }
 

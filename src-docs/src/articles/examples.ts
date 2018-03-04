@@ -79,12 +79,41 @@ export default Article.create('examples', [{
     caption: 'Grouped headers',
     body: [
         require('./text/example-grouped-headers.md'),
+        Article.example({
+            height: 600,
+            main: 'grouped-headers-grid.tsx',
+            files: [
+                ['grouped-headers-grid.tsx', 'javascript'],
+                ['autosizing-grid.tsx', 'javascript'],
+                ['resizing-grid.tsx', 'javascript'],
+                ['editable-grid.tsx', 'javascript'],
+                ['base-example.tsx', 'javascript'],
+                ['simple-editor.tsx', 'javascript'],
+                ['style.ts', 'javascript'],
+                ['style.scss', 'css']
+            ]
+        })
     ]
 }, {
     name: 'expand-collapse',
     caption: 'Expand/Collapse',
     body: [
         require('./text/example-expand-collapse.md'),
+        Article.example({
+            height: 600,
+            main: 'expand-collapse-grid.tsx',
+            files: [
+                ['expand-collapse-grid.tsx', 'javascript'],
+                ['grouped-headers-grid.tsx', 'javascript'],
+                ['autosizing-grid.tsx', 'javascript'],
+                ['resizing-grid.tsx', 'javascript'],
+                ['editable-grid.tsx', 'javascript'],
+                ['base-example.tsx', 'javascript'],
+                ['simple-editor.tsx', 'javascript'],
+                ['style.ts', 'javascript'],
+                ['style.scss', 'css']
+            ]
+        })
     ]
 }, {
     name: 'copy-paste',
