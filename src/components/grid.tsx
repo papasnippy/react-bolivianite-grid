@@ -647,6 +647,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         let rh = this.props.headers.rows[row];
         let ch = this.props.headers.columns[col];
 
+        if (!rh || !ch) {
+            return null;
+        }
+
         return {
             rowIndex: row,
             columnIndex: col,
@@ -667,7 +671,13 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
 
     private _renderCell(row: number, col: number) {
-        let cell = this.props.onRenderCell(this._prepareCellProps(row, col));
+        const props = this._prepareCellProps(row, col);
+
+        if (!props) {
+            return null;
+        }
+
+        const cell = this.props.onRenderCell(props);
 
         return React.cloneElement(React.Children.only(cell), {
             'x-row': row,
@@ -692,9 +702,14 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             };
         }
 
-        let cellProps = this._prepareCellProps(row, col);
-        let cell = this.props.onRenderEditor({
-            ...cellProps,
+        const props = this._prepareCellProps(row, col);
+
+        if (!props) {
+            return null;
+        }
+
+        const cell = this.props.onRenderEditor({
+            ...props,
             close: (commit: boolean) => {
                 this.closeEditor(commit);
             },
