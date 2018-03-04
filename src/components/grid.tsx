@@ -386,8 +386,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         const { columns, rows } = ctr;
         const cells: ICellRenderBaseEvent[] = [];
 
-        for (let r = firstRow; r <= lastRow; r++) {
-            for (let c = firstColumn; c <= lastColumn; c++) {
+        for (let r = firstRow; r < lastRow; r++) {
+            for (let c = firstColumn; c < lastColumn; c++) {
                 cells.push({
                     columnIndex: c,
                     rowIndex: r,
@@ -1258,7 +1258,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
 
     public componentDidUpdate(pp: IGridProps) {
-        if (this.state.edit && pp.source !== this.props.source) {
+        if (this.state.edit && (pp.source !== this.props.source || pp.headers !== this.props.headers)) {
             this.closeEditor(false);
         }
 

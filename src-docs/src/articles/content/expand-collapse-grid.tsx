@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-    HeadersContainer, Resizer, IHeaderRendererEvent, HeaderType, ICellMeasureResult, ICellsMeasureEvent
+    HeadersContainer, Resizer, IHeaderRendererEvent, HeaderType, ICellMeasureResult, ICellsMeasureEvent, IGridUpdateEvent
 } from 'react-bolivianite-grid';
 import { HistoryState } from './base-example';
 import GroupedHeadersExample from './grouped-headers-grid';
@@ -23,6 +23,28 @@ export class ExpandCollapseExample extends GroupedHeadersExample {
             } as HistoryState],
             index: 0
         };
+    }
+
+    renderCellValue(columnIndex: number, rowIndex: number, source: any) {
+        const ctr = this.currentState.headers;
+        const col = ctr.columns[columnIndex].caption;
+        const row = ctr.rows[rowIndex].caption;
+        const key = `${row} x ${col}`;
+        return source[key] === void 0 ? key : source[key];
+    }
+
+    onUpdate = ({ cell, value }: IGridUpdateEvent) => {
+        const ctr = this.currentState.headers;
+        const col = ctr.columns[cell.column].caption;
+        const row = ctr.rows[cell.row].caption;
+        const key = `${row} x ${col}`;
+        console.log(key, cell);
+        this.pushHistory({
+            data: {
+                ...this.currentState.data,
+                [key]: value
+            }
+        });
     }
 
     renderHeader = ({ style, type, selection, header, theme }: IHeaderRendererEvent) => {

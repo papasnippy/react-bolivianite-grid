@@ -8,21 +8,24 @@ import AutosizingGridExample from './autosizing-grid';
 import Theme from './style';
 
 export class GroupedHeadersExample extends AutosizingGridExample {
-    generateList(c: string, n: number, ch?: () => IHeader[]) {
+    generateList(c: string, n: number, ct: { c?: number }, ch?: () => IHeader[]) {
         return new Array(n)
             .fill(null)
-            .map((_v, i) => {
+            .map((_v) => {
+                ct.c = (ct.c || 0) + 1;
                 return {
-                    caption: `${c} (${i})`,
+                    caption: `${c} (${ct.c})`,
                     $children: ch ? ch() : null
                 } as IHeader;
             });
     }
 
     generateHeaders(s: string, n1: number, n2: number, n3: number) {
-        return this.generateList(`${s}1`, n1, () => {
-            return this.generateList(`${s}2`, n2, () => {
-                return this.generateList(`${s}3`, n3);
+        const l1 = {}, l2 = {}, l3 = {};
+
+        return this.generateList(`${s}1`, n1, l1, () => {
+            return this.generateList(`${s}2`, n2, l2, () => {
+                return this.generateList(`${s}3`, n3, l3);
             });
         });
     }
