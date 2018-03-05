@@ -52,12 +52,14 @@ export class CopyPasteExample extends ExpandCollapseExample {
                 }
             },
             onPaste: ({ changes }) => {
-                console.log(changes);
-
                 let { data, headers } = this.currentState;
                 data = { ...data };
 
                 changes.forEach(({ column, row, value }) => {
+                    if (!headers.rows[row] || !headers.columns[column]) {
+                        return;
+                    }
+
                     const c = headers.columns[column].caption;
                     const r = headers.rows[row].caption;
                     const key = `${r} x ${c}`;
