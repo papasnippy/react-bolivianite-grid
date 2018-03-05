@@ -7,3 +7,4 @@ export * from './scrollbar-size';
 export * from './shallow';
 export * from './relative-position';
 export * from './render';
+export * from './copypaste';

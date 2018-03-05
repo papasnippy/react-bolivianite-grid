@@ -126,7 +126,10 @@ export interface IGridNullifyEvent extends IGridSpaceEvent { }
 
 export interface IGridCopyEvent {
     cells: IGridAddress[];
+    source: any;
+    headers: HeadersContainer;
     withHeaders: boolean;
+    focus: () => void;
 }
 
 export interface IGridResizeHeader {
@@ -148,6 +151,8 @@ export interface IGridResizeCombinedEvent {
 }
 
 export interface IGridPasteEvent extends IKeyboardControllerPasteEvent {
+    headers: HeadersContainer;
+    source: any;
     target: IGridAddress;
 }
 

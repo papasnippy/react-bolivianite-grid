@@ -118,7 +118,12 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         const onCopy = (cells: IGridAddress[], withHeaders: boolean) => {
             if (this.props.onCopy) {
-                this.props.onCopy({ withHeaders, cells });
+                this.props.onCopy({
+                    withHeaders, cells,
+                    headers: this.props.headers,
+                    source: this.props.source,
+                    focus: () => { this.focus(); }
+                });
             }
         };
 
@@ -128,6 +133,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                     clipboard,
                     getAllSelectedCells,
                     getLastSelectedCells,
+                    headers: this.props.headers,
+                    source: this.props.source,
                     target: {
                         ...this.state.active
                     }

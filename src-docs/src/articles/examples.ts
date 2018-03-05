@@ -120,11 +120,21 @@ export default Article.create('examples', [{
     caption: 'Copy and paste',
     body: [
         require('./text/example-copy-paste.md'),
-    ]
-}, {
-    name: 'filter',
-    caption: 'Filtering',
-    body: [
-        require('./text/example-filter.md'),
+        Article.example({
+            height: 600,
+            main: 'copy-paste-grid.tsx',
+            files: [
+                ['copy-paste-grid.tsx', 'javascript'],
+                ['expand-collapse-grid.tsx', 'javascript'],
+                ['grouped-headers-grid.tsx', 'javascript'],
+                ['autosizing-grid.tsx', 'javascript'],
+                ['resizing-grid.tsx', 'javascript'],
+                ['editable-grid.tsx', 'javascript'],
+                ['base-example.tsx', 'javascript'],
+                ['simple-editor.tsx', 'javascript'],
+                ['style.ts', 'javascript'],
+                ['style.scss', 'css']
+            ]
+        })
     ]
 }]);
