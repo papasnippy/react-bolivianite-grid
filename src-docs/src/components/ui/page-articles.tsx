@@ -60,7 +60,7 @@ export class PageArticles extends React.Component<IPageArticlesProps, IPageArtic
                 );
             }
 
-            const { files, main, height } = p;
+            const { files, main } = p;
 
             return (
                 <CodeView
@@ -68,7 +68,6 @@ export class PageArticles extends React.Component<IPageArticlesProps, IPageArtic
                     key={i}
                     files={files}
                     main={main}
-                    height={height}
                 />
             );
         });

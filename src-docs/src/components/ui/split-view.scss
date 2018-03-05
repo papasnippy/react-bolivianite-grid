@@ -23,12 +23,13 @@
         }
     }
 
-    @media screen and (max-width: 450px) {
+    @media screen and (max-width: 768px) {
         .root {
             flex-direction: column;
         }
         .container {
             width: 100% !important;
+            height: 65vh;
 
             &:first-child {
                 margin-bottom: var(--padding-small);

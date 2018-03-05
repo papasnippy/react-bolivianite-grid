@@ -8,7 +8,6 @@ export type ICodeViewFile = (
 );
 
 export interface ICodeViewProps {
-    height?: number;
     files: ICodeViewFile[];
     main: string;
 }
@@ -110,9 +109,6 @@ export class CodeView extends React.PureComponent<ICodeViewProps & ICodeViewElem
             <div
                 area-hidden="true"
                 className={classnames(Style.root, this.props.className)}
-                style={{
-                    maxHeight: this.props.height
-                }}
             >
                 <div className={Style.panel}>
                     <div className={Style.tabs}>
