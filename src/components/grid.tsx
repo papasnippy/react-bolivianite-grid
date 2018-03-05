@@ -954,7 +954,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 let size = this.props.headers.getLeftLevelWidth(level);
                 styleChanged.top = styleInitial.top = 0;
                 styleChanged.bottom = styleInitial.bottom = 0;
-                styleChanged.left = styleInitial.left = position - scrollLeft;
+                styleChanged.left = styleInitial.left = position;
                 styleInitial.width = size;
                 styleChanged.width = size + change;
             } else { // resizing top level
@@ -963,7 +963,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 let size = this.props.headers.getTopLevelHeight(level);
                 styleChanged.left = styleInitial.left = 0;
                 styleChanged.right = styleInitial.right = 0;
-                styleChanged.top = styleInitial.top = position - scrollTop;
+                styleChanged.top = styleInitial.top = position;
                 styleInitial.height = size;
                 styleChanged.height = size + change;
             }
