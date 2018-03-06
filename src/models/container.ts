@@ -112,15 +112,25 @@ export class HeadersContainer {
 
     toJSON() {
         return {
-            columns: this.columns,
-            rows: this.rows,
-            columnWidth: this.columnWidth,
-            rowHeight: this.rowHeight,
-            headersHeight: this.headersHeight,
-            headersWidth: this.headersWidth,
-            canvasHeight: this.canvasHeight,
-            canvasWidth: this.canvasWidth,
-            filter: !!this._state.filter
+            source: {
+                rows: this._state.rows,
+                columns: this._state.columns,
+            },
+            view: {
+                rows: this.rows,
+                columns: this.columns,
+            },
+            settings: {
+                columnWidth: this.columnWidth,
+                rowHeight: this.rowHeight,
+                headersHeight: this.headersHeight,
+                headersWidth: this.headersWidth,
+                canvasHeight: this.canvasHeight,
+                canvasWidth: this.canvasWidth,
+                topLevels: this.topLevels,
+                leftLevels: this.leftLevels,
+                filter: !!this._state.filter
+            }
         };
     }
 

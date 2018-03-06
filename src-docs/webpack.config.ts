@@ -32,7 +32,7 @@ module.exports = (env: any = {}) => {
             alias: {
                 'react-bolivianite-grid': Path.resolve(__dirname, '../src'),
                 '~': Path.resolve(__dirname, './src'),
-                '~Content': Path.resolve(__dirname, './src/articles/content')
+                '~Content': Path.resolve(__dirname, './src/content')
             },
             modules: [
                 'node_modules',
@@ -55,6 +55,10 @@ module.exports = (env: any = {}) => {
                 name: 'runtime',
                 minChunks: Infinity
             }),
+            new Webpack.ContextReplacementPlugin(
+                /highlight\.js\/lib\/languages$/,
+                new RegExp(`^./(${['javascript', 'python', 'bash'].join('|')})$`),
+            ),
             new Webpack.LoaderOptionsPlugin({
                 options: {
                     tslint: {

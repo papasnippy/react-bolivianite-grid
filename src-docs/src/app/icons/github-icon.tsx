@@ -1,5 +1,5 @@
 import * as React from 'react';
-const Style = require('./github-icon.scss');
+import { SvgIcon } from '../ui';
 
 const PATH = [
     `M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-`,
@@ -10,24 +10,11 @@ const PATH = [
     `5 5.9.5.4.9 1 .9 2.2v3.3c0 .3.1.7.8.6A12 12 0 0 0 12 .3`
 ].join('');
 
-export interface IGithubIconProps {
-    size?: number;
-}
 
-export class GitHubIcon extends React.PureComponent<IGithubIconProps, any> {
-    public render() {
-        const size = this.props.size || 24;
-
+export class GitHubIcon extends SvgIcon {
+    public renderIcon() {
         return (
-            <svg
-                className={Style.root}
-                viewBox={`0 0 ${size} ${size}`}
-                style={{
-                    '--svg-icon--size': `${size}px`
-                }}
-            >
-                <path d={PATH} />
-            </svg>
+            <path d={PATH} />
         );
     }
 }

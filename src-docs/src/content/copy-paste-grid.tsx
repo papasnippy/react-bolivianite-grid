@@ -1,20 +1,16 @@
 import * as React from 'react';
 import * as PapaParse from 'papaparse';
-import Grid, {
-    CopyPasteController
-    // HeadersContainer, Resizer, IHeaderRendererEvent, HeaderType, ICellMeasureResult,
-    // ICellsMeasureEvent, IGridUpdateEvent, IGridNullifyEvent
-} from 'react-bolivianite-grid';
+import Grid, { ClipboardController } from 'react-bolivianite-grid';
 import ExpandCollapseExample from './expand-collapse-grid';
 import Theme from './style';
 
 export class CopyPasteExample extends ExpandCollapseExample {
-    private _cp: CopyPasteController;
+    private _cpb: ClipboardController;
 
     constructor(_p: any, _c: any) {
         super(_p, _c);
 
-        this._cp = new CopyPasteController({
+        this._cpb = new ClipboardController({
             renderHeader: ({ header }) => {
                 return header.caption;
             },
@@ -88,8 +84,8 @@ export class CopyPasteExample extends ExpandCollapseExample {
                 onRenderResizer={this.renderResizer}
                 onHeaderResize={this.resizeHeaders}
                 onAutoMeasure={this.autoMeasure}
-                onCopy={this._cp.onCopy}
-                onPaste={this._cp.onPaste}
+                onCopy={this._cpb.onCopy}
+                onPaste={this._cpb.onPaste}
             />
         );
     }

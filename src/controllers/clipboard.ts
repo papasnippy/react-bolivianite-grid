@@ -34,7 +34,7 @@ export interface ICopyPasteControllerProps {
     onPaste: (e: ICopyPasteUpdateEvent) => void;
 }
 
-export class CopyPasteController {
+export class ClipboardController {
     constructor(public props: ICopyPasteControllerProps) { }
 
     private _getValidatedTable(cells: IGridAddress[]) {

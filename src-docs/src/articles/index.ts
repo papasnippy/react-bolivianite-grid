@@ -1,25 +1,9 @@
-import { ICodeViewProps } from '~/components/ui';
+import Article from '~/app/article';
+import Examples from './examples';
+import Api from './api';
 
-export interface IArticle {
-    name: string;
-    caption: string;
-    body: (string | ICodeViewProps)[];
-}
-
-export interface IArticlesSource {
-    url: string;
-    articles: IArticle[];
-}
-
-
-export namespace Article {
-    export function create(url: string, articles: IArticle[]): IArticlesSource {
-        return { url, articles };
-    }
-
-    export function example(props: ICodeViewProps) {
-        return props;
-    }
-}
-
-export default Article;
+export default (
+    Article('', 'Home')
+        .append(Examples)
+        .append(Api)
+);
