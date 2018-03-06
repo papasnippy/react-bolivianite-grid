@@ -55,10 +55,6 @@ module.exports = (env: any = {}) => {
                 name: 'runtime',
                 minChunks: Infinity
             }),
-            new Webpack.ContextReplacementPlugin(
-                /highlight\.js\/lib\/languages$/,
-                new RegExp(`^./(${['javascript', 'python', 'bash'].join('|')})$`),
-            ),
             new Webpack.LoaderOptionsPlugin({
                 options: {
                     tslint: {
