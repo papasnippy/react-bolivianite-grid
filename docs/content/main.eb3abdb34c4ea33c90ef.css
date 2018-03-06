@@ -88,6 +88,52 @@
 .code__root___1AAm7 {
   margin: 0;
   padding: 1rem;
+  color: #cccccc;
+  font-size: 1.1rem;
+}
+
+.token.class-name {
+  color: #7a9ec2;
+}
+
+.token.punctuation {
+  color: #cccccc;
+}
+
+.token.keyword {
+  color: #cc8242;
+}
+
+.token.function {
+  color: #ffc66d;
+}
+
+.token.string {
+  color: #6a8759;
+}
+
+.token.number {
+  color: #7a9ec2;
+}
+
+.token.selector {
+  color: #ffc66d;
+}
+
+.token.property {
+  color: #9e7bb0;
+}
+
+.token.important {
+  color: #cc8242;
+}
+
+.token.comment {
+  color: #707070;
+}
+
+.token.interpolation-punctuation {
+  color: #cc8242;
 }
 
 .markdown__code___3tye2,

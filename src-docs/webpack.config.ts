@@ -134,9 +134,35 @@ module.exports = (env: any = {}) => {
                                 query: {
                                     modules: true,
                                     minimize: false,
-                                    sourceMap: true,
                                     localIdentName: '[name]__[local]___[hash:base64:5]'
                                 }
+                            },
+                            {
+                                loader: 'postcss-loader',
+                                options: {
+                                    sourceMap: true
+                                }
+                            },
+                            { loader: 'resolve-url-loader' },
+                            {
+                                loader: 'sass-loader',
+                                query: {
+                                    sourceMap: true
+                                }
+                            }
+                        ]
+                    })
+                },
+                {
+                    test: /(\.css$|\.scss$)/,
+                    include: [
+                        Path.resolve(__dirname, './node_modules')
+                    ],
+                    loader: ExtractTextPlugin.extract({
+                        fallback: 'style-loader',
+                        use: [
+                            {
+                                loader: 'css-loader'
                             },
                             {
                                 loader: 'postcss-loader',

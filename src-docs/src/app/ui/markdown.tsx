@@ -29,7 +29,6 @@ export class Markdown extends React.Component<IMarkdownProps, any> {
         return (
             <Code
                 className={Style.multilineCode}
-                showLineNumbers
                 language={language}
                 source={value}
             />

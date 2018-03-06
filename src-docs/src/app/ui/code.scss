@@ -2,5 +2,47 @@
     .root {
         margin: 0;
         padding: 1rem;
+        color: #cccccc;
+        font-size: 1.1rem;
+    }
+}
+
+:global {
+    .token {
+        &.class-name {
+            color: #7a9ec2;
+        }
+        &.punctuation {
+            color: #cccccc;
+        }
+        &.keyword {
+            color: #cc8242;
+        }
+        &.function {
+            color: #ffc66d;
+        }
+        &.string {
+            color: #6a8759
+        }
+        &.number {
+            color: #7a9ec2;
+        }
+        &.selector {
+            color: #ffc66d;
+        }
+        &.property {
+            color: #9e7bb0;
+        }
+        &.important {
+            color: #cc8242;
+        }
+        &.comment {
+            color: #707070;
+        }
+        &.interpolation {
+            &-punctuation {
+                color: #cc8242;
+            }
+        }
     }
 }
