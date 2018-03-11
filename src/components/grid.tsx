@@ -515,7 +515,11 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         this._msCtr.headerdown(e, type, min, max);
     }
 
-    private _onMouseDownCorner = () => {
+    private _onMouseDownCorner = (e: React.MouseEvent<HTMLElement>) => {
+        if (this.state.edit || e.button !== 0) {
+            return;
+        }
+
         const select = () => {
             this.setState({
                 selection: [{

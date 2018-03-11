@@ -7,6 +7,10 @@ export default (
                 .text(require('./api/grid.md'))
         )
         .append(
+            Article('editor', 'Editor')
+                .text(require('./api/editor.md'))
+        )
+        .append(
             Article('headers', 'Headers')
                 .text(require('./api/headers.md'))
         )
