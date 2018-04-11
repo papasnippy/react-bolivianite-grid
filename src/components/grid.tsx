@@ -1,34 +1,19 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import ScrollView, { IScrollViewUpdateEvent } from './scrollview';
+import { IHeader, HeaderResizeBehavior, HeaderType } from '../models';
 import {
     debounce, RenderThrottler, KeyboardController,
     IUpdateSelectionEvent, IKeyboardControllerRemoveEvent,
     MouseController, IKeyboardControllerPasteEvent
 } from '../controllers';
 import {
-    IHeader, HeaderResizeBehavior, HeadersContainer, HeaderType
-} from '../models';
-import {
     IGridProps, IGridResizeCombinedEvent, IMeasureResult, ICellRenderBaseEvent, ICellRendererEvent,
     IGridAddress, IGridSelection, IGridView, IGridOverscan
 } from './types';
 
+import Context from './context';
+
 export class Grid extends React.PureComponent<IGridProps, any> {
-    /** React v17 deprecated */
-    static childContextTypes = {
-        grid: PropTypes.object,
-        headers: PropTypes.object
-    };
-
-    /** React v17 deprecated */
-    getChildContext(this: Grid) {
-        return {
-            grid: this,
-            headers: this.props.headers as HeadersContainer /*typescript workaround*/
-        };
-    }
-
     private _detached = false;
     private _blockContextMenu = false;
     private _onContextMenuListener: any = null;
@@ -104,10 +89,27 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 return;
             }
 
+            let nextActive = active || this.state.active;
+            let nextSelection = selection || this.state.selection;
+            let notifyActiveChanged = this._getActiveNotifier(this.state.active, nextActive);
+            let notifySelectionChanged = this._getSelectionNotifier(this.state.selection, nextSelection);
+
             this.setState({
-                active: active || this.state.active,
-                selection: selection || this.state.selection
-            }, callback);
+                active: nextActive,
+                selection: nextSelection
+            }, () => {
+                if (callback) {
+                    callback();
+                }
+
+                if (notifyActiveChanged) {
+                    notifyActiveChanged();
+                }
+
+                if (notifySelectionChanged) {
+                    notifySelectionChanged();
+                }
+            });
         };
 
         const onRightClick = (cell: IGridAddress) => {
@@ -222,6 +224,37 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
     private _onFocus = () => {
         this._focused = true;
+    }
+
+    private _getActiveNotifier(prev: IGridAddress, next: IGridAddress) {
+        if (!this.props.onActiveChanged || prev == next || (prev && next && prev.column === next.column && prev.row === next.row)) {
+            return null;
+        }
+
+        prev = prev ? { ...prev } : null;
+        next = next ? { ...next } : null;
+        return () => this.props.onActiveChanged({ previous: prev, active: next });
+    }
+
+    private _getSelectionNotifier(prev: IGridSelection[], next: IGridSelection[]) {
+        if (!this.props.onSelectionChanged || prev == next) {
+            return null;
+        }
+
+        if (prev && next && prev.length === next.length && prev.every((a, i) => {
+            return (
+                a.column === next[i].column
+                && a.height === next[i].height
+                && a.row === next[i].row
+                && a.width === next[i].width
+            );
+        })) {
+            return null;
+        }
+
+        prev = prev ? prev.slice().map(a => ({ ...a })) : null;
+        next = next ? next.slice().map(a => ({ ...a })) : null;
+        return () => this.props.onSelectionChanged({ previous: prev, active: next });
     }
 
     private _onScrollViewUpdate = (e: IScrollViewUpdateEvent) => {
@@ -622,8 +655,14 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         let rhLast = this.props.headers.rows[this.props.headers.rows.length - 1];
         let chLast = this.props.headers.columns[this.props.headers.columns.length - 1];
-        rowsHeight = this.props.headers.getPosition(rhLast) + this.props.headers.getSize(rhLast);
-        columnsWidth = this.props.headers.getPosition(chLast) + this.props.headers.getSize(chLast);
+
+        if (rhLast) {
+            rowsHeight = this.props.headers.getPosition(rhLast) + this.props.headers.getSize(rhLast);
+        }
+
+        if (chLast) {
+            columnsWidth = this.props.headers.getPosition(chLast) + this.props.headers.getSize(chLast);
+        }
 
         this._lastView = { firstRow, lastRow, firstColumn, lastColumn, rowsHeight, columnsWidth };
     }
@@ -1366,59 +1405,60 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         const { rowsHeight, columnsWidth } = this._lastView;
 
         return (
-            <div
-                className={this._theme.classNameGrid}
-                tabIndex={this.props.tabIndex == null ? -1 : this.props.tabIndex}
-                ref={this._onRef}
-                onBlur={this._onBlur}
-                onFocus={this._onFocus}
-                style={{
-                    height: '100%',
-                    width: '100%',
-                    position: 'relative',
-                    userSelect: 'none',
-                    outline: 'none',
-                    ...this._theme.styleGrid,
-                    overflow: 'hidden'
-                }}
-                onKeyDown={this._onKeyDown}
-                onMouseLeave={this._onRootMouseLeave}
-                onMouseEnter={this._onRootMouseEnter}
-                onMouseDown={this._onRootMouseDown}
-            >
-                <ScrollView
-                    ref={this._onRefView}
-                    onScroll={this._onScrollViewUpdate}
-                    renderAfter={this._renderHeaderContainers}
-                    scrollerProps={this._scrollerProps}
-                    {...this.props.theme}
+            <Context.Provider value={{ grid: this, headers: this.props.headers }}>
+                <div
+                    className={this._theme.classNameGrid}
+                    tabIndex={this.props.tabIndex == null ? -1 : this.props.tabIndex}
+                    ref={this._onRef}
+                    onBlur={this._onBlur}
+                    onFocus={this._onFocus}
+                    style={{
+                        height: '100%',
+                        width: '100%',
+                        position: 'relative',
+                        userSelect: 'none',
+                        outline: 'none',
+                        ...this._theme.styleGrid,
+                        overflow: 'hidden'
+                    }}
+                    onKeyDown={this._onKeyDown}
+                    onMouseLeave={this._onRootMouseLeave}
+                    onMouseEnter={this._onRootMouseEnter}
+                    onMouseDown={this._onRootMouseDown}
                 >
-                    <div
-                        style={{
-                            height: rowsHeight + this.state.scrollbarSize,
-                            width: columnsWidth + this.state.scrollbarSize,
-                            boxSizing: 'border-box',
-                            position: 'relative',
-                            marginLeft: this._headersWidth,
-                            marginTop: this._headersHeight
-                        }}
+                    <ScrollView
+                        ref={this._onRefView}
+                        onScroll={this._onScrollViewUpdate}
+                        renderAfter={this._renderHeaderContainers}
+                        scrollerProps={this._scrollerProps}
+                        {...this.props.theme}
                     >
-                        {this._renderData()}
-                    </div>
-                    <div
-                        style={{
-                            position: 'absolute',
-                            pointerEvents: 'none',
-                            zIndex: 1,
-                            left: this._headersWidth,
-                            top: this._headersHeight
-                        }}
-                    >
-                        {this._renderSelections()}
-                    </div>
-                </ScrollView>
-            </div>
+                        <div
+                            style={{
+                                height: rowsHeight + this.state.scrollbarSize,
+                                width: columnsWidth + this.state.scrollbarSize,
+                                boxSizing: 'border-box',
+                                position: 'relative',
+                                marginLeft: this._headersWidth,
+                                marginTop: this._headersHeight
+                            }}
+                        >
+                            {this._renderData()}
+                        </div>
+                        <div
+                            style={{
+                                position: 'absolute',
+                                pointerEvents: 'none',
+                                zIndex: 1,
+                                left: this._headersWidth,
+                                top: this._headersHeight
+                            }}
+                        >
+                            {this._renderSelections()}
+                        </div>
+                    </ScrollView>
+                </div>
+            </Context.Provider>
         );
     }
 }
-

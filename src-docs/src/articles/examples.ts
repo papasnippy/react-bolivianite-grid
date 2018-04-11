@@ -22,6 +22,13 @@ export default (
                 ])
         )
         .append(
+            Article('filtering', 'Filtering')
+                // .text(require('./examples/editable.md'))
+                .example('filtering-grid.tsx', [
+                    ['filtering-grid.tsx', 'javascript', 'main.tsx']
+                ])
+        )
+        .append(
             Article('resizing', 'Resizing')
                 .text(require('./examples/resizing.md'))
                 .example('resizing-grid.tsx', [

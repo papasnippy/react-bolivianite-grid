@@ -1,19 +1,13 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { HeadersContainer, IHeader, HeaderType } from '../models';
 import { Grid } from '../components/grid';
+import Context from './context';
 
 export interface IResizerProps {
     header: IHeader;
 }
 
 export class Resizer extends React.PureComponent<IResizerProps, any> {
-    /** React v17 deprecated */
-    static contextTypes = {
-        grid: PropTypes.object,
-        headers: PropTypes.object
-    };
-
     private static _r: React.CSSProperties = {
         position: 'absolute',
         right: 0,
@@ -46,14 +40,8 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
     private _upListener: any = null;
     private _escListener: any = null;
     private _moved = false;
-
-    private get _grid() {
-        return this.context['grid'] as Grid;
-    }
-
-    private get _container() {
-        return this.context['headers'] as HeadersContainer;
-    }
+    private _grid: Grid;
+    private _headers: HeadersContainer;
 
     private _unbind() {
         if (this._moving) {
@@ -122,7 +110,7 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
                     headers: [{
                         type: type === 'row' ? HeaderType.Row : HeaderType.Column,
                         header: header,
-                        size: this._container.getSize(header) + change
+                        size: this._headers.getSize(header) + change
                     }]
                 });
                 break;
@@ -131,14 +119,14 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
             case 'top-level':
                 let start = (
                     type === 'left-level'
-                        ? this._container.getLeftLevelWidth(this._container.getLevel(header))
-                        : this._container.getTopLevelHeight(this._container.getLevel(header))
+                        ? this._headers.getLeftLevelWidth(this._headers.getLevel(header))
+                        : this._headers.getTopLevelHeight(this._headers.getLevel(header))
                 );
                 this._grid.resizeHeaders({
                     behavior: 'manual',
                     levels: [{
                         type: type === 'left-level' ? HeaderType.Row : HeaderType.Column,
-                        level: this._container.getLevel(header),
+                        level: this._headers.getLevel(header),
                         size: start + change
                     }]
                 });
@@ -157,7 +145,7 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
 
         let type = e.currentTarget.getAttribute('x-type') as ('r' | 'b');
         let p = type === 'r' ? e.pageX : e.pageY;
-        let headerType = this._container.getHeaderType(this.props.header);
+        let headerType = this._headers.getHeaderType(this.props.header);
         let isRow = headerType === HeaderType.Row;
 
         this._unbind();
@@ -230,18 +218,27 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
 
     public render() {
         return (
-            <>
-                <div
-                    x-type="r"
-                    style={Resizer._r}
-                    onMouseDown={this._onMouseDown}
-                />
-                <div
-                    x-type="b"
-                    style={Resizer._b}
-                    onMouseDown={this._onMouseDown}
-                />
-            </>
+            <Context.Consumer>
+                {({ grid, headers }) => {
+                    this._grid = grid;
+                    this._headers = headers;
+
+                    return (
+                        <>
+                            <div
+                                x-type="r"
+                                style={Resizer._r}
+                                onMouseDown={this._onMouseDown}
+                            />
+                            <div
+                                x-type="b"
+                                style={Resizer._b}
+                                onMouseDown={this._onMouseDown}
+                            />
+                        </>
+                    );
+                }}
+            </Context.Consumer>
         );
     }
 }

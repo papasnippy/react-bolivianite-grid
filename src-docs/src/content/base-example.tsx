@@ -27,6 +27,8 @@ export interface IBaseExampleProps {
 }
 
 export class BaseExample extends React.Component<IBaseExampleProps, any> {
+    private _isMounted = true;
+
     state = this.getInitialState();
 
     get currentState() {
@@ -57,11 +59,16 @@ export class BaseExample extends React.Component<IBaseExampleProps, any> {
                     headersWidth: 50
                 })
             } as HistoryState],
-            index: 0
+            index: 0,
+            input: ''
         };
     }
 
     pushHistory(state: HistoryState, autosize = false) {
+        if (!this._isMounted) {
+            return;
+        }
+
         let ix = this.state.index;
         let is = this.state.history[ix];
         let n = autosize ? 0 : 1;
@@ -132,6 +139,10 @@ export class BaseExample extends React.Component<IBaseExampleProps, any> {
         }
     }
 
+    renderAdditionalControls(): React.ReactNode {
+        return null;
+    }
+
     renderControls() {
         if (!this.props.refControls) {
             return null;
@@ -139,6 +150,7 @@ export class BaseExample extends React.Component<IBaseExampleProps, any> {
 
         return ReactDOM.createPortal((
             <>
+                {this.renderAdditionalControls()}
                 <button
                     className={Style.historyButton}
                     onClick={this.undo}
@@ -174,6 +186,10 @@ export class BaseExample extends React.Component<IBaseExampleProps, any> {
 
     renderGrid(): JSX.Element {
         return null;
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
     }
 
     render() {

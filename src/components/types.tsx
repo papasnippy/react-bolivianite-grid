@@ -161,6 +161,16 @@ export interface IGridUpdateEvent {
     value: any;
 }
 
+export interface IGridActiveChangeEvent {
+    previous: IGridAddress;
+    active: IGridAddress;
+}
+
+export interface IGridSelectionChangeEvent {
+    previous: IGridSelection[];
+    active: IGridSelection[];
+}
+
 export interface IGridTheme extends IScrollViewThemingProps {
     classNameGrid?: string;
     classNameGridCorner?: string;
@@ -232,6 +242,12 @@ export interface IGridProps {
 
     /** Invoked on editor close when value was changed. */
     onUpdate?: (e: IGridUpdateEvent) => void;
+
+    /** Invoked when active cell changed. */
+    onActiveChanged?: (e: IGridActiveChangeEvent) => void;
+
+    /** Invoked when selection changed. */
+    onSelectionChanged?: (e: IGridSelectionChangeEvent) => void;
 
     onHeaderResize?: (e: IGridResizeCombinedEvent) => void;
 }

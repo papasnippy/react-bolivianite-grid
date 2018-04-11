@@ -2,7 +2,7 @@ import { IHeader, HeaderType } from './header';
 
 export type HeaderResizeBehavior = 'auto' | 'manual' | 'reset';
 
-export type IContainerHeadersFilter = (h: IHeader, type: HeaderType) => boolean;
+export type IContainerHeadersFilter = (props: { header: IHeader, type: HeaderType }) => boolean;
 
 export type HeaderClampFunction = (props: { header: IHeader, type: HeaderType, size: number }) => number;
 
@@ -138,7 +138,7 @@ export class HeadersContainer {
         list: IHeader[],
         out: IHeader[],
         type: HeaderType,
-        filter?: (h: IHeader, type: HeaderType) => boolean,
+        filter?: IContainerHeadersFilter,
         assignParent?: IHeader
     ) {
         list.forEach((h) => {
@@ -150,7 +150,7 @@ export class HeadersContainer {
                 this._state.parents[h.$id] = assignParent;
             }
 
-            if (filter && !filter(h, type)) {
+            if (filter && !filter({ header: h, type })) {
                 return;
             }
 
@@ -230,12 +230,12 @@ export class HeadersContainer {
     }
 
     private _proceedHeaders(list: IHeader[], from: number, size: number, type: HeaderType) {
-        let cursor = this._state.positions[list[from].$id];
         let len = list.length;
-
         if (!len) {
             return 0;
         }
+
+        let cursor = this._state.positions[list[from].$id];
 
         let levels = 0;
         let lock: { [k: string]: boolean } = {};

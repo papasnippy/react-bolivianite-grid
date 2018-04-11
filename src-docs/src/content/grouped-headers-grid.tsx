@@ -45,7 +45,8 @@ export class GroupedHeadersExample extends AutosizingGridExample {
                     headersWidth: 50
                 })
             } as HistoryState],
-            index: 0
+            index: 0,
+            input: ''
         };
     }
 

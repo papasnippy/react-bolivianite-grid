@@ -27,7 +27,7 @@ export class EditableGridExample extends BaseExample {
         );
     }
 
-    renderHeader = ({ style, type, selection, viewIndex, theme }: IHeaderRendererEvent) => {
+    renderHeader = ({ style, type, selection, viewIndex, theme, header }: IHeaderRendererEvent) => {
         const nextStyle: React.CSSProperties = {
             ...style,
             ...theme.headerStyle
@@ -52,19 +52,21 @@ export class EditableGridExample extends BaseExample {
         return (
             <div style={nextStyle}>
                 {
-                    type === HeaderType.Column && viewIndex != null
-                        ? this.excelIndex(viewIndex)
-                        : viewIndex
+                    header.caption || (
+                        type === HeaderType.Column && viewIndex != null
+                            ? this.excelIndex(viewIndex)
+                            : viewIndex
+                    )
                 }
             </div>
         );
     }
 
     renderSelection = ({ key, style, active, edit, theme }: ISelectionRendererEvent) => {
-        style.left--;
-        style.top--;
-        style.width++;
-        style.height++;
+        style.left = Number(style.left) - 1;
+        style.top = Number(style.top) - 1;
+        style.width = Number(style.width) + 1;
+        style.height = Number(style.height) + 1;
 
         return (
             <div
