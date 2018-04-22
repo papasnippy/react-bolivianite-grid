@@ -31,6 +31,20 @@
         width: 100%;
         overflow: hidden;
         padding: var(--padding-small);
+        &.code {
+            overflow: auto;
+            &::-webkit-scrollbar {
+                background: #000;
+                width: 5px;
+                height: 5px;
+            }
+            &::-webkit-scrollbar-corner {
+                background: #000;
+            }
+            &::-webkit-scrollbar-thumb {
+                background: #fff;
+            }
+        }
     }
     .file {
         display: inline-block;

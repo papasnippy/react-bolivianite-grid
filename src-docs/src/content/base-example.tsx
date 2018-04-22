@@ -119,7 +119,7 @@ export class BaseExample extends React.Component<IBaseExampleProps, any> {
     }
 
     onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-        const { cmdKey } = this.getModifiers(e);
+        const { cmdKey, shiftKey } = this.getModifiers(e);
         const t = e.target as HTMLElement;
 
         if (!cmdKey || (t && t.tagName === 'INPUT')) {
@@ -128,13 +128,19 @@ export class BaseExample extends React.Component<IBaseExampleProps, any> {
 
         switch (e.keyCode) {
             case 89: // Y
-                e.preventDefault();
-                this.redo();
+                if (!IS_MACOS) {
+                    e.preventDefault();
+                    this.redo();
+                }
                 break;
 
             case 90: // Z
                 e.preventDefault();
-                this.undo();
+                if (IS_MACOS && shiftKey) {
+                    this.redo();
+                } else {
+                    this.undo();
+                }
                 break;
         }
     }

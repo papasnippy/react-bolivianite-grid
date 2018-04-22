@@ -38,7 +38,7 @@ export class App extends React.Component<IAppProps, any> {
 
                     return (
                         <NavLink exact to={url} key={url} onClick={this._hideMenu}>
-                            <span style={{ '--nav-deep': item.deep }}>
+                            <span style={{ '--nav-deep': item.deep } as any}>
                                 {item.caption}
                             </span>
                         </NavLink>

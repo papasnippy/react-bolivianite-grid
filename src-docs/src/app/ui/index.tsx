@@ -6,4 +6,3 @@ export * from './code';
 export * from './markdown';
 export * from './code-view';
 export * from './split-view';
-export * from './scroll-view';
