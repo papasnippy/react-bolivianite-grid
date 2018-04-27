@@ -1030,10 +1030,12 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         return (
             <div
                 style={{
-                    width: clientWidth/* + this._theme.scrollSize*/,
-                    height: clientHeight/* + this._theme.scrollSize*/,
+                    width: clientWidth - 15/* + this._theme.scrollSize*/,
+                    height: clientHeight - 15/* + this._theme.scrollSize*/,
                     pointerEvents: 'none',
-                    zIndex: 1
+                    zIndex: 1,
+                    overflow: 'hidden',
+                    position: 'absolute'
                 }}
             >
                 {!!this.props.headers.canvasHeight &&
