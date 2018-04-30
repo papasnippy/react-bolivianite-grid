@@ -22,11 +22,22 @@
         z-index: 99999;
         transition: left ease 100ms;
         &::-webkit-scrollbar {
-            background: #000;
-            width: 5px;
+            background: var(--color--environment);
+            width: 10px;
+            height: 10px;
+        }
+        &::-webkit-scrollbar-corner {
+            background: var(--color--environment);
+            
         }
         &::-webkit-scrollbar-thumb {
-            background: #fff;
+            background: var(--color--accent);
+            box-sizing: border-box;
+            border-radius: 10px;
+            border: solid 2px var(--color--environment);
+            &:hover {
+                background: var(--color--text-main);
+            }
         }
         a {
             transform: scaleX(-1);

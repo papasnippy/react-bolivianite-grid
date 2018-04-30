@@ -1,5 +1,5 @@
 import * as React from 'react';
-import ScrollView, { IScrollViewUpdateEvent } from './scrollview';
+import FallbackScrollView, { IScrollViewUpdateEvent } from './scrollview';
 import { IHeader, HeaderResizeBehavior, HeaderType } from '../models';
 import {
     debounce, RenderThrottler, KeyboardController,
@@ -20,7 +20,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     private _rt = new RenderThrottler();
     private _scrollUpdateTrottled = this._rt.create();
     private _ref: HTMLDivElement = null;
-    private _refView: ScrollView = null;
+    private _refView: FallbackScrollView = null;
     private _scrollerProps: React.HTMLProps<HTMLDivElement> = { style: { willChange: 'transform', zIndex: 0 } };
     private _lastView: IGridView = null;
     private _lastOverscan: IGridOverscan = null;
@@ -35,7 +35,6 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     } = null;
 
     state = {
-        scrollbarSize: 0,
         scrollLeft: 0,
         scrollTop: 0,
         viewHeight: 0,
@@ -214,7 +213,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         this._ref = r;
     }
 
-    private _onRefView = (r: ScrollView) => {
+    private _onRefView = (r: FallbackScrollView) => {
         this._refView = r;
     }
 
@@ -259,16 +258,17 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
     private _onScrollViewUpdate = (e: IScrollViewUpdateEvent) => {
         this._scrollUpdateTrottled(() => {
-            if (this.state.viewWidth !== e.clientWidth || this.state.viewHeight !== e.clientHeight) {
-                this.setState({ viewWidth: e.clientWidth, viewHeight: e.clientHeight, scrollbarSize: e.scrollbarSize });
-            }
-
-            if (this.state.scrollLeft !== e.scrollLeft) {
-                this.setState({ scrollLeft: e.scrollLeft, scrollbarSize: e.scrollbarSize });
-            }
-
-            if (this.state.scrollTop !== e.scrollTop) {
-                this.setState({ scrollTop: e.scrollTop, scrollbarSize: e.scrollbarSize });
+            if (this.state.viewWidth !== e.clientWidth
+                || this.state.viewHeight !== e.clientHeight
+                || this.state.scrollLeft !== e.scrollLeft
+                || this.state.scrollTop !== e.scrollTop
+            ) {
+                this.setState({
+                    viewWidth: e.clientWidth,
+                    viewHeight: e.clientHeight,
+                    scrollLeft: e.scrollLeft,
+                    scrollTop: e.scrollTop
+                });
             }
         });
     }
@@ -1024,76 +1024,6 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         return null;
     }
 
-    private _renderHeaderContainers = (event: IScrollViewUpdateEvent) => {
-        const { clientWidth, clientHeight, scrollLeft, scrollTop } = event;
-
-        return (
-            <div
-                style={{
-                    width: clientWidth - 15/* + this._theme.scrollSize*/,
-                    height: clientHeight - 15/* + this._theme.scrollSize*/,
-                    pointerEvents: 'none',
-                    zIndex: 1,
-                    overflow: 'hidden',
-                    position: 'absolute'
-                }}
-            >
-                {!!this.props.headers.canvasHeight &&
-                    <div
-                        className={this._theme.classNameGridColumns}
-                        style={{
-                            ...this._theme.styleGridColumns,
-                            pointerEvents: 'initial',
-                            position: 'absolute',
-                            overflow: 'hidden',
-                            left: this.props.headers.canvasWidth,
-                            top: 0,
-                            right: 0,
-                            height: this.props.headers.canvasHeight
-                        }}
-                    >
-                        {this._renderHeaders(HeaderType.Column, scrollLeft)}
-                    </div>
-                }
-                {!!this.props.headers.canvasWidth &&
-                    <div
-                        className={this._theme.classNameGridRows}
-                        style={{
-                            ...this._theme.styleGridRows,
-                            pointerEvents: 'initial',
-                            position: 'absolute',
-                            overflow: 'hidden',
-                            left: 0,
-                            top: this.props.headers.canvasHeight,
-                            bottom: 0,
-                            width: this.props.headers.canvasWidth
-                        }}
-                    >
-                        {this._renderHeaders(HeaderType.Row, scrollTop)}
-                    </div>
-                }
-                {!!(this.props.headers.canvasHeight || this.props.headers.canvasWidth) &&
-                    <div
-                        className={this._theme.classNameGridCorner}
-                        style={{
-                            ...this._theme.styleGridCorner,
-                            pointerEvents: 'initial',
-                            position: 'absolute',
-                            overflow: 'hidden',
-                            left: 0,
-                            top: 0,
-                            height: this.props.headers.canvasHeight,
-                            width: this.props.headers.canvasWidth
-                        }}
-                        onMouseDown={this._onMouseDownCorner}
-                    >
-                    </div>
-                }
-                {this._renderResizing(event)}
-            </div>
-        );
-    }
-
     private _isAddressOutOfBounds(cell: IGridAddress) {
         let lastRow = this.props.headers.rows.length - 1;
         let lastCol = this.props.headers.columns.length - 1;
@@ -1162,6 +1092,106 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         }
 
         return jsx;
+    }
+
+    private _headersRenderer = (event: IScrollViewUpdateEvent) => {
+        const { clientWidth, clientHeight, scrollLeft, scrollTop } = event;
+
+        return (
+            <div
+                style={{
+                    width: clientWidth,
+                    height: clientHeight,
+                    pointerEvents: 'none',
+                    zIndex: 1,
+                    overflow: 'hidden',
+                    position: 'absolute'
+                }}
+            >
+                {!!this.props.headers.canvasHeight &&
+                    <div
+                        className={this._theme.classNameGridColumns}
+                        style={{
+                            ...this._theme.styleGridColumns,
+                            pointerEvents: 'initial',
+                            position: 'absolute',
+                            overflow: 'hidden',
+                            left: this.props.headers.canvasWidth,
+                            top: 0,
+                            right: 0,
+                            height: this.props.headers.canvasHeight
+                        }}
+                    >
+                        {this._renderHeaders(HeaderType.Column, scrollLeft)}
+                    </div>
+                }
+                {!!this.props.headers.canvasWidth &&
+                    <div
+                        className={this._theme.classNameGridRows}
+                        style={{
+                            ...this._theme.styleGridRows,
+                            pointerEvents: 'initial',
+                            position: 'absolute',
+                            overflow: 'hidden',
+                            left: 0,
+                            top: this.props.headers.canvasHeight,
+                            bottom: 0,
+                            width: this.props.headers.canvasWidth
+                        }}
+                    >
+                        {this._renderHeaders(HeaderType.Row, scrollTop)}
+                    </div>
+                }
+                {!!(this.props.headers.canvasHeight || this.props.headers.canvasWidth) &&
+                    <div
+                        className={this._theme.classNameGridCorner}
+                        style={{
+                            ...this._theme.styleGridCorner,
+                            pointerEvents: 'initial',
+                            position: 'absolute',
+                            overflow: 'hidden',
+                            left: 0,
+                            top: 0,
+                            height: this.props.headers.canvasHeight,
+                            width: this.props.headers.canvasWidth
+                        }}
+                        onMouseDown={this._onMouseDownCorner}
+                    >
+                    </div>
+                }
+                {this._renderResizing(event)}
+            </div>
+        );
+    }
+
+    private _bodyRenderer = () => {
+        return (
+            <>
+                <div
+                    style={{
+                        height: this._lastView.rowsHeight,
+                        width: this._lastView.columnsWidth,
+                        boxSizing: 'border-box',
+                        position: 'relative',
+                        marginLeft: this._headersWidth,
+                        marginTop: this._headersHeight
+                    }}
+                >
+                    {this._renderData()}
+                </div>
+                <div
+                    style={{
+                        position: 'absolute',
+                        pointerEvents: 'none',
+                        zIndex: 1,
+                        left: this._headersWidth,
+                        top: this._headersHeight
+                    }}
+                >
+                    {this._renderSelections()}
+                </div>
+            </>
+        );
     }
 
     public focus() {
@@ -1404,7 +1434,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         this._createView();
         this._createOverscan();
 
-        const { rowsHeight, columnsWidth } = this._lastView;
+        const ScrollView = this.props.scrollViewClass || FallbackScrollView;
 
         return (
             <Context.Provider value={{ grid: this, headers: this.props.headers }}>
@@ -1429,36 +1459,13 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                     onMouseDown={this._onRootMouseDown}
                 >
                     <ScrollView
+                        {...this.props.theme}
                         ref={this._onRefView}
                         onScroll={this._onScrollViewUpdate}
-                        renderAfter={this._renderHeaderContainers}
-                        scrollerProps={this._scrollerProps}
-                        {...this.props.theme}
-                    >
-                        <div
-                            style={{
-                                height: rowsHeight + this.state.scrollbarSize,
-                                width: columnsWidth + this.state.scrollbarSize,
-                                boxSizing: 'border-box',
-                                position: 'relative',
-                                marginLeft: this._headersWidth,
-                                marginTop: this._headersHeight
-                            }}
-                        >
-                            {this._renderData()}
-                        </div>
-                        <div
-                            style={{
-                                position: 'absolute',
-                                pointerEvents: 'none',
-                                zIndex: 1,
-                                left: this._headersWidth,
-                                top: this._headersHeight
-                            }}
-                        >
-                            {this._renderSelections()}
-                        </div>
-                    </ScrollView>
+                        scrollerContainerProps={this._scrollerProps}
+                        headersRenderer={this._headersRenderer}
+                        bodyRenderer={this._bodyRenderer}
+                    />
                 </div>
             </Context.Provider>
         );

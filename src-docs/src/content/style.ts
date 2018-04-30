@@ -1,20 +1,7 @@
 import { IGridTheme } from 'react-bolivianite-grid';
 
 const REQUIRED_THEME: IGridTheme = {
-    // Scroller theme
-    scrollbarWidth: 15,
-    scrollbarWidthMinimized: 5,
-    scrollbarMinimizeDistance: 100,
-    styleTrackRoot: {
-        transition: 'ease all 100ms',
-        background: `rgba(0, 0, 0, 0.2)`
-    },
-    styleThumb: {
-        background: `rgba(0, 0, 0, 0.8)`
-    },
-
-    // Grid theme
-    style: {
+    styleScroller: {
         background: '#FFFFFF'
     },
     styleGridColumns: {
@@ -38,6 +25,8 @@ const REQUIRED_THEME: IGridTheme = {
 
 const THEME = {
     ...REQUIRED_THEME,
+
+    classNameScrollerContainer: 'example-grid',
 
     // Custom grid theme properties
     cellBackgroundEven: '#EFEFEF',

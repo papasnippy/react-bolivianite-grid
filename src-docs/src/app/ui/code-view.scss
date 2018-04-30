@@ -30,22 +30,32 @@
         height: 100%;
         width: 100%;
         overflow: hidden;
-        padding: var(--padding-small);
-        &.code {
+        border-left: solid 1px var(--color--accent);
+        border-top: solid 1px var(--color--accent);
+        // padding: var(--padding-small);
+        &.code,
+        :global(.example-grid) {
             overflow: auto;
             &::-webkit-scrollbar {
-                background: #000;
-                width: 5px;
-                height: 5px;
+                background: var(--color--accent);
+                width: 10px;
+                height: 10px;
             }
             &::-webkit-scrollbar-corner {
-                background: #000;
+                background: var(--color--accent);
             }
             &::-webkit-scrollbar-thumb {
-                background: #fff;
+                background: var(--color--environment);
+                box-sizing: border-box;
+                border-radius: 10px;
+                border: solid 2px var(--color--accent);
+                &:hover {
+                    background: var(--color--text-main);
+                }
             }
         }
     }
+
     .file {
         display: inline-block;
     }

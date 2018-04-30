@@ -1,6 +1,6 @@
 import { IHeader, HeaderResizeBehavior, HeadersContainer, HeaderType } from '../models';
 import { IKeyboardControllerRemoveEvent, IKeyboardControllerPasteEvent } from '../controllers';
-import { IScrollViewThemingProps } from './scrollview';
+import { IScrollViewThemingProps, IScrollViewInterface } from './scrollview';
 
 export interface IGridSelection {
     row: number;
@@ -250,4 +250,6 @@ export interface IGridProps {
     onSelectionChanged?: (e: IGridSelectionChangeEvent) => void;
 
     onHeaderResize?: (e: IGridResizeCombinedEvent) => void;
+
+    scrollViewClass?: IScrollViewInterface;
 }
