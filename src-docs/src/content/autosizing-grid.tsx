@@ -10,16 +10,16 @@ export class AutosizingGridExample extends ResizingGrid {
         const ctx = document.createElement('canvas').getContext('2d');
         ctx.font = `12px "Open Sans", Verdana, Geneva, Tahoma, sans-serif`;
 
-        let measuredCells = cells.map(({ columnIndex, rowIndex, source }) => {
-            const value = this.renderCellValue(columnIndex, rowIndex, source);
+        let measuredCells = cells.map(({ column, row, source }) => {
+            const value = this.renderCellValue(column, row, source);
 
             if (value == null || value === '') {
                 return null;
             }
 
             return {
-                row: rowIndex,
-                column: columnIndex,
+                row: row,
+                column: column,
                 height: 0,
                 width: ctx.measureText(String(value)).width + 10
             } as ICellMeasureResult;

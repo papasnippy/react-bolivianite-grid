@@ -38,6 +38,7 @@ export class Markdown extends React.Component<IMarkdownProps, any> {
     public render() {
         return (
             <MDRenderer
+                escapeHtml={false}
                 className={classnames(Style.main, this.props.className)}
                 source={this.props.source || ''}
                 renderers={{

@@ -111,9 +111,9 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             });
         };
 
-        const onRightClick = (cell: IGridAddress) => {
+        const onRightClick = (cell: IGridAddress, event: React.MouseEvent<HTMLElement>) => {
             if (this.props.onRightClick) {
-                this.props.onRightClick(cell);
+                this.props.onRightClick({ cell, event });
             }
         };
 
@@ -436,8 +436,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         for (let r = firstRow; r < lastRow; r++) {
             for (let c = firstColumn; c < lastColumn; c++) {
                 cells.push({
-                    columnIndex: c,
-                    rowIndex: r,
+                    column: c,
+                    row: r,
                     source: this.props.source,
                     columnHeader: columns[c],
                     rowHeader: rows[r]
@@ -702,8 +702,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         }
 
         return {
-            rowIndex: row,
-            columnIndex: col,
+            row: row,
+            column: col,
             rowHeader: rh,
             columnHeader: ch,
             active: row === this.state.active.row && col === this.state.active.column,
@@ -1335,8 +1335,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
                         for (let r = firstRow; r <= lastRow; r++) {
                             cellNodes.push({
-                                columnIndex: c,
-                                rowIndex: r,
+                                column: c,
+                                row: r,
                                 source: this.props.source,
                                 columnHeader: columns[c],
                                 rowHeader: rows[r]
@@ -1347,8 +1347,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
                         for (let c = firstColumn; c <= lastColumn; c++) {
                             cellNodes.push({
-                                columnIndex: c,
-                                rowIndex: r,
+                                column: c,
+                                row: r,
                                 source: this.props.source,
                                 columnHeader: columns[c],
                                 rowHeader: rows[r]

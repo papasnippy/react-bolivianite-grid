@@ -13,16 +13,16 @@ export class EditableGridExample extends BaseExample {
         return source[key] === void 0 ? key : source[key];
     }
 
-    renderCell = ({ style, columnIndex, rowIndex, source, theme }: ICellRendererEvent) => {
+    renderCell = ({ style, column, row, source, theme }: ICellRendererEvent) => {
         return (
             <div
                 style={{
                     ...style,
                     ...theme.cellStyle,
-                    background: rowIndex % 2 ? theme.cellBackgroundEven : theme.cellBackgroundOdd
+                    background: row % 2 ? theme.cellBackgroundEven : theme.cellBackgroundOdd
                 }}
             >
-                {this.renderCellValue(columnIndex, rowIndex, source )}
+                {this.renderCellValue(column, row, source )}
             </div>
         );
     }
@@ -81,8 +81,8 @@ export class EditableGridExample extends BaseExample {
         );
     }
 
-    editorRenderer = ({ style, columnIndex, rowIndex, update, source, theme }: ICellEditorEvent) => {
-        let initialValue = this.renderCellValue(columnIndex, rowIndex, source);
+    editorRenderer = ({ style, column, row, update, source, theme }: ICellEditorEvent) => {
+        let initialValue = this.renderCellValue(column, row, source);
 
         return (
             <div

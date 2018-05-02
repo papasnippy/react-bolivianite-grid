@@ -52,7 +52,7 @@
             padding: 0 var(--padding-small);
             border-width: 3px;
             border-color: var(--menu-item--color);
-            color: var(--menu-item--color);
+            color: var(--menu-item--color) !important;
             background: var(--menu-item--background);
             text-decoration: none;
             border-right-style: solid;
@@ -61,12 +61,12 @@
             width: 100%;
             min-height: 2rem;
             &[aria-current="true"] {
-                color: var(--menu-item--selected-color);
+                color: var(--menu-item--selected-color) !important;
                 border-color: var(--menu-item--selected-color);
                 background: var(--menu-item--selected-background);
             }
             &:hover {
-                color: var(--menu-item--hover-color);
+                color: var(--menu-item--hover-color) !important;
                 border-color: var(--menu-item--hover-color);
             }
             &:last-child {

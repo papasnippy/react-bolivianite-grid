@@ -4,7 +4,7 @@ import { HeaderType } from '../models';
 import { Controller, IControllerProps } from './controller';
 
 export interface IMouseControllerProps extends IControllerProps {
-    onRightClick: (cell: IGridAddress) => void;
+    onRightClick: (cell: IGridAddress, event: React.MouseEvent<HTMLElement>) => void;
 }
 
 export class MouseController extends Controller {
@@ -238,7 +238,8 @@ export class MouseController extends Controller {
             });
 
             try {
-                this._props.onRightClick({ row, column });
+                e.persist();
+                this._props.onRightClick({ row, column }, e);
             } catch (err) {
                 console.log(err);
             }

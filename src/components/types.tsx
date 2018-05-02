@@ -31,8 +31,8 @@ export interface IGridOverscan {
 }
 
 export interface ICellRenderBaseEvent {
-    rowIndex: number;
-    columnIndex: number;
+    row: number;
+    column: number;
     rowHeader: IHeader;
     columnHeader: IHeader;
     source: any;
@@ -115,6 +115,11 @@ export interface IGridSpaceEvent {
     cells: IGridAddress[];
 }
 
+export interface IGridCellRightClickEvent {
+    cell: IGridAddress;
+    event: React.MouseEvent<HTMLElement>;
+}
+
 export interface IGridHeaderRightClickEvent {
     header: IHeader;
     event: React.MouseEvent<HTMLElement>;
@@ -188,7 +193,7 @@ export interface IGridTheme extends IScrollViewThemingProps {
 export interface IGridProps {
     tabIndex?: number;
 
-    /** Reference to headers container. This object is mutable! */
+    /** Reference to headers container. */
     headers: HeadersContainer;
 
     /** Not used directly by Component, but provided to the cell renderer. */
@@ -201,6 +206,8 @@ export interface IGridProps {
     overscanColumns?: number;
 
     theme?: IGridTheme;
+
+    scrollViewClass?: IScrollViewInterface;
 
     /** Cell renderer. Required. Some event handlers will be bound. */
     onRenderCell: (e: ICellRendererEvent) => JSX.Element;
@@ -235,7 +242,7 @@ export interface IGridProps {
     onPaste?: (e: IGridPasteEvent) => void;
 
     /** Invoked on cell right click. */
-    onRightClick?: (e: IGridAddress) => void;
+    onRightClick?: (e: IGridCellRightClickEvent) => void;
 
     /** Invoked on cell right click. */
     onHeaderRightClick?: (e: IGridHeaderRightClickEvent) => void;
@@ -250,6 +257,4 @@ export interface IGridProps {
     onSelectionChanged?: (e: IGridSelectionChangeEvent) => void;
 
     onHeaderResize?: (e: IGridResizeCombinedEvent) => void;
-
-    scrollViewClass?: IScrollViewInterface;
 }

@@ -27,16 +27,16 @@ export class SimpleGridExample extends React.Component {
         return c;
     }
 
-    renderCell = ({ style, columnIndex, rowIndex, theme }: ICellRendererEvent) => {
+    renderCell = ({ style, column, row, theme }: ICellRendererEvent) => {
         return (
             <div
                 style={{
                     ...style,
                     ...theme.cellStyle,
-                    background: rowIndex % 2 ? theme.cellBackgroundEven : theme.cellBackgroundOdd
+                    background: row % 2 ? theme.cellBackgroundEven : theme.cellBackgroundOdd
                 }}
             >
-                {`${rowIndex} x ${columnIndex}`}
+                {`${row} x ${column}`}
             </div>
         );
     }
