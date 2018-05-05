@@ -8,8 +8,8 @@
 |source|any||Data source. Not used directly, only passed to all other grid properties. Can be any type.|
 |readOnly|boolean||Sets grid to readonly mode.|
 |overscanRows<br>overscanColumns|number||By default grid renders only exact amount of row and columns that fits into viewport. This setting can expand this range.|
-|theme|[IGridTheme](#type-IGridTheme)||Grid theme. Used to define classnames and styles for grid parts, also provided to header and cell renderers.|
-|scrollViewClass|[IScrollViewInterface](#type-IScrollViewInterface)||Custom scroll view component class. Read [this](custom-scroll-view) article for details.|
+|theme|[IGridTheme](#IGridTheme)||Grid theme. Used to define classnames and styles for grid parts, also provided to header and cell renderers.|
+|scrollViewClass|[IScrollViewInterface](#IScrollViewInterface)||Custom scroll view component class. Read [this](custom-scroll-view) article for details.|
 
 ### Prop handlers
 All prop handlers implements this interface:
@@ -21,29 +21,29 @@ Every callback must return `JSX.Element` type.
 
 | Property | Event type | Required? | Description |
 |:---|:---|:---:|:---|
-|onRenderCell|[ICellRendererEvent](#type-ICellRendererEvent)|✓|Cell renderer.|
-|onRenderHeader|[IHeaderRendererEvent](#type-IHeaderRendererEvent)|✓|Header renderer.|
-|onRenderSelection|[ISelectionRendererEvent](#type-ISelectionRendererEvent)|✓|Selection renderer.|
-|onRenderEditor|[ICellEditorEvent](#type-ICellEditorEvent)||Editor renderer. See [this](editors) article for details.|
-|onRenderResizer|[IResizerRenderEvent](#type-IResizerRenderEvent)||Resizer renderer.|
+|onRenderCell|[ICellRendererEvent](#ICellRendererEvent)|✓|Cell renderer.|
+|onRenderHeader|[IHeaderRendererEvent](#IHeaderRendererEvent)|✓|Header renderer.|
+|onRenderSelection|[ISelectionRendererEvent](#ISelectionRendererEvent)|✓|Selection renderer.|
+|onRenderEditor|[ICellEditorEvent](#ICellEditorEvent)||Editor renderer. See [this](editors) article for details.|
+|onRenderResizer|[IResizerRenderEvent](#IResizerRenderEvent)||Resizer renderer.|
 
 #### Other
 All other callbacks. They all optional.
 
 | Property | Event type | Description |
 |:---|:---|:---|:---|
-|onAutoMeasure|[ICellsMeasureEvent](#type-ICellsMeasureEvent)|Auto measure callback. Read [this](auto-measuring) article for details.|
-|onSpace|[IGridSpaceEvent](#type-IGridSpaceEvent)|Called when space bar is pressed. Useful to manage cells with boolean type.|
-|onRemove|[IGridRemoveEvent](#type-IGridRemoveEvent)|Called when `CMD`+`DELETE` is pressed. Remove records here.|
-|onNullify|[IGridNullifyEvent](#type-IGridNullifyEvent)|Called when just `DELETE` is pressed. Remove cell values here.|
-|onCopy|[IGridCopyEvent](#type-IGridCopyEvent)|Callback used for copying cells. Read [copy-paste](copy-paste) artice for details. |
-|onPaste|[IGridPasteEvent](#type-IGridPasteEvent)|Callback used for pasting cells. Read [copy-paste](copy-paste) artice for details. |
-|onRightClick|[IGridCellRightClickEvent](#type-IGridCellRightClickEvent)|Called when right click pressed on any cell.|
-|onHeaderRightClick|[IGridHeaderRightClickEvent](#type-IGridHeaderRightClickEvent)|Called when right click pressed on any header.|
-|onUpdate|[IGridUpdateEvent](#type-IGridUpdateEvent)|Called when any changes was commited. Update data source here.|
-|onActiveChanged|[IGridActiveChangeEvent](#type-IGridActiveChangeEvent)|Called when active cell is changed.|
-|onSelectionChanged|[IGridSelectionChangeEvent](#type-IGridSelectionChangeEvent)|Called when selection is changed.|
-|onHeaderResize|[IGridResizeCombinedEvent](#type-IGridResizeCombinedEvent)|Called when headers were resized by autosize event or manually.|
+|onAutoMeasure|[ICellsMeasureEvent](#ICellsMeasureEvent)|Auto measure callback. Read [this](auto-measuring) article for details.|
+|onSpace|[IGridSpaceEvent](#IGridSpaceEvent)|Called when space bar is pressed. Useful to manage cells with boolean type.|
+|onRemove|[IGridRemoveEvent](#IGridRemoveEvent)|Called when `CMD`+`DELETE` is pressed. Remove records here.|
+|onNullify|[IGridNullifyEvent](#IGridNullifyEvent)|Called when just `DELETE` is pressed. Remove cell values here.|
+|onCopy|[IGridCopyEvent](#IGridCopyEvent)|Callback used for copying cells. Read [copy-paste](copy-paste) artice for details. |
+|onPaste|[IGridPasteEvent](#IGridPasteEvent)|Callback used for pasting cells. Read [copy-paste](copy-paste) artice for details. |
+|onRightClick|[IGridCellRightClickEvent](#IGridCellRightClickEvent)|Called when right click pressed on any cell.|
+|onHeaderRightClick|[IGridHeaderRightClickEvent](#IGridHeaderRightClickEvent)|Called when right click pressed on any header.|
+|onUpdate|[IGridUpdateEvent](#IGridUpdateEvent)|Called when any changes was commited. Update data source here.|
+|onActiveChanged|[IGridActiveChangeEvent](#IGridActiveChangeEvent)|Called when active cell is changed.|
+|onSelectionChanged|[IGridSelectionChangeEvent](#IGridSelectionChangeEvent)|Called when selection is changed.|
+|onHeaderResize|[IGridResizeCombinedEvent](#IGridResizeCombinedEvent)|Called when headers were resized by autosize event or manually.|
 
 ### Class methods
 | Method | Description |
@@ -54,7 +54,7 @@ All other callbacks. They all optional.
 
 ### Types
 
-#### <a name="type-IGridAddress"></a> IGridAddress
+#### <a name="IGridAddress"></a> IGridAddress
 ```typescript
 interface IGridAddress {
     row: number;
@@ -62,7 +62,7 @@ interface IGridAddress {
 }
 ```
 
-#### <a name="type-IGridSelection"></a> IGridSelection
+#### <a name="IGridSelection"></a> IGridSelection
 ```typescript
 interface IGridSelection {
     row: number;
@@ -72,7 +72,7 @@ interface IGridSelection {
 }
 ```
 
-#### <a name="type-IGridTheme"></a> IGridTheme
+#### <a name="IGridTheme"></a> IGridTheme
 ```typescript
 interface IGridTheme {
     classNameGrid?: string;
@@ -92,7 +92,7 @@ interface IGridTheme {
 }
 ```
 
-#### <a name="type-IScrollViewInterface"></a> IScrollViewInterface
+#### <a name="IScrollViewInterface"></a> IScrollViewInterface
 ```typescript
 interface IScrollViewProps extends IScrollViewThemingProps {
     scrollerContainerProps?: React.HTMLProps<HTMLDivElement>;
@@ -117,7 +117,7 @@ interface IScrollViewInterface extends React.StaticLifecycle<IScrollViewProps, a
 }
 ```
 
-#### <a name="type-ICellRendererEvent"></a> ICellRendererEvent
+#### <a name="ICellRendererEvent"></a> ICellRendererEvent
 ```typescript
 interface ICellRendererEvent {
     // view row index
@@ -139,7 +139,7 @@ interface ICellRendererEvent {
 }
 ```
 
-#### <a name="type-IHeaderRendererEvent"></a> IHeaderRendererEvent
+#### <a name="IHeaderRendererEvent"></a> IHeaderRendererEvent
 ```typescript
 interface IHeaderRendererEvent {
     // header type (HeaderType.Row or HeaderType.Column)
@@ -161,7 +161,7 @@ interface IHeaderRendererEvent {
 }
 ```
 
-#### <a name="type-ISelectionRendererEvent"></a> ISelectionRendererEvent
+#### <a name="ISelectionRendererEvent"></a> ISelectionRendererEvent
 ```typescript
 interface ISelectionRendererEvent {
     // JSX key attribute, must be applied to rendering element
@@ -177,7 +177,7 @@ interface ISelectionRendererEvent {
 }
 ```
 
-#### <a name="type-ICellEditorEvent"></a> ICellEditorEvent
+#### <a name="ICellEditorEvent"></a> ICellEditorEvent
 ```typescript
 interface ICellEditorEvent {
     row: number;
@@ -195,7 +195,7 @@ interface ICellEditorEvent {
 }
 ```
 
-#### <a name="type-IResizerRenderEvent"></a> IResizerRenderEvent
+#### <a name="IResizerRenderEvent"></a> IResizerRenderEvent
 ```typescript
 interface IResizerRenderEvent {
     type: 'level' | 'header';
@@ -206,7 +206,7 @@ interface IResizerRenderEvent {
 }
 ```
 
-#### <a name="type-ICellsMeasureEvent"></a> ICellsMeasureEvent
+#### <a name="ICellsMeasureEvent"></a> ICellsMeasureEvent
 ```typescript
 interface ICellRenderBaseEvent {
     row: number;
@@ -249,14 +249,14 @@ interface ICellsMeasureEvent {
 }
 ```
 
-#### <a name="type-IGridSpaceEvent"></a> IGridSpaceEvent
+#### <a name="IGridSpaceEvent"></a> IGridSpaceEvent
 ```typescript
 interface IGridSpaceEvent {
     cells: IGridAddress[];
 }
 ```
 
-#### <a name="type-IGridRemoveEvent"></a> IGridRemoveEvent
+#### <a name="IGridRemoveEvent"></a> IGridRemoveEvent
 ```typescript
 interface IGridRemoveEvent {
     rows: number[];
@@ -264,14 +264,14 @@ interface IGridRemoveEvent {
 }
 ```
 
-#### <a name="type-IGridNullifyEvent"></a> IGridNullifyEvent
+#### <a name="IGridNullifyEvent"></a> IGridNullifyEvent
 ```typescript
 interface IGridNullifyEvent {
     cells: IGridAddress[];
 }
 ```
 
-#### <a name="type-IGridCopyEvent"></a> IGridCopyEvent
+#### <a name="IGridCopyEvent"></a> IGridCopyEvent
 ```typescript
 interface IGridCopyEvent {
     cells: IGridAddress[];
@@ -284,7 +284,7 @@ interface IGridCopyEvent {
 }
 ```
 
-#### <a name="type-IGridPasteEvent"></a> IGridPasteEvent
+#### <a name="IGridPasteEvent"></a> IGridPasteEvent
 ```typescript
 interface IGridPasteEvent {
     headers: HeadersContainer;
@@ -293,7 +293,7 @@ interface IGridPasteEvent {
 }
 ```
 
-#### <a name="type-IGridCellRightClickEvent"></a> IGridCellRightClickEvent
+#### <a name="IGridCellRightClickEvent"></a> IGridCellRightClickEvent
 ```typescript
 interface IGridCellRightClickEvent {
     cell: IGridAddress;
@@ -301,7 +301,7 @@ interface IGridCellRightClickEvent {
 }
 ```
 
-#### <a name="type-IGridHeaderRightClickEvent"></a> IGridHeaderRightClickEvent
+#### <a name="IGridHeaderRightClickEvent"></a> IGridHeaderRightClickEvent
 ```typescript
 interface IGridHeaderRightClickEvent {
     header: IHeader;
@@ -309,7 +309,7 @@ interface IGridHeaderRightClickEvent {
 }
 ```
 
-#### <a name="type-IGridUpdateEvent"></a> IGridUpdateEvent
+#### <a name="IGridUpdateEvent"></a> IGridUpdateEvent
 ```typescript
 interface IGridUpdateEvent {
     cell: IGridAddress;
@@ -317,7 +317,7 @@ interface IGridUpdateEvent {
 }
 ```
 
-#### <a name="type-IGridActiveChangeEvent"></a> IGridActiveChangeEvent
+#### <a name="IGridActiveChangeEvent"></a> IGridActiveChangeEvent
 ```typescript
 interface IGridActiveChangeEvent {
     previous: IGridAddress;
@@ -325,7 +325,7 @@ interface IGridActiveChangeEvent {
 }
 ```
 
-#### <a name="type-IGridSelectionChangeEvent"></a> IGridSelectionChangeEvent
+#### <a name="IGridSelectionChangeEvent"></a> IGridSelectionChangeEvent
 ```typescript
 interface IGridSelectionChangeEvent {
     previous: IGridSelection[];
@@ -333,7 +333,7 @@ interface IGridSelectionChangeEvent {
 }
 ```
 
-#### <a name="type-IGridResizeCombinedEvent"></a> IGridResizeCombinedEvent
+#### <a name="IGridResizeCombinedEvent"></a> IGridResizeCombinedEvent
 ```typescript
 interface IGridResizeHeaderLevel {
     type: HeaderType;

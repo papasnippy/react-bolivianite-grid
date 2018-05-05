@@ -4,6 +4,7 @@ import * as HtmlWebpackPlugin from 'html-webpack-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const packageJson = require('../package.json');
 console.log(packageJson.name);
@@ -25,7 +26,8 @@ module.exports = (env: any = {}) => {
         },
         output: {
             path: Path.resolve(__dirname, '../docs'),
-            filename: `content/[name].[${CHUNK_TYPE}].js`
+            filename: `content/[name].[${CHUNK_TYPE}].js`,
+            publicPath: IS_PROD ? '/' + packageJson.name : '/'
         },
         resolve: {
             extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.scss', '.css'],
@@ -79,6 +81,7 @@ module.exports = (env: any = {}) => {
                     'ENV': JSON.stringify(IS_PROD ? 'production' : 'development'),
                     'NODE_ENV': JSON.stringify(IS_PROD ? 'production' : 'development'),
                     'PACKAGE_NAME': JSON.stringify(packageJson.name),
+                    'BASE_NAME': IS_PROD ? JSON.stringify(packageJson.name) : 'null',
                     'GITHUB_URL': JSON.stringify('https://github.com/papasnippy/react-bolivianite-grid')
                 }
             }),
@@ -95,7 +98,11 @@ module.exports = (env: any = {}) => {
                 template: Path.resolve(__dirname, './src/index.html'),
                 inject: 'body',
                 baseUrl: '/'
-            })
+            }),
+            new CopyWebpackPlugin([{
+                from: './src/404.html',
+                to: '../docs/'
+            }])
         ].filter(v => !!v),
         module: {
             rules: [

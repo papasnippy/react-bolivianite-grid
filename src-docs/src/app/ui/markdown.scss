@@ -17,7 +17,6 @@
         padding: var(--padding-medium);
         background: var(--article--background);
         box-shadow: var(--shadow--medium);
-
         blockquote {
             background: var(--markdown--block-background);
             box-sizing: border-box;
@@ -26,6 +25,12 @@
             border-left: 3px solid var(--color--highlight);
             margin-left: var(--padding-big);
             box-shadow: var(--shadow--medium);
+        }
+        a[name] {
+            display: block;
+            position: relative;
+            top: calc(var(--toolbar--height) * -1 - var(--padding-small));
+            visibility: hidden;
         }
     }
 }

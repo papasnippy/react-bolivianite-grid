@@ -2,6 +2,7 @@
     "extends": "../tsconfig.json",
     "compilerOptions": {
         "baseUrl": ".",
+        "allowJs": true,
         "paths": {
             "react-bolivianite-grid": ["../src"],
             "react-bolivianite-grid/*": ["../src/*"],
