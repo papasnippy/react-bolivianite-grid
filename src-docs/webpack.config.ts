@@ -8,6 +8,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const packageJson = require('../package.json');
 console.log(packageJson.name);
+// test
 
 module.exports = (env: any = {}) => {
     const PORT = env['port'] || 18001;
