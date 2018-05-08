@@ -156,7 +156,6 @@ export class BaseExample extends React.Component<IBaseExampleProps, any> {
 
         return ReactDOM.createPortal((
             <>
-                {this.renderAdditionalControls()}
                 <button
                     className={Style.historyButton}
                     onClick={this.undo}
@@ -175,6 +174,7 @@ export class BaseExample extends React.Component<IBaseExampleProps, any> {
                         <path d={PATH_REDO} />
                     </svg>
                 </button>
+                {this.renderAdditionalControls()}
             </>
         ), this.props.refControls);
     }

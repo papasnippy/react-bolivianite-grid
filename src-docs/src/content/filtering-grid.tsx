@@ -1,18 +1,20 @@
 import * as React from 'react';
 import EditableGrid from './editable-grid';
 import { HistoryState } from './base-example';
-import { HeaderType, HeadersContainer } from 'react-bolivianite-grid';
+import { HeaderType, HeadersContainer, IGridUpdateEvent } from 'react-bolivianite-grid';
 
 const INPUT_STYLE: React.CSSProperties = {
     margin: 0,
-    marginRight: 'var(--padding-small)',
+    marginLeft: 'var(--padding-small)',
     border: 0,
     height: '25px',
     background: 'rgba(0, 0, 0, 0.3)',
     color: '#ffffff',
     boxSizing: 'border-box',
     padding: '0 3px',
-    outline: 'none'
+    outline: 'none',
+    flex: 1,
+    borderBottom: 'rgba(255, 255, 255, 0.2) solid 1px'
 };
 
 export class FilteringGridExample extends EditableGrid {
@@ -36,11 +38,36 @@ export class FilteringGridExample extends EditableGrid {
         };
     }
 
+    renderCellValue(columnIndex: number, rowIndex: number, source: any) {
+        const { headers } = this.currentState;
+        const rh = headers.rows[rowIndex];
+        const ch = headers.columns[columnIndex];
+
+        const key = `${rh.caption} x ${ch.caption}`;
+        return source[key] === void 0 ? key : source[key];
+    }
+
+    onUpdate = ({ cell, value }: IGridUpdateEvent) => {
+        let { column, row } = cell;
+        const { headers } = this.currentState;
+        const rh = headers.rows[row];
+        const ch = headers.columns[column];
+        let key = `${rh.caption} x ${ch.caption}`;
+
+        this.pushHistory({
+            data: {
+                ...this.currentState.data,
+                [key]: value
+            }
+        });
+    }
+
     renderAdditionalControls() {
         return (
             <input
                 style={INPUT_STYLE}
                 value={this.state.input}
+                placeholder="Try to type header name."
                 onChange={(e) => {
                     this.setState({ input: e.target.value });
                     const state = this.state.history[this.state.history.length - 1];

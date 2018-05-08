@@ -110,6 +110,16 @@
             a {
                 min-height: 4rem;
             }
+            &::-webkit-scrollbar {
+                background: var(--color--accent);
+            }
+            &::-webkit-scrollbar-corner {
+                background: var(--color--accent);
+            }
+            &::-webkit-scrollbar-thumb {
+                background: var(--color--environment);
+                border-color: var(--color--accent);
+            }
         }
         .menu {
             display: initial;

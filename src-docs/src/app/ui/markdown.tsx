@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as MDRenderer from 'react-markdown';
 import * as classnames from 'classnames';
+import { Link } from 'react-router-dom';
 import { Code } from './index';
 
 const Style = require('./markdown.scss');
@@ -12,8 +13,10 @@ export interface IMarkdownProps {
 
 interface IRenderer {
     children?: any;
-    language: string;
-    value: string;
+    language?: string;
+    value?: string;
+    columnAlignment?: string[];
+    href?: string;
 }
 
 export class Markdown extends React.Component<IMarkdownProps, any> {
@@ -35,6 +38,24 @@ export class Markdown extends React.Component<IMarkdownProps, any> {
         );
     }
 
+    private _tableRenderer = ({ children }: IRenderer) => {
+        return (
+            <div className={Style.table}>
+                <table>
+                    {children}
+                </table>
+            </div>
+        );
+    }
+
+    private _linkRenderer = ({ href, children }: IRenderer) => {
+        if (href[0] === '#') {
+            return <a href={href}>{children}</a>;
+        }
+
+        return <Link to={href}>{children}</Link>;
+    }
+
     public render() {
         return (
             <MDRenderer
@@ -43,7 +64,9 @@ export class Markdown extends React.Component<IMarkdownProps, any> {
                 source={this.props.source || ''}
                 renderers={{
                     inlineCode: this._codeInlineRenderer,
-                    code: this._codeMultilineRenderer
+                    code: this._codeMultilineRenderer,
+                    table: this._tableRenderer,
+                    link: this._linkRenderer
                 }}
             />
         );

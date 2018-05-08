@@ -8,9 +8,11 @@
         padding: 1px var(--padding-small);
         font-family: monospace;
         box-shadow: var(--shadow--small);
+        overflow: auto;
     }
     .multilineCode {
         box-shadow: var(--shadow--medium);
+        overflow: auto;
     }
     .main {
         box-sizing: border-box;
@@ -31,6 +33,51 @@
             position: relative;
             top: calc(var(--toolbar--height) * -1 - var(--padding-small));
             visibility: hidden;
+        }
+    }
+    .code,
+    .multilineCode,
+    .table {
+        &::-webkit-scrollbar {
+            background: var(--color--accent);
+            width: 10px;
+            height: 10px;
+        }
+        &::-webkit-scrollbar-corner {
+            background: var(--color--accent);
+        }
+        &::-webkit-scrollbar-thumb {
+            background: var(--color--environment);
+            box-sizing: border-box;
+            border-radius: 10px;
+            border: solid 2px var(--color--accent);
+            &:hover {
+                background: var(--color--text-main);
+            }
+        }
+    }
+    .table {
+        width: 100%;
+        overflow: auto;
+        background: var(--markdown--block-background);
+        box-shadow: var(--shadow--medium);
+        table {
+            width: 100%;
+            min-width: 690px;
+            border-collapse: collapse;
+            th,
+            td {
+                box-sizing: border-box;
+                padding: var(--padding-small);
+                border: solid 1px var(--color--background);
+            }
+            th {
+                font-weight: bold;
+                background: var(--color--environment);
+            }
+            td {
+                vertical-align: top;
+            }
         }
     }
 }

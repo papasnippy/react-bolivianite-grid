@@ -2,8 +2,6 @@
     .root {
         display: flex;
         flex-direction: column;
-        height: calc(100vh - var(--toolbar--height) - var(--padding-big) * 3);
-        max-height: 600px;
         box-sizing: border-box;
         box-shadow: var(--shadow--medium);
         background: var(--code-view--background);
@@ -18,18 +16,21 @@
     .panel {
         display: flex;
         justify-content: space-between;
+        flex-shrink: 0;
     }
     .controls {
         display: flex;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: center;
+        padding: 0 var(--padding-small);
     }
     .container {
         box-sizing: border-box;
         background: var(--code-view--container-background);
-        height: 100%;
+        height: 60vh;
         width: 100%;
         overflow: hidden;
+        flex-shrink: 0;
         border-left: solid 1px var(--color--accent);
         border-top: solid 1px var(--color--accent);
         // padding: var(--padding-small);
@@ -55,7 +56,10 @@
             }
         }
     }
-
+    .example {
+        display: flex;
+        flex-direction: column;
+    }
     .file {
         display: inline-block;
     }
@@ -80,10 +84,6 @@
         }
     }
     @media screen and (max-width: 450px) {
-        .root {
-            height: initial;
-            max-height: initial;
-        }
         .tab {
             padding: 0 var(--padding-small);
         }

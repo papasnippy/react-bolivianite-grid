@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as classnames from 'classnames';
-import { SplitView, Code } from './index';
+import { Code } from './index';
 const Style = require('./code-view.scss');
 
 export type ICodeViewFile = (
@@ -114,16 +114,16 @@ export class CodeView extends React.PureComponent<ICodeViewProps & ICodeViewElem
                     <div className={Style.tabs}>
                         {this._renderTabs()}
                     </div>
-                    <div className={Style.controls} ref={this._onRef} />
                 </div>
-                <SplitView>
+                <div className={Style.example}>
                     <div className={classnames(Style.container, Style.code)}>
                         {this._renderFileContent()}
                     </div>
+                    <div className={Style.controls} ref={this._onRef} />
                     <div className={Style.container}>
                         {this._renderArticle()}
                     </div>
-                </SplitView>
+                </div>
             </div>
         );
     }

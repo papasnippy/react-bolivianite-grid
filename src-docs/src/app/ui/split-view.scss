@@ -3,40 +3,15 @@
         display: flex;
         flex: 1;
         position: relative;
+        flex-direction: column;
     }
     .container {
         display: flex;
-        height: 100%;
-    }
-    .resizer {
-        height: 100%;
-        width: var(--padding-small);
-        cursor: col-resize;
+        width: 100% !important;
+        height: 60vh;
         flex-shrink: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        &.highlight,
-        &:hover {
-            // background: var(--color--highlight);
-        }
-    }
-
-    @media screen and (max-width: 768px) {
-        .root {
-            flex-direction: column;
-        }
-        .container {
-            width: 100% !important;
-            height: 65vh;
-
-            &:first-child {
-                margin-bottom: var(--padding-small);
-            }
-        }
-        .resizer {
-            display: none;
+        &:first-child {
+            margin-bottom: var(--padding-small);
         }
     }
 }
