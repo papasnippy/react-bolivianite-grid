@@ -11,10 +11,11 @@ const INPUT_STYLE: React.CSSProperties = {
     background: 'rgba(0, 0, 0, 0.3)',
     color: '#ffffff',
     boxSizing: 'border-box',
-    padding: '0 3px',
+    padding: '0 5px',
     outline: 'none',
     flex: 1,
-    borderBottom: 'rgba(255, 255, 255, 0.2) solid 1px'
+    borderBottom: 'rgba(255, 255, 255, 0.2) solid 1px',
+    borderRadius: 4
 };
 
 export class FilteringGridExample extends EditableGrid {

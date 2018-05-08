@@ -580,8 +580,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
     private _onRootMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
         e.persist();
-        let x = e.pageX;
-        let y = e.pageY;
+        let x = e.clientX;
+        let y = e.clientY;
         let rect = this._ref.getBoundingClientRect();
         this._msCtr.rootleave(x, y, rect);
     }

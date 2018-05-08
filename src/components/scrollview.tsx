@@ -38,12 +38,6 @@ export interface IScrollViewInterface extends React.StaticLifecycle<IScrollViewP
 }
 
 export class ScrollView extends React.Component<IScrollViewProps, any> implements IScrollViewComponentInterface {
-    state = {
-        xEnabled: false,
-        yEnabled: false,
-        minimized: true
-    };
-
     private _r: HTMLDivElement;
     private _taskResize: any = null;
 

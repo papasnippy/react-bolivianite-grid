@@ -65,6 +65,10 @@ export class CodeView extends React.PureComponent<ICodeViewProps & ICodeViewElem
     }
 
     private _renderArticle() {
+        if (!this.props.main) {
+            return null;
+        }
+
         const content = require('~Content/' + this.props.main);
         const D = content && content.default;
 
@@ -105,24 +109,35 @@ export class CodeView extends React.PureComponent<ICodeViewProps & ICodeViewElem
     }
 
     public render() {
+        const article = this._renderArticle();
+        const files = this._renderFileContent();
+
         return (
             <div
                 area-hidden="true"
                 className={classnames(Style.root, this.props.className)}
             >
-                <div className={Style.panel}>
-                    <div className={Style.tabs}>
-                        {this._renderTabs()}
+                {!!files &&
+                    <div className={Style.panel}>
+                        <div className={Style.tabs}>
+                            {this._renderTabs()}
+                        </div>
                     </div>
-                </div>
+                }
                 <div className={Style.example}>
-                    <div className={classnames(Style.container, Style.code)}>
-                        {this._renderFileContent()}
-                    </div>
-                    <div className={Style.controls} ref={this._onRef} />
-                    <div className={Style.container}>
-                        {this._renderArticle()}
-                    </div>
+                    {!!files &&
+                        <div className={classnames(Style.container, Style.code)}>
+                            {files}
+                        </div>
+                    }
+                    {!!article &&
+                        <>
+                            <div className={Style.controls} ref={this._onRef} />
+                            <div className={Style.container}>
+                                {this._renderArticle()}
+                            </div>
+                        </>
+                    }
                 </div>
             </div>
         );

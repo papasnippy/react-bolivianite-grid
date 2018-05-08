@@ -3,7 +3,6 @@
         display: flex;
         flex-direction: column;
         box-sizing: border-box;
-        box-shadow: var(--shadow--medium);
         background: var(--code-view--background);
     }
     .tabs {
@@ -27,12 +26,15 @@
     .container {
         box-sizing: border-box;
         background: var(--code-view--container-background);
-        height: 60vh;
+        height: 50vh;
+        min-height: 500px;
         width: 100%;
         overflow: hidden;
         flex-shrink: 0;
         border-left: solid 1px var(--color--accent);
         border-top: solid 1px var(--color--accent);
+        box-shadow: var(--shadow--medium);
+        margin-bottom: var(--padding-medium);
         // padding: var(--padding-small);
         &.code,
         :global(.example-grid) {
