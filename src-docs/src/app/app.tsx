@@ -1,18 +1,18 @@
 import * as React from 'react';
 import * as classnames from 'classnames';
-import { NavLink } from 'react-router-dom';
-import { Toolbar, PageArticles, AppMaxWidth } from './ui';
+import { NavLink, withRouter, RouteComponentProps } from 'react-router-dom';
+import { Toolbar, Markdown, AppMaxWidth } from './ui';
 import { GitHubIcon, MenuIcon } from './icons';
 import { Switch, Route } from 'react-router-dom';
 import { IArticleMap } from './article';
 
 const Style = require('./app.scss');
 
-export interface IAppProps {
+export interface IAppProps extends RouteComponentProps<any> {
     source: IArticleMap;
 }
 
-export class App extends React.Component<IAppProps, any> {
+class App extends React.Component<IAppProps, any> {
     state = {
         menuOpened: false
     };
@@ -55,18 +55,31 @@ export class App extends React.Component<IAppProps, any> {
 
             return (
                 <Route exact path={url} key={url}>
-                    <PageArticles source={item.body} />
+                    <article className={Style.articleBody}>
+                        <Markdown
+                            className={Style.articleChunk}
+                            source={item.body}
+                        />
+                    </article>
                 </Route>
             );
         });
     }
 
-    /*public componentDidMount() {
-        // Math.max(0, 37 - ((document.body.children[0] as any).offsetHeight - window.innerHeight - window.scrollY))
-        window.addEventListener('scroll', () => {
-            this.forceUpdate();
-        });
-    }*/
+    public componentDidUpdate(prev: IAppProps) {
+        if (this.props.location !== prev.location) {
+            const { hash } = this.props.location;
+
+            if (!hash) {
+                window.scrollTo({ top: 0 });
+            } else {
+                let e = document.body.querySelectorAll(`a[name="${hash.slice(1)}"]`)[0];
+                if (e) {
+                    e.scrollIntoView();
+                }
+            }
+        }
+    }
 
     public render() {
         return (
@@ -102,3 +115,5 @@ export class App extends React.Component<IAppProps, any> {
         );
     }
 }
+
+export default (withRouter as any)(App);

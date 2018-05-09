@@ -4,7 +4,9 @@ export enum HeaderType {
 }
 
 export interface IHeader {
-    /** Unique header identifier for **all** headers in container. Do not edit. Assigned by header container if not provided. */
+    /** Unique header identifier for **all** headers in container.
+     * Do not edit. Assigned by header container if not provided.
+     * Can be assigned once before used. */
     $id?: number | string;
     /** List of children headers. */
     $children?: IHeader[];
@@ -15,5 +17,6 @@ export interface IHeader {
     /** Filter flag. */
     $collapsed?: boolean;
 
+    /** Any other custom properties. */
     [prop: string]: any;
 }

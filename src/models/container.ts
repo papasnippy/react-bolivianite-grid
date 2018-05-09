@@ -1,21 +1,17 @@
 import { IHeader, HeaderType } from './header';
 
 export type HeaderResizeBehavior = 'auto' | 'manual' | 'reset';
-
-export type IContainerHeadersFilter = (props: { header: IHeader, type: HeaderType }) => boolean;
-
+export type HeaderContainerFilter = (props: { header: IHeader, type: HeaderType }) => boolean;
 export type HeaderClampFunction = (props: { header: IHeader, type: HeaderType, size: number }) => number;
 
 export interface IContainerProps {
     rows: IHeader[];
     columns: IHeader[];
-
     columnWidth: number;
     rowHeight: number;
     headersHeight: number;
     headersWidth: number;
-
-    filter?: IContainerHeadersFilter;
+    filter?: HeaderContainerFilter;
 }
 
 export interface IContainerState extends IContainerProps {
@@ -138,7 +134,7 @@ export class HeadersContainer {
         list: IHeader[],
         out: IHeader[],
         type: HeaderType,
-        filter?: IContainerHeadersFilter,
+        filter?: HeaderContainerFilter,
         assignParent?: IHeader
     ) {
         list.forEach((h) => {
@@ -595,7 +591,7 @@ export class HeadersContainer {
         } as IContainerProps;
     }
 
-    public updateFilter(filter: IContainerHeadersFilter) {
+    public updateFilter(filter: HeaderContainerFilter) {
         if (this._state.filter === filter) {
             return this;
         }

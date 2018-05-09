@@ -29,37 +29,40 @@ export class Markdown extends React.Component<IMarkdownProps, any> {
     }
 
     private _codeMultilineRenderer = ({ language, value }: IRenderer) => {
-        if (language === 'code-view') {
-            let d: {
-                main: string;
-                files?: string[][];
-            } = JSON.parse(value);
+        switch (language) {
+            case 'app.example': {
+                let d: {
+                    main: string;
+                    files?: string[][];
+                } = JSON.parse(value);
 
-            return (
-                <CodeView
-                    main={d.main}
-                    files={d.files}
-                />
-            );
+                return (
+                    <CodeView
+                        main={d.main}
+                        files={d.files}
+                    />
+                );
+            }
+
+            case 'app.file': {
+                let d: {
+                    file: string;
+                    language: string;
+                } = JSON.parse(value);
+
+                language = d.language;
+                value = require('!raw-loader!~Content/' + d.file);
+            }
+
+            default:
+                return (
+                    <Code
+                        className={Style.multilineCode}
+                        language={language}
+                        source={value}
+                    />
+                );
         }
-
-        if (language === 'code-file') {
-            let d: {
-                file: string;
-                language: string;
-            } = JSON.parse(value);
-
-            language = d.language;
-            value = require('!raw-loader!~Content/' + d.file);
-        }
-
-        return (
-            <Code
-                className={Style.multilineCode}
-                language={language}
-                source={value}
-            />
-        );
     }
 
     private _tableRenderer = ({ children }: IRenderer) => {

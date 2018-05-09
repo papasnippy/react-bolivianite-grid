@@ -63,6 +63,10 @@ a {
     }
 }
 
+p {
+    margin: var(--padding-small) 0;
+}
+
 app {
     display: flex;
     flex-direction: column;

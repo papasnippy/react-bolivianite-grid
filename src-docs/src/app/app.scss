@@ -87,6 +87,20 @@
         padding: var(--padding-big);
         box-sizing: border-box;
     }
+    .articleBody {
+        display: flex;
+        flex: 1;
+        box-sizing: border-box;
+        padding-left: calc(var(--article--navigation) + var(--padding-big));
+        flex-direction: column;
+
+        @media screen and (max-width: 450px) {
+            padding-left: 0;
+        }
+    }
+    .articleChunk {
+        margin-bottom: var(--padding-small);
+    }
     @media screen and (max-width: 450px) {
         .footer {
             display: none;

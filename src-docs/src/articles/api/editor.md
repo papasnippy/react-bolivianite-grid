@@ -50,7 +50,7 @@ import Editor from './simple-editor';
 
 You can see full example [here](/examples/editable). This is an example of simple text editor:
 
-```code-file
+```app.file
 {
     "file": "simple-editor.tsx",
     "language": "typescript"

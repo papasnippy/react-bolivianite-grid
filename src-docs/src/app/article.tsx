@@ -1,26 +1,7 @@
-import { ICodeViewProps, ICodeViewFile } from './ui';
-
-export interface IArticleText {
-    type: 'text';
-    data: string;
-}
-
-export interface IArticleExample {
-    type: 'example';
-    data: ICodeViewProps;
-}
-
-export interface IArticleComponent {
-    type: 'component';
-    data: () => JSX.Element;
-}
-
-export type TArticle = IArticleText | IArticleExample | IArticleComponent;
-
 export interface IArticleItem {
     url: string;
     caption: string;
-    body: TArticle[];
+    body: string;
     deep: number;
 }
 
@@ -28,10 +9,9 @@ export type IArticleMap = IArticleItem[];
 
 export class Article {
     public parent: Article = null;
-    public body: TArticle[] = [];
     public children: Article[] = [];
 
-    constructor(public address: string, public caption = '') { }
+    constructor(public address: string, public caption = '', public text = '') { }
 
     public get url() {
         let seek: Article = this;
@@ -58,7 +38,7 @@ export class Article {
         out.push({
             url: this.url,
             caption: this.caption,
-            body: this.body,
+            body: this.text,
             deep: Math.max(0, deep)
         });
 
@@ -69,23 +49,6 @@ export class Article {
         return out;
     }
 
-    public text(text: string) {
-        this.body.push({ type: 'text', data: text });
-        return this;
-    }
-
-    public example(main: string, files?: ICodeViewFile[]) {
-        files = files || [main];
-
-        this.body.push({ type: 'example', data: { main, files } });
-        return this;
-    }
-
-    public component(component: () => JSX.Element) {
-        this.body.push({ type: 'component', data: component });
-        return this;
-    }
-
     public append(child: Article) {
         child.parent = this;
         this.children.push(child);
@@ -93,8 +56,8 @@ export class Article {
     }
 }
 
-export function Create(address: string, caption?: string) {
-    return new Article(address, caption);
+export function Create(address: string, caption?: string, text?: string) {
+    return new Article(address, caption, text);
 }
 
 export default Create;

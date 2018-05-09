@@ -4,6 +4,7 @@
         flex-direction: column;
         box-sizing: border-box;
         background: var(--code-view--background);
+        margin: var(--padding-small) 0;
     }
     .tabs {
         display: flex;
@@ -34,8 +35,6 @@
         border-left: solid 1px var(--color--accent);
         border-top: solid 1px var(--color--accent);
         box-shadow: var(--shadow--medium);
-        margin-bottom: var(--padding-medium);
-        // padding: var(--padding-small);
         &.code,
         :global(.example-grid) {
             overflow: auto;
@@ -56,6 +55,9 @@
                     background: var(--color--text-main);
                 }
             }
+        }
+        &+div {
+            margin-top: var(--padding-small);
         }
     }
     .example {
