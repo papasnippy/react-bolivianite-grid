@@ -104,8 +104,6 @@ export class MouseController extends Controller {
             v: null
         };
 
-        console.log(x, y, rect);
-
         if (x <= rect.left) {
             this._scrollBySelect.h = 'L';
         } else if (x >= rect.left + rect.width) {

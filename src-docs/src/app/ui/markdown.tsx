@@ -80,6 +80,10 @@ export class Markdown extends React.Component<IMarkdownProps, any> {
             return <a href={href}>{children}</a>;
         }
 
+        if (href.slice(0, 4) === 'http') {
+            return <a href={href} target="_blank">{children}</a>;
+        }
+
         return <Link to={href}>{children}</Link>;
     }
 

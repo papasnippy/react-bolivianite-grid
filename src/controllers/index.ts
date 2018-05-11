@@ -4,6 +4,4 @@ export * from './keyboard';
 export * from './mouse';
 export * from './renderthrottler';
 export * from './scrollbar-size';
-export * from './relative-position';
-export * from './render';
 export * from './clipboard';

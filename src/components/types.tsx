@@ -207,8 +207,6 @@ export interface IGridProps {
 
     theme?: IGridTheme;
 
-    scrollViewClass?: IScrollViewInterface;
-
     /** Cell renderer. Required. Some event handlers will be bound. */
     onRenderCell: (e: ICellRendererEvent) => JSX.Element;
 
@@ -256,5 +254,9 @@ export interface IGridProps {
     /** Invoked when selection changed. */
     onSelectionChanged?: (e: IGridSelectionChangeEvent) => void;
 
+    /** Called when header set was resized. */
     onHeaderResize?: (e: IGridResizeCombinedEvent) => void;
+
+    /** Hidded property, sometime I will document it. (ಠ_ಠ) Not supposed to be used for now. */
+    scrollViewClass?: IScrollViewInterface;
 }

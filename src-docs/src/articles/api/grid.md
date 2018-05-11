@@ -24,7 +24,7 @@ Grid does not support infinity scrolling. At least for now.
 |readOnly|boolean||Sets grid to readonly mode.|
 |overscanRows<br>overscanColumns|number||By default grid renders only exact amount of row and columns that fits into viewport. This setting can expand this range.|
 |theme|[IGridTheme](#IGridTheme)||Grid theme. Used to define classnames and styles for grid parts, also provided to header and cell renderers.|
-|scrollViewClass|[IScrollViewInterface](#IScrollViewInterface)||Custom scroll view component class. Read [this](/api/scroll-view) article for details.|
+
 
 ## Prop handlers
 All prop handlers implements this interface:
@@ -104,31 +104,6 @@ interface IGridTheme {
     styleScroller?: React.CSSProperties;
 
     [key: string]: any;
-}
-```
-
-#### <a name="IScrollViewInterface"></a>
-```typescript
-interface IScrollViewProps extends IScrollViewThemingProps {
-    scrollerContainerProps?: React.HTMLProps<HTMLDivElement>;
-    onScroll: (event: IScrollViewUpdateEvent) => void;
-    bodyRenderer: (event: IScrollViewUpdateEvent) => React.ReactNode;
-    headersRenderer: (event: IScrollViewUpdateEvent) => React.ReactNode;
-}
-
-interface IScrollViewComponentInterface extends React.Component<IScrollViewProps, any> {
-    scrollerStyle: CSSStyleDeclaration; // get
-    scrollLeft: number; // get, set
-    scrollTop: number; // get, set
-}
-
-interface IScrollViewInterface extends React.StaticLifecycle<IScrollViewProps, any> {
-    new (props: IScrollViewProps, context?: any): IScrollViewComponentInterface;
-    propTypes?: React.ValidationMap<IScrollViewProps>;
-    contextTypes?: React.ValidationMap<any>;
-    childContextTypes?: React.ValidationMap<any>;
-    defaultProps?: Partial<IScrollViewProps>;
-    displayName?: string;
 }
 ```
 

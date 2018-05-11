@@ -1,9 +1,9 @@
 import Article from '~/app/article';
 
 export default (
-    Article('', 'Home')
+    Article('', 'Home', require('./index.md'))
         .append(
-            Article('examples', 'Examples')
+            Article('examples', 'Examples', require('./examples/index.md'))
                 .append(Article('simple', 'Simple', require('./examples/simple.md')))
                 .append(Article('editable', 'Editable', require('./examples/editable.md')))
                 .append(Article('filtering', 'Filtering', require('./examples/filtering.md')))
@@ -14,11 +14,10 @@ export default (
                 .append(Article('clipboard', 'Copy and paste', require('./examples/clipboard.md')))
         )
         .append(
-            Article('api', 'Api')
+            Article('api', 'Api', require('./api/index.md'))
                 .append(Article('grid', 'Grid', require('./api/grid.md')))
                 .append(Article('editor', 'Editor', require('./api/editor.md')))
                 .append(Article('headers', 'Headers', require('./api/headers.md')))
                 .append(Article('clipboard', 'Clipboard', require('./api/clipboard.md')))
-                .append(Article('scroll-view', 'Scroll view', require('./api/scroll-view.md')))
         )
 );
