@@ -1,15 +1,12 @@
 # Resizable columns and rows
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-
+To add ability manually resize headers just simply put `Resizer` component inside your rendered header.
 ```app.example
 {
     "main": "resizing-grid.tsx",
     "files": [
         ["resizing-grid.tsx", "javascript", "main.tsx"],
-        ["base-example.tsx", "javascript"],
-        ["simple-editor.tsx", "javascript"],
+        ["editable-grid.tsx", "javascript"],
         ["style.ts", "javascript"],
         ["style.scss", "css"]
     ]

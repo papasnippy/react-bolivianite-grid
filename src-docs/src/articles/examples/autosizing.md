@@ -1,15 +1,14 @@
 # Columns and rows autosizing
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
+Column autosize example. Try to type something long, resize header and then double click on resizer to reset it width.
 
 ```app.example
 {
     "main": "autosizing-grid.tsx",
     "files": [
         ["autosizing-grid.tsx", "javascript", "main.tsx"],
-        ["base-example.tsx", "javascript"],
-        ["simple-editor.tsx", "javascript"],
+        ["resizing-grid.tsx", "javascript"],
+        ["editable-grid.tsx", "javascript"],
         ["style.ts", "javascript"],
         ["style.scss", "css"]
     ]

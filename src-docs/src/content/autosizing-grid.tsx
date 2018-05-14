@@ -5,13 +5,19 @@ import Grid, {
 import ResizingGrid from './resizing-grid';
 import Theme from './style';
 
-export class AutosizingGridExample extends ResizingGrid {
+export default class extends ResizingGrid {
+    /** We use this method to get text width by providing known text style.
+     * Unfortunately, there is no method to get exact cell size really fast.
+     * You can render need cell and get it size, but it will take much time.
+     * So this automeasuring is up to you. In excel like spreadsheets this
+     * method is enough.
+     */
     autoMeasure = ({ cells, headers, callback }: ICellsMeasureEvent) => {
         const ctx = document.createElement('canvas').getContext('2d');
-        ctx.font = `12px "Open Sans", Verdana, Geneva, Tahoma, sans-serif`;
+        ctx.font = `13px "Open Sans", Verdana, Geneva, Tahoma, sans-serif`;
 
-        let measuredCells = cells.map(({ column, row, source }) => {
-            const value = this.renderCellValue(column, row, source);
+        let measuredCells = cells.map(({ column, row, source, columnHeader, rowHeader }) => {
+            const value = this.getValue(rowHeader, columnHeader, source);
 
             if (value == null || value === '') {
                 return null;
@@ -57,6 +63,8 @@ export class AutosizingGridExample extends ResizingGrid {
                 onRenderEditor={this.editorRenderer}
                 onNullify={this.onNullify}
                 onUpdate={this.onUpdate}
+                onCopy={this._cpb.onCopy}
+                onPaste={this._cpb.onPaste}
                 onRenderResizer={this.renderResizer}
                 onHeaderResize={this.resizeHeaders}
                 onAutoMeasure={this.autoMeasure}
@@ -65,4 +73,3 @@ export class AutosizingGridExample extends ResizingGrid {
     }
 }
 
-export default AutosizingGridExample;

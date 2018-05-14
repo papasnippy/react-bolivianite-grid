@@ -1,26 +1,45 @@
 import * as React from 'react';
 import Grid, {
-    Resizer, HeaderRepository, IHeader, IHeaderRendererEvent, HeaderType,
-    ICellsMeasureEvent, ICellMeasureResult
+    Resizer, HeaderRepository, IHeader, IHeaderRendererEvent, HeaderType
 } from 'react-bolivianite-grid';
-import { HistoryState } from './base-example';
-import AutosizingGridExample from './autosizing-grid';
+import { HistoryState } from './editable-grid';
+import AutosizingExample from './autosizing-grid';
 import Theme from './style';
 
-export class GroupedHeadersExample extends AutosizingGridExample {
+export default class extends AutosizingExample {
+    state = {
+        history: [{
+            data: {} as {
+                [key: string]: string;
+            },
+            headers: new HeaderRepository({
+                columns: this.getHeaderTree('C', 4, 4, 4),
+                rows: this.getHeaderTree('R', 10, 4, 2),
+                columnWidth: 100,
+                rowHeight: 24,
+                headersHeight: 24,
+                headersWidth: 60
+            })
+        } as HistoryState],
+        index: 0,
+        input: ''
+    };
+
     generateList(c: string, n: number, ct: { c?: number }, ch?: () => IHeader[]) {
         return new Array(n)
             .fill(null)
             .map((_v) => {
                 ct.c = (ct.c || 0) + 1;
+                let t = `${c} (${ct.c})`;
                 return {
-                    caption: `${c} (${ct.c})`,
-                    $children: ch ? ch() : null
+                    caption: t,
+                    $children: ch ? ch() : null,
+                    [c[0] === 'C' ? 'colIndex' : 'rowIndex']: t
                 } as IHeader;
             });
     }
 
-    generateHeaders(s: string, n1: number, n2: number, n3: number) {
+    getHeaderTree(s: string, n1: number, n2: number, n3: number) {
         const l1 = {}, l2 = {}, l3 = {};
 
         return this.generateList(`${s}1`, n1, l1, () => {
@@ -30,28 +49,8 @@ export class GroupedHeadersExample extends AutosizingGridExample {
         });
     }
 
-    getInitialState() {
-        return {
-            history: [{
-                data: {} as {
-                    [key: string]: string;
-                },
-                headers: new HeaderRepository({
-                    columns: this.generateHeaders('C', 4, 4, 4),
-                    rows: this.generateHeaders('R', 10, 4, 2),
-                    columnWidth: 100,
-                    rowHeight: 24,
-                    headersHeight: 24,
-                    headersWidth: 50
-                })
-            } as HistoryState],
-            index: 0,
-            input: ''
-        };
-    }
-
     /**
-     * viewIndex is undefined for parent headers
+     * Note: viewIndex is undefined for parent headers
      */
     renderHeader = ({ style, type, selection, viewIndex, header, theme }: IHeaderRendererEvent) => {
         const nextStyle: React.CSSProperties = {
@@ -90,61 +89,12 @@ export class GroupedHeadersExample extends AutosizingGridExample {
             nextStyle.alignItems = 'flex-start';
         }
 
-        let caption = (
-            viewIndex == null
-                ? header.caption
-                : type === HeaderType.Column
-                    ? this.excelIndex(viewIndex)
-                    : viewIndex
-        );
-
         return (
             <div style={nextStyle}>
-                {caption}
+                {this.getHeaderCaption(header, type)}
                 <Resizer header={header} />
             </div>
         );
-    }
-
-    autoMeasure = ({ cells, headers, callback }: ICellsMeasureEvent) => {
-        const ctx = document.createElement('canvas').getContext('2d');
-        ctx.font = `12px "Open Sans", Verdana, Geneva, Tahoma, sans-serif`;
-
-        let measuredCells = cells.map(({ column, row, source }) => {
-            const value = this.renderCellValue(column, row, source);
-
-            if (value == null || value === '') {
-                return null;
-            }
-
-            return {
-                row: row,
-                column: column,
-                height: 0,
-                width: ctx.measureText(String(value)).width + 10
-            } as ICellMeasureResult;
-        });
-
-        let measuredLevels = headers.map(({ index, header, type }) => {
-            let caption = (
-                index == null
-                    ? header.caption
-                    : type === HeaderType.Column
-                        ? this.excelIndex(index)
-                        : index
-            );
-
-            const text = String(caption);
-
-            const width = ctx.measureText(String(text)).width + 10;
-
-            return {
-                header, width,
-                height: this.currentState.headers.headersHeight // default row height
-            };
-        });
-
-        callback({ cells: measuredCells, headers: measuredLevels });
     }
 
     renderGrid() {
@@ -161,6 +111,8 @@ export class GroupedHeadersExample extends AutosizingGridExample {
                 onRenderEditor={this.editorRenderer}
                 onNullify={this.onNullify}
                 onUpdate={this.onUpdate}
+                onCopy={this._cpb.onCopy}
+                onPaste={this._cpb.onPaste}
                 onRenderResizer={this.renderResizer}
                 onHeaderResize={this.resizeHeaders}
                 onAutoMeasure={this.autoMeasure}
@@ -169,4 +121,3 @@ export class GroupedHeadersExample extends AutosizingGridExample {
     }
 }
 
-export default GroupedHeadersExample;

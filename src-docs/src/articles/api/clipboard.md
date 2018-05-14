@@ -35,6 +35,7 @@ interface ICopyPasteRenderCellEvent {
 ```typescript
 interface ICopyPasteRenderHeaderEvent {
     header: IHeader;
+    type: HeaderType;
 }
 ```
 

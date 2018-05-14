@@ -20,7 +20,7 @@ const REQUIRED_THEME: IGridTheme = {
         background: '#363944',
         color: '#DBDADD',
         boxSizing: 'border-box'
-    },
+    }
 };
 
 const THEME = {

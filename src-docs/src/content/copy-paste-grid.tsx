@@ -1,27 +1,33 @@
 import * as React from 'react';
 import * as PapaParse from 'papaparse';
 import Grid, { ClipboardController } from 'react-bolivianite-grid';
-import ExpandCollapseExample from './expand-collapse-grid';
+import EditableGrid from './editable-grid';
 import Theme from './style';
 
-export class CopyPasteExample extends ExpandCollapseExample {
-    private _cpb: ClipboardController;
+export default class extends EditableGrid {
+    protected _cpb: ClipboardController;
 
     constructor(_p: any, _c: any) {
         super(_p, _c);
 
         this._cpb = new ClipboardController({
-            renderHeader: ({ header }) => {
-                return header.caption;
+            // Rendering header on copy event
+            renderHeader: ({ header, type }) => {
+                return this.getHeaderCaption(header, type);
             },
-            renderCell: ({ cell, source }) => {
-                return this.renderCellValue(cell.column, cell.row, source);
+            // Rendering cell on copy event
+            renderCell: ({ cell, source, headers }) => {
+                let rowHeader = headers.rows[cell.row];
+                let colHeader = headers.columns[cell.column];
+                return this.getValue(rowHeader, colHeader, source);
             },
+            // Parsing clipboard on paste event
             clipboardParser: (transfer) => {
                 let text = transfer.getData('Text') || '';
                 let { data } = PapaParse.parse(text, { delimiter: '\t' });
                 return data || [];
             },
+            // Parsing cell on paste event
             cellParser: ({ value }) => {
                 return value;
             },
@@ -56,10 +62,7 @@ export class CopyPasteExample extends ExpandCollapseExample {
                         return;
                     }
 
-                    const c = headers.columns[column].caption;
-                    const r = headers.rows[row].caption;
-                    const key = `${r} x ${c}`;
-                    data[key] = value;
+                    data[this.getDataKey(row, column)] = value;
                 });
 
                 this.pushHistory({ data, headers });
@@ -81,9 +84,6 @@ export class CopyPasteExample extends ExpandCollapseExample {
                 onRenderEditor={this.editorRenderer}
                 onNullify={this.onNullify}
                 onUpdate={this.onUpdate}
-                onRenderResizer={this.renderResizer}
-                onHeaderResize={this.resizeHeaders}
-                onAutoMeasure={this.autoMeasure}
                 onCopy={this._cpb.onCopy}
                 onPaste={this._cpb.onPaste}
             />
@@ -91,4 +91,3 @@ export class CopyPasteExample extends ExpandCollapseExample {
     }
 }
 
-export default CopyPasteExample;

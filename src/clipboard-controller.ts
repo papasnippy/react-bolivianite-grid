@@ -1,4 +1,4 @@
-import { IGridAddress, IGridCopyEvent, IGridPasteEvent, IHeader } from './types';
+import { IGridAddress, IGridCopyEvent, IGridPasteEvent, IHeader, HeaderType } from './types';
 import { HeaderRepository } from './header-repository';
 
 export interface ICopyPasteRenderCellEvent {
@@ -9,6 +9,7 @@ export interface ICopyPasteRenderCellEvent {
 
 export interface ICopyPasteRenderHeaderEvent {
     header: IHeader;
+    type: HeaderType;
 }
 
 export interface ICopyPasteResultEvent {
@@ -67,13 +68,13 @@ export class ClipboardController {
         return table.filter(v => !!v).map(r => r.filter(c => !!c));
     }
 
-    private _renderHeader(header: IHeader, lock: { [headerId: string]: boolean }) {
+    private _renderHeader(header: IHeader, type: HeaderType, lock: { [headerId: string]: boolean }) {
         if (lock[header.$id]) {
             return '';
         }
 
         lock[header.$id] = true;
-        return this.props.renderHeader({ header });
+        return this.props.renderHeader({ header, type });
     }
 
     private _transpose(table: any[][]) {
@@ -117,7 +118,7 @@ export class ClipboardController {
 
                 do {
                     top[level] = top[level] || new Array(columnLen).fill('');
-                    top[level][c] = this._renderHeader(h, lock);
+                    top[level][c] = this._renderHeader(h, headers.getHeaderType(h), lock);
                 } while (level-- , h = headers.getParent(h));
             });
 
@@ -128,7 +129,7 @@ export class ClipboardController {
 
                 do {
                     left[level] = left[level] || new Array(rowLen).fill('');
-                    left[level][r] = this._renderHeader(h, lock);
+                    left[level][r] = this._renderHeader(h, headers.getHeaderType(h), lock);
                 } while (level-- , h = headers.getParent(h));
             });
 

@@ -2,44 +2,15 @@ import * as React from 'react';
 import Grid, {
     HeaderType, IHeaderRendererEvent, Resizer, IResizerRenderEvent, IGridResizeCombinedEvent
 } from 'react-bolivianite-grid';
-import EditableGrid from './editable-grid';
+import CopyPasteExample from './copy-paste-grid';
 import Theme from './style';
 
-export class ResizingGridExample extends EditableGrid {
-    renderHeader = ({ style, type, selection, viewIndex, theme, header }: IHeaderRendererEvent) => {
-        const nextStyle: React.CSSProperties = {
-            ...style,
-            ...theme.headerStyle
-        };
-
-        switch (type) {
-            case HeaderType.Row:
-                nextStyle.borderBottomColor = theme.headerBorderColor;
-                break;
-
-            case HeaderType.Column:
-                nextStyle.borderRightColor = theme.headerBorderColor;
-                break;
-        }
-
-        if (selection) {
-            nextStyle.background = theme.headerBackgroundColorSelected;
-        }
-
-        nextStyle.justifyContent = type === HeaderType.Row ? 'flex-end' : 'center';
-
-        return (
-            <div style={nextStyle}>
-                {
-                    type === HeaderType.Column && viewIndex != null
-                        ? this.excelIndex(viewIndex)
-                        : viewIndex
-                }
-                <Resizer header={header} />
-            </div>
-        );
+export default class extends CopyPasteExample {
+    renderAdditionalHeaderContent ({ header }: IHeaderRendererEvent) {
+        return <Resizer header={header} />;
     }
 
+    /** Render simple resizing indication. */
     renderResizer = ({ style, theme }: IResizerRenderEvent) => {
         style.background = theme.resizerBackground;
         return (
@@ -47,6 +18,7 @@ export class ResizingGridExample extends EditableGrid {
         );
     }
 
+    /** Update header repository on resize. */
     resizeHeaders = ({ headers, levels, behavior }: IGridResizeCombinedEvent) => {
         const state = this.currentState;
         let next = state.headers;
@@ -92,6 +64,8 @@ export class ResizingGridExample extends EditableGrid {
                 onRenderEditor={this.editorRenderer}
                 onNullify={this.onNullify}
                 onUpdate={this.onUpdate}
+                onCopy={this._cpb.onCopy}
+                onPaste={this._cpb.onPaste}
                 onRenderResizer={this.renderResizer}
                 onHeaderResize={this.resizeHeaders}
             />
@@ -99,4 +73,3 @@ export class ResizingGridExample extends EditableGrid {
     }
 }
 
-export default ResizingGridExample;

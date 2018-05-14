@@ -1,70 +1,10 @@
 import * as React from 'react';
 import {
-    HeaderRepository, Resizer, IHeaderRendererEvent, HeaderType, ICellMeasureResult,
-    ICellsMeasureEvent, IGridUpdateEvent, IGridNullifyEvent
+    Resizer, IHeaderRendererEvent, HeaderType
 } from 'react-bolivianite-grid';
-import { HistoryState } from './base-example';
 import GroupedHeadersExample from './grouped-headers-grid';
 
-export class ExpandCollapseExample extends GroupedHeadersExample {
-    getInitialState() {
-        return {
-            history: [{
-                data: {} as {
-                    [key: string]: string;
-                },
-                headers: new HeaderRepository({
-                    columns: this.generateHeaders('C', 2, 3, 4),
-                    rows: this.generateHeaders('R', 3, 4, 5),
-                    columnWidth: 100,
-                    rowHeight: 24,
-                    headersHeight: 24,
-                    headersWidth: 50
-                })
-            } as HistoryState],
-            index: 0,
-            input: ''
-        };
-    }
-
-    renderCellValue(columnIndex: number, rowIndex: number, source: any) {
-        const ctr = this.currentState.headers;
-        const col = ctr.columns[columnIndex].caption;
-        const row = ctr.rows[rowIndex].caption;
-        const key = `${row} x ${col}`;
-        return source[key] === void 0 ? key : source[key];
-    }
-
-    onNullify = ({ cells }: IGridNullifyEvent) => {
-        let data = {
-            ...this.currentState.data
-        };
-
-        cells.forEach(({ column, row }) => {
-            const ctr = this.currentState.headers;
-            const c = ctr.columns[column].caption;
-            const r = ctr.rows[row].caption;
-            const key = `${r} x ${c}`;
-            data[key] = null;
-        });
-
-        this.pushHistory({ data });
-    }
-
-    onUpdate = ({ cell, value }: IGridUpdateEvent) => {
-        const ctr = this.currentState.headers;
-        const col = ctr.columns[cell.column].caption;
-        const row = ctr.rows[cell.row].caption;
-        const key = `${row} x ${col}`;
-
-        this.pushHistory({
-            data: {
-                ...this.currentState.data,
-                [key]: value
-            }
-        });
-    }
-
+export default class extends GroupedHeadersExample {
     renderHeader = ({ style, type, selection, header, theme }: IHeaderRendererEvent) => {
         const nextStyle: React.CSSProperties = {
             ...style,
@@ -90,7 +30,6 @@ export class ExpandCollapseExample extends GroupedHeadersExample {
         if (selection) {
             nextStyle.background = theme.headerBackgroundColorSelected;
         }
-
 
         return (
             <div style={nextStyle}>
@@ -133,37 +72,4 @@ export class ExpandCollapseExample extends GroupedHeadersExample {
             </div>
         );
     }
-
-    autoMeasure = ({ cells, headers, callback }: ICellsMeasureEvent) => {
-        const ctx = document.createElement('canvas').getContext('2d');
-        ctx.font = `12px "Open Sans", Verdana, Geneva, Tahoma, sans-serif`;
-
-        let measuredCells = cells.map(({ column, row, source }) => {
-            const value = this.renderCellValue(column, row, source);
-
-            if (value == null || value === '') {
-                return null;
-            }
-
-            return {
-                row: row,
-                column: column,
-                height: 0,
-                width: ctx.measureText(String(value)).width + 10
-            } as ICellMeasureResult;
-        });
-
-        let measuredHeaders = headers.map(({ header }) => {
-            const width = ctx.measureText(String(header.caption)).width + 10 + (header.$children && header.$children.length ? 20 : 0);
-
-            return {
-                header, width,
-                height: this.currentState.headers.headersHeight // default row height
-            };
-        });
-
-        callback({ cells: measuredCells, headers: measuredHeaders });
-    }
 }
-
-export default ExpandCollapseExample;

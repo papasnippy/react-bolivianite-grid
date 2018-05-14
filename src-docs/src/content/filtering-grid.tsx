@@ -1,7 +1,6 @@
 import * as React from 'react';
-import EditableGrid from './editable-grid';
-import { HistoryState } from './base-example';
-import { HeaderType, HeaderRepository, IGridUpdateEvent } from 'react-bolivianite-grid';
+import CopyPasteExample from './copy-paste-grid';
+import { HeaderType, HeaderRepository, IHeader } from 'react-bolivianite-grid';
 
 const INPUT_STYLE: React.CSSProperties = {
     margin: 0,
@@ -18,48 +17,37 @@ const INPUT_STYLE: React.CSSProperties = {
     borderRadius: 4
 };
 
-export class FilteringGridExample extends EditableGrid {
-    getInitialState() {
-        return {
-            history: [{
-                data: {} as {
-                    [key: string]: string;
-                },
-                headers: new HeaderRepository({
-                    columns: new Array(100).fill(null).map((_, i) => ({ caption: `C${i + 1}`, index: i })),
-                    rows: new Array(200).fill(null).map((_, i) => ({ caption: `R${i + 1}`, index: i })),
-                    columnWidth: 100,
-                    rowHeight: 24,
-                    headersHeight: 24,
-                    headersWidth: 50
+export default class extends CopyPasteExample {
+    generateHeaders(rows: number, columns: number) {
+        const colHeaders = (
+            new Array(columns)
+                .fill(null)
+                .map((_, i) => {
+                    return {
+                        colIndex: i,
+                        caption: `C${i}`
+                    } as IHeader;
                 })
-            } as HistoryState],
-            index: 0,
-            input: ''
-        };
-    }
+        );
 
-    renderCellValue(columnIndex: number, rowIndex: number, source: any) {
-        const { headers } = this.currentState;
-        const rh = headers.rows[rowIndex];
-        const ch = headers.columns[columnIndex];
+        const rowlHeaders = (
+            new Array(rows)
+                .fill(null)
+                .map((_, i) => {
+                    return {
+                        rowIndex: i,
+                        caption: `R${i}`
+                    } as IHeader;
+                })
+        );
 
-        const key = `${rh.caption} x ${ch.caption}`;
-        return source[key] === void 0 ? key : source[key];
-    }
-
-    onUpdate = ({ cell, value }: IGridUpdateEvent) => {
-        let { column, row } = cell;
-        const { headers } = this.currentState;
-        const rh = headers.rows[row];
-        const ch = headers.columns[column];
-        let key = `${rh.caption} x ${ch.caption}`;
-
-        this.pushHistory({
-            data: {
-                ...this.currentState.data,
-                [key]: value
-            }
+        return new HeaderRepository({
+            columns: colHeaders,
+            rows: rowlHeaders,
+            columnWidth: 100,
+            rowHeight: 24,
+            headersHeight: 24,
+            headersWidth: 50
         });
     }
 
@@ -94,5 +82,3 @@ export class FilteringGridExample extends EditableGrid {
         );
     }
 }
-
-export default FilteringGridExample;
