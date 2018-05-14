@@ -6,7 +6,7 @@ export default (
             Group('examples', 'Examples')
                 .append(Article('simple', 'Simple', require('./examples/simple.md')))
                 .append(Article('editable', 'Editable', require('./examples/editable.md')))
-                .append(Article('clipboard', 'Copy and paste', require('./examples/clipboard.md')))
+                .append(Article('copy-and-paste', 'Copy and paste', require('./examples/copy-and-paste.md')))
                 .append(Article('filtering', 'Filtering', require('./examples/filtering.md')))
                 .append(Article('resizing', 'Resizing', require('./examples/resizing.md')))
                 .append(Article('autosizing', 'Autosizing', require('./examples/autosizing.md')))
