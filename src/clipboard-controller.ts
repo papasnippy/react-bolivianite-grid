@@ -1,10 +1,10 @@
-import { IGridAddress, IGridCopyEvent, IGridPasteEvent } from '../components';
-import { HeadersContainer, IHeader } from '../models';
+import { IGridAddress, IGridCopyEvent, IGridPasteEvent, IHeader } from './types';
+import { HeaderRepository } from './header-repository';
 
 export interface ICopyPasteRenderCellEvent {
     cell: IGridAddress;
     source: any;
-    headers: HeadersContainer;
+    headers: HeaderRepository;
 }
 
 export interface ICopyPasteRenderHeaderEvent {

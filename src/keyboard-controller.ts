@@ -1,6 +1,6 @@
 import { KeyboardEvent } from 'react';
-import { IGridAddress, IGridSelection } from '../components';
-import { Controller, IControllerProps } from './controller';
+import { IGridAddress, IGridSelection } from './types';
+import { Controller, IControllerProps } from './base-controller';
 
 export interface IKeyboardControllerRemoveEvent {
     rows: number[];
@@ -825,3 +825,5 @@ export class KeyboardController extends Controller {
         document.body.removeEventListener('paste', this._paste);
     }
 }
+
+export default KeyboardController;

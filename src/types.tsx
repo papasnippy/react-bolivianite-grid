@@ -1,6 +1,33 @@
-import { IHeader, HeaderResizeBehavior, HeadersContainer, HeaderType } from '../models';
-import { IKeyboardControllerRemoveEvent, IKeyboardControllerPasteEvent } from '../controllers';
-import { IScrollViewThemingProps, IScrollViewInterface } from './scrollview';
+import { HeaderRepository } from './header-repository';
+import { IKeyboardControllerRemoveEvent, IKeyboardControllerPasteEvent } from './keyboard-controller';
+import { IScrollViewInterface } from './scroll-view';
+
+export enum HeaderType {
+    Row = 1,
+    Column
+}
+
+export interface IHeader {
+    /** Unique header identifier for **all** headers in repository.
+     * Do not edit. Assigned by repository if not provided.
+     * Can be assigned once before used. */
+    $id?: number | string;
+    /** List of children headers. */
+    $children?: IHeader[];
+    /** Size of current header. */
+    $size?: number;
+    /** Size of current header when collapsed. */
+    $sizeCollapsed?: number;
+    /** Filter flag. */
+    $collapsed?: boolean;
+
+    /** Any other custom properties. */
+    [prop: string]: any;
+}
+
+export type HeaderResizeBehavior = 'auto' | 'manual' | 'reset';
+export type HeaderFilter = (props: { header: IHeader, type: HeaderType }) => boolean;
+export type HeaderClampFunction = (props: { header: IHeader, type: HeaderType, size: number }) => number;
 
 export interface IGridSelection {
     row: number;
@@ -132,7 +159,7 @@ export interface IGridNullifyEvent extends IGridSpaceEvent { }
 export interface IGridCopyEvent {
     cells: IGridAddress[];
     source: any;
-    headers: HeadersContainer;
+    headers: HeaderRepository;
     withHeaders: boolean;
     focus: () => void;
 }
@@ -156,7 +183,7 @@ export interface IGridResizeCombinedEvent {
 }
 
 export interface IGridPasteEvent extends IKeyboardControllerPasteEvent {
-    headers: HeadersContainer;
+    headers: HeaderRepository;
     source: any;
     target: IGridAddress;
 }
@@ -176,7 +203,7 @@ export interface IGridSelectionChangeEvent {
     active: IGridSelection[];
 }
 
-export interface IGridTheme extends IScrollViewThemingProps {
+export interface IGridTheme {
     classNameGrid?: string;
     classNameGridCorner?: string;
     classNameGridRows?: string;
@@ -193,8 +220,8 @@ export interface IGridTheme extends IScrollViewThemingProps {
 export interface IGridProps {
     tabIndex?: number;
 
-    /** Reference to headers container. */
-    headers: HeadersContainer;
+    /** Reference to headers repository. */
+    headers: HeaderRepository;
 
     /** Not used directly by Component, but provided to the cell renderer. */
     source?: any;

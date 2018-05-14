@@ -1,12 +1,12 @@
 import * as React from 'react';
 import Grid, {
-    HeadersContainer, HeaderType, ICellRendererEvent, IHeaderRendererEvent, ISelectionRendererEvent
+    HeaderRepository, HeaderType, ICellRendererEvent, IHeaderRendererEvent, ISelectionRendererEvent
 } from 'react-bolivianite-grid';
 import Theme from './style';
 
 export class SimpleGridExample extends React.Component {
     state = {
-        headers: new HeadersContainer({
+        headers: new HeaderRepository({
             columns: new Array(100).fill(null).map(() => ({})),
             rows: new Array(200).fill(null).map(() => ({})),
             columnWidth: 100,

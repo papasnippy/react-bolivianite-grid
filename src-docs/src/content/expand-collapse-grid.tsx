@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-    HeadersContainer, Resizer, IHeaderRendererEvent, HeaderType, ICellMeasureResult,
+    HeaderRepository, Resizer, IHeaderRendererEvent, HeaderType, ICellMeasureResult,
     ICellsMeasureEvent, IGridUpdateEvent, IGridNullifyEvent
 } from 'react-bolivianite-grid';
 import { HistoryState } from './base-example';
@@ -13,7 +13,7 @@ export class ExpandCollapseExample extends GroupedHeadersExample {
                 data: {} as {
                     [key: string]: string;
                 },
-                headers: new HeadersContainer({
+                headers: new HeaderRepository({
                     columns: this.generateHeaders('C', 2, 3, 4),
                     rows: this.generateHeaders('R', 3, 4, 5),
                     columnWidth: 100,

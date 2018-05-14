@@ -1,5 +1,5 @@
 import { KeyboardEvent, MouseEvent } from 'react';
-import { IGridAddress, IGridSelection, IGridView } from '../components';
+import { IGridAddress, IGridSelection, IGridView } from './types';
 
 const IS_MACOS = navigator.platform.slice(0, 3) === 'Mac';
 

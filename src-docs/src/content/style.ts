@@ -1,7 +1,7 @@
 import { IGridTheme } from 'react-bolivianite-grid';
 
 const REQUIRED_THEME: IGridTheme = {
-    styleScroller: {
+    styleGrid: {
         background: '#FFFFFF'
     },
     styleGridColumns: {
@@ -25,8 +25,6 @@ const REQUIRED_THEME: IGridTheme = {
 
 const THEME = {
     ...REQUIRED_THEME,
-
-    classNameScrollerContainer: 'example-grid',
 
     // Custom grid theme properties
     cellBackgroundEven: '#EFEFEF',

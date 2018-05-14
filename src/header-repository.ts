@@ -1,20 +1,16 @@
-import { IHeader, HeaderType } from './header';
+import { IHeader, HeaderType, HeaderResizeBehavior, HeaderFilter, HeaderClampFunction } from './types';
 
-export type HeaderResizeBehavior = 'auto' | 'manual' | 'reset';
-export type HeaderContainerFilter = (props: { header: IHeader, type: HeaderType }) => boolean;
-export type HeaderClampFunction = (props: { header: IHeader, type: HeaderType, size: number }) => number;
-
-export interface IContainerProps {
+export interface IHeaderRepositoryProps {
     rows: IHeader[];
     columns: IHeader[];
     columnWidth: number;
     rowHeight: number;
     headersHeight: number;
     headersWidth: number;
-    filter?: HeaderContainerFilter;
+    filter?: HeaderFilter;
 }
 
-export interface IContainerState extends IContainerProps {
+export interface IHeaderRepositoryState extends IHeaderRepositoryProps {
     viewColumns: IHeader[];
     viewRows: IHeader[];
     viewLeftLevels: number;
@@ -30,14 +26,14 @@ export interface IContainerState extends IContainerProps {
     levelManualResized: { [headerId: string]: boolean };
 }
 
-export class HeadersContainer {
+export class HeaderRepository {
     private _idCounter = 0;
-    private _state: IContainerState;
+    private _state: IHeaderRepositoryState;
     private _idMap: { [id: string]: IHeader; } = {};
     private _headersWidth = 0;
     private _headersHeight = 0;
 
-    constructor(props: IContainerProps) {
+    constructor(props: IHeaderRepositoryProps) {
         if (!props) {
             return;
         }
@@ -134,7 +130,7 @@ export class HeadersContainer {
         list: IHeader[],
         out: IHeader[],
         type: HeaderType,
-        filter?: HeaderContainerFilter,
+        filter?: HeaderFilter,
         assignParent?: IHeader
     ) {
         list.forEach((h) => {
@@ -162,7 +158,7 @@ export class HeadersContainer {
     }
 
     private _createClone() {
-        let c = new HeadersContainer(null);
+        let c = new HeaderRepository(null);
 
         c._state = {
             ...this._state,
@@ -588,10 +584,11 @@ export class HeadersContainer {
             headersHeight: this._state.headersHeight,
             headersWidth: this._state.headersWidth,
             filter: this._state.filter
-        } as IContainerProps;
+        } as IHeaderRepositoryProps;
     }
 
-    public updateFilter(filter: HeaderContainerFilter) {
+    /** Create clone of repository with new applied filter. */
+    public updateFilter(filter: HeaderFilter) {
         if (this._state.filter === filter) {
             return this;
         }
@@ -601,6 +598,7 @@ export class HeadersContainer {
         return next._recalcHeaders();
     }
 
+    /** Update provided headers. Returns new perository. */
     public updateHeaders(updates: { header: IHeader, update: IHeader }[]) {
         let mapColumns: {
             [branchName: string]: {
@@ -634,7 +632,7 @@ export class HeadersContainer {
     }
 
     /**
-     * Resize all provided headers.
+     * Resize all headers.
      * @param list Array of headers.
      * @param clamp Size clamp function.
      * @param behavior Defines flag when header was resized by autosize or manually.
@@ -690,6 +688,7 @@ export class HeadersContainer {
         return c;
     }
 
+    /** Resize header levels, returns new repository. */
     public resizeLevels({ levels, behavior }: {
         levels: {
             type: HeaderType;
@@ -731,7 +730,8 @@ export class HeadersContainer {
         return next._recalcHeaders();
     }
 
-    public update(props: IContainerProps) {
+    /** Update repository with new state properties. Returns new repository. */
+    public update(props: IHeaderRepositoryProps) {
         let next = this._createClone();
 
         next._state = {
@@ -742,3 +742,5 @@ export class HeadersContainer {
         return next._recalcHeaders();
     }
 }
+
+export default HeaderRepository;

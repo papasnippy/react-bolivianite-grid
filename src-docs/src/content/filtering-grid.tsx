@@ -1,7 +1,7 @@
 import * as React from 'react';
 import EditableGrid from './editable-grid';
 import { HistoryState } from './base-example';
-import { HeaderType, HeadersContainer, IGridUpdateEvent } from 'react-bolivianite-grid';
+import { HeaderType, HeaderRepository, IGridUpdateEvent } from 'react-bolivianite-grid';
 
 const INPUT_STYLE: React.CSSProperties = {
     margin: 0,
@@ -25,7 +25,7 @@ export class FilteringGridExample extends EditableGrid {
                 data: {} as {
                     [key: string]: string;
                 },
-                headers: new HeadersContainer({
+                headers: new HeaderRepository({
                     columns: new Array(100).fill(null).map((_, i) => ({ caption: `C${i + 1}`, index: i })),
                     rows: new Array(200).fill(null).map((_, i) => ({ caption: `R${i + 1}`, index: i })),
                     columnWidth: 100,

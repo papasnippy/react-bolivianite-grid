@@ -36,7 +36,7 @@
         border-top: solid 1px var(--color--accent);
         box-shadow: var(--shadow--medium);
         &.code,
-        :global(.example-grid) {
+        react-bolivianite-grid > div > div {
             overflow: auto;
             &::-webkit-scrollbar {
                 background: var(--color--accent);

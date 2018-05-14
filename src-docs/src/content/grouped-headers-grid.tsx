@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Grid, {
-    Resizer, HeadersContainer, IHeader, IHeaderRendererEvent, HeaderType,
+    Resizer, HeaderRepository, IHeader, IHeaderRendererEvent, HeaderType,
     ICellsMeasureEvent, ICellMeasureResult
 } from 'react-bolivianite-grid';
 import { HistoryState } from './base-example';
@@ -36,7 +36,7 @@ export class GroupedHeadersExample extends AutosizingGridExample {
                 data: {} as {
                     [key: string]: string;
                 },
-                headers: new HeadersContainer({
+                headers: new HeaderRepository({
                     columns: this.generateHeaders('C', 4, 4, 4),
                     rows: this.generateHeaders('R', 10, 4, 2),
                     columnWidth: 100,

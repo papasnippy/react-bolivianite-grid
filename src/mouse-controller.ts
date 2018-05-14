@@ -1,7 +1,6 @@
 import { MouseEvent } from 'react';
-import { IGridAddress } from '../components';
-import { HeaderType } from '../models';
-import { Controller, IControllerProps } from './controller';
+import { IGridAddress, HeaderType } from './types';
+import { Controller, IControllerProps } from './base-controller';
 
 export interface IMouseControllerProps extends IControllerProps {
     onRightClick: (cell: IGridAddress, event: React.MouseEvent<HTMLElement>) => void;
@@ -251,3 +250,5 @@ export class MouseController extends Controller {
         window.removeEventListener('mouseup', this._mouseup);
     }
 }
+
+export default MouseController;

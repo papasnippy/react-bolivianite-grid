@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { HeadersContainer, IHeader, HeaderType } from '../models';
-import { Grid } from '../components/grid';
+import { IHeader, HeaderType } from './types';
+import HeaderRepository from './header-repository';
+import Grid from './grid';
 import Context from './context';
 
 export interface IResizerProps {
@@ -41,7 +42,7 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
     private _escListener: any = null;
     private _moved = false;
     private _grid: Grid;
-    private _headers: HeadersContainer;
+    private _headers: HeaderRepository;
 
     private _unbind() {
         if (this._moving) {
@@ -242,3 +243,5 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
         );
     }
 }
+
+export default Resizer;

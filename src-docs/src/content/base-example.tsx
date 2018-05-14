@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { HeadersContainer } from 'react-bolivianite-grid';
+import { HeaderRepository } from 'react-bolivianite-grid';
 const Style = require('./style.scss');
 const IS_MACOS = navigator.platform.slice(0, 3) === 'Mac';
 
@@ -18,7 +18,7 @@ export interface HistoryState {
     data?: {
         [key: string]: string;
     };
-    headers?: HeadersContainer;
+    headers?: HeaderRepository;
 }
 
 export interface IBaseExampleProps {
@@ -50,7 +50,7 @@ export class BaseExample extends React.Component<IBaseExampleProps, any> {
                 data: {} as {
                     [key: string]: string;
                 },
-                headers: new HeadersContainer({
+                headers: new HeaderRepository({
                     columns: new Array(100).fill(null).map(() => ({})),
                     rows: new Array(200).fill(null).map(() => ({})),
                     columnWidth: 100,

@@ -19,10 +19,10 @@ Grid does not support infinity scrolling. At least for now.
 | Property name | Type | Required? | Description |
 |:---|:---|:---:|:---|
 |tabIndex|number||Root component tab index attribute. Default = -1.|
-|headers|[HeadersContainer](/api/headers)|✓|Headers container object. Contains all headers and it's state. Read [this](/api/headers) for details.|
+|headers|[HeaderRepository](/api/headers)|✓|Read [this](/api/headers) article for details.|
 |source|any||Data source. Not used directly, only passed to all other grid properties. Can be any type.|
 |readOnly|boolean||Sets grid to readonly mode.|
-|overscanRows<br>overscanColumns|number||By default grid renders only exact amount of row and columns that fits into viewport. This setting can expand this range.|
+|overscanRows<br>overscanColumns|number||Grid renders only exact amount of row and columns that fits into viewport by default. This setting can expand this range.|
 |theme|[IGridTheme](#IGridTheme)||Grid theme. Used to define classnames and styles for grid parts, also provided to header and cell renderers.|
 
 
@@ -94,14 +94,11 @@ interface IGridTheme {
     classNameGridCorner?: string;
     classNameGridRows?: string;
     classNameGridColumns?: string;
-    classNameScroller?: string;
-    classNameScrollerContainer?: string;
 
     styleGrid?: React.CSSProperties;
     styleGridCorner?: React.CSSProperties;
     styleGridRows?: React.CSSProperties;
     styleGridColumns?: React.CSSProperties;
-    styleScroller?: React.CSSProperties;
 
     [key: string]: any;
 }
@@ -266,7 +263,7 @@ interface IGridNullifyEvent {
 interface IGridCopyEvent {
     cells: IGridAddress[];
     source: any;
-    headers: HeadersContainer;
+    headers: HeaderRepository;
     // This flag shows, that cells must be copied with headers
     withHeaders: boolean;
     // Focus grid callback
@@ -277,7 +274,7 @@ interface IGridCopyEvent {
 #### <a name="IGridPasteEvent"></a>
 ```typescript
 interface IGridPasteEvent {
-    headers: HeadersContainer;
+    headers: HeaderRepository;
     source: any;
     target: IGridAddress;
 }

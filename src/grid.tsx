@@ -1,19 +1,28 @@
 import * as React from 'react';
-import FallbackScrollView, { IScrollViewUpdateEvent } from './scrollview';
-import { IHeader, HeaderResizeBehavior, HeaderType } from '../models';
-import {
-    debounce, RenderThrottler, KeyboardController,
-    IUpdateSelectionEvent, IKeyboardControllerRemoveEvent,
-    MouseController, IKeyboardControllerPasteEvent
-} from '../controllers';
+import FallbackScrollView, { IScrollViewUpdateEvent } from './scroll-view';
+import KeyboardController, { IKeyboardControllerRemoveEvent, IKeyboardControllerPasteEvent } from './keyboard-controller';
+import MouseController from './mouse-controller';
+import RenderThrottler from './render-throttler';
+import debounce from './debounce';
+import { IUpdateSelectionEvent } from './base-controller';
+
 import {
     IGridProps, IGridResizeCombinedEvent, IMeasureResult, ICellRenderBaseEvent, ICellRendererEvent,
-    IGridAddress, IGridSelection, IGridView, IGridOverscan
+    IGridAddress, IGridSelection, IGridView, IGridOverscan, IHeader, HeaderType, HeaderResizeBehavior
 } from './types';
 
 import Context from './context';
 
+declare global {
+    namespace JSX {
+        interface IntrinsicElements {
+            'react-bolivianite-grid': React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
+        }
+    }
+}
+
 export class Grid extends React.PureComponent<IGridProps, any> {
+    //#region properties
     private _detached = false;
     private _blockContextMenu = false;
     private _onContextMenuListener: any = null;
@@ -65,125 +74,37 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         row: -1,
         column: -1
     };
+    //#endregion
 
     constructor(p: IGridProps, c: any) {
         super(p, c);
 
         this._onAfterUpdate = debounce(500, this._onAfterUpdate.bind(this));
 
-        const getState = () => ({
-            active: this.state.active,
-            editor: this.state.edit,
-            selection: this.state.selection,
-            focused: this._focused,
-            columns: this._columnCount,
-            rows: this._rowCount,
-            view: this._lastView,
-            readOnly: this.props.readOnly
-        });
-
-        const onScroll = this.scrollTo.bind(this);
-        const onUpdateSelection = ({ active, selection }: IUpdateSelectionEvent, callback: () => void) => {
-            if (!active && !selection) {
-                return;
-            }
-
-            let nextActive = active || this.state.active;
-            let nextSelection = selection || this.state.selection;
-            let notifyActiveChanged = this._getActiveNotifier(this.state.active, nextActive);
-            let notifySelectionChanged = this._getSelectionNotifier(this.state.selection, nextSelection);
-
-            this.setState({
-                active: nextActive,
-                selection: nextSelection
-            }, () => {
-                if (callback) {
-                    callback();
-                }
-
-                if (notifyActiveChanged) {
-                    notifyActiveChanged();
-                }
-
-                if (notifySelectionChanged) {
-                    notifySelectionChanged();
-                }
-            });
-        };
-
-        const onRightClick = (cell: IGridAddress, event: React.MouseEvent<HTMLElement>) => {
-            if (this.props.onRightClick) {
-                this.props.onRightClick({ cell, event });
-            }
-        };
-
-        const onCopy = (cells: IGridAddress[], withHeaders: boolean) => {
-            if (this.props.onCopy) {
-                this.props.onCopy({
-                    withHeaders, cells,
-                    headers: this.props.headers,
-                    source: this.props.source,
-                    focus: () => { this.focus(); }
-                });
-            }
-        };
-
-        const onPaste = ({ clipboard, getAllSelectedCells, getLastSelectedCells }: IKeyboardControllerPasteEvent) => {
-            if (this.props.onPaste) {
-                this.props.onPaste({
-                    clipboard,
-                    getAllSelectedCells,
-                    getLastSelectedCells,
-                    headers: this.props.headers,
-                    source: this.props.source,
-                    target: {
-                        ...this.state.active
-                    }
-                });
-            }
-        };
-
-        const onNullify = (cells: IGridAddress[]) => {
-            if (this.props.onNullify) {
-                this.props.onNullify({ cells });
-            }
-        };
-
-        const onRemove = (event: IKeyboardControllerRemoveEvent) => {
-            if (this.props.onRemove) {
-                this.props.onRemove(event);
-            }
-        };
-
-        const onSpace = (cells: IGridAddress[]) => {
-            if (this.props.onSpace) {
-                this.props.onSpace({ cells });
-            }
-        };
-
         this._kbCtr = new KeyboardController({
-            getState,
+            getState: this._ctrlGetState,
             onCloseEditor: this.closeEditor,
             onOpenEditor: this.openEditor,
-            onScroll,
-            onUpdateSelection,
-            onCopy,
-            onPaste,
-            onNullify,
-            onRemove,
-            onSpace
+            onScroll: this.scrollTo,
+            onUpdateSelection: this._ctrlOnUpdateSelection,
+            onCopy: this._ctrlCopy,
+            onPaste: this._ctrlPaste,
+            onNullify: this._ctrlNullify,
+            onRemove: this._ctrlRemove,
+            onSpace: this._ctrlSpace
         });
 
         this._msCtr = new MouseController({
-            getState,
+            getState: this._ctrlGetState,
             onCloseEditor: this.closeEditor,
             onOpenEditor: this.openEditor,
-            onScroll,
-            onUpdateSelection,
-            onRightClick
+            onScroll: this.scrollTo,
+            onUpdateSelection: this._ctrlOnUpdateSelection,
+            onRightClick: this._ctrlRightClick
         });
     }
 
+    //#region getters
     private get _theme() {
         let theme = { ...(this.props.theme || {}) };
         theme.styleGrid = theme.styleGrid || {};
@@ -208,7 +129,9 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     private get _headersWidth() {
         return this.props.headers.canvasWidth || 0;
     }
+    //#endregion
 
+    //#region root handlers
     private _onRef = (r: HTMLDivElement) => {
         this._ref = r;
     }
@@ -225,7 +148,62 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         this._focused = true;
     }
 
-    private _getActiveNotifier(prev: IGridAddress, next: IGridAddress) {
+    private _onRootMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.persist();
+        let x = e.clientX;
+        let y = e.clientY;
+        let rect = this._ref.getBoundingClientRect();
+        this._msCtr.rootleave(x, y, rect);
+    }
+
+    private _onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        e.persist();
+        this._kbCtr.keydown(e);
+    }
+
+    private _onRootMouseEnter = () => {
+        this._msCtr.rootenter();
+    }
+
+    private _onRootMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.button === 2) {
+            this._blockContextMenu = true;
+        }
+    }
+
+    private _onScrollViewUpdate = (e: IScrollViewUpdateEvent) => {
+        this._scrollUpdateTrottled(() => {
+            if (this.state.viewWidth !== e.clientWidth
+                || this.state.viewHeight !== e.clientHeight
+                || this.state.scrollLeft !== e.scrollLeft
+                || this.state.scrollTop !== e.scrollTop
+            ) {
+                this.setState({
+                    viewWidth: e.clientWidth,
+                    viewHeight: e.clientHeight,
+                    scrollLeft: e.scrollLeft,
+                    scrollTop: e.scrollTop
+                });
+            }
+        });
+    }
+    //#endregion
+
+    //#region controller handlers
+    private _ctrlGetState = () => {
+        return {
+            active: this.state.active,
+            editor: this.state.edit,
+            selection: this.state.selection,
+            focused: this._focused,
+            columns: this._columnCount,
+            rows: this._rowCount,
+            view: this._lastView,
+            readOnly: this.props.readOnly
+        };
+    }
+
+    private _ctrlGetActiveNotifier(prev: IGridAddress, next: IGridAddress) {
         if (!this.props.onActiveChanged || prev == next || (prev && next && prev.column === next.column && prev.row === next.row)) {
             return null;
         }
@@ -235,7 +213,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         return () => this.props.onActiveChanged({ previous: prev, active: next });
     }
 
-    private _getSelectionNotifier(prev: IGridSelection[], next: IGridSelection[]) {
+    private _ctrlGetSelectionNotifier(prev: IGridSelection[], next: IGridSelection[]) {
         if (!this.props.onSelectionChanged || prev == next) {
             return null;
         }
@@ -256,22 +234,170 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         return () => this.props.onSelectionChanged({ previous: prev, active: next });
     }
 
-    private _onScrollViewUpdate = (e: IScrollViewUpdateEvent) => {
-        this._scrollUpdateTrottled(() => {
-            if (this.state.viewWidth !== e.clientWidth
-                || this.state.viewHeight !== e.clientHeight
-                || this.state.scrollLeft !== e.scrollLeft
-                || this.state.scrollTop !== e.scrollTop
-            ) {
-                this.setState({
-                    viewWidth: e.clientWidth,
-                    viewHeight: e.clientHeight,
-                    scrollLeft: e.scrollLeft,
-                    scrollTop: e.scrollTop
-                });
+    private _ctrlOnUpdateSelection = ({ active, selection }: IUpdateSelectionEvent, callback: () => void) => {
+        if (!active && !selection) {
+            return;
+        }
+
+        let nextActive = active || this.state.active;
+        let nextSelection = selection || this.state.selection;
+        let notifyActiveChanged = this._ctrlGetActiveNotifier(this.state.active, nextActive);
+        let notifySelectionChanged = this._ctrlGetSelectionNotifier(this.state.selection, nextSelection);
+
+        this.setState({
+            active: nextActive,
+            selection: nextSelection
+        }, () => {
+            if (callback) {
+                callback();
+            }
+
+            if (notifyActiveChanged) {
+                notifyActiveChanged();
+            }
+
+            if (notifySelectionChanged) {
+                notifySelectionChanged();
             }
         });
     }
+
+    private _ctrlRightClick = (cell: IGridAddress, event: React.MouseEvent<HTMLElement>) => {
+        if (this.props.onRightClick) {
+            this.props.onRightClick({ cell, event });
+        }
+    }
+
+    private _ctrlCopy = (cells: IGridAddress[], withHeaders: boolean) => {
+        if (this.props.onCopy) {
+            this.props.onCopy({
+                withHeaders, cells,
+                headers: this.props.headers,
+                source: this.props.source,
+                focus: () => { this.focus(); }
+            });
+        }
+    }
+
+    private _ctrlPaste = ({ clipboard, getAllSelectedCells, getLastSelectedCells }: IKeyboardControllerPasteEvent) => {
+        if (this.props.onPaste) {
+            this.props.onPaste({
+                clipboard,
+                getAllSelectedCells,
+                getLastSelectedCells,
+                headers: this.props.headers,
+                source: this.props.source,
+                target: {
+                    ...this.state.active
+                }
+            });
+        }
+    }
+    private _ctrlNullify = (cells: IGridAddress[]) => {
+        if (this.props.onNullify) {
+            this.props.onNullify({ cells });
+        }
+    }
+
+    private _ctrlRemove = (event: IKeyboardControllerRemoveEvent) => {
+        if (this.props.onRemove) {
+            this.props.onRemove(event);
+        }
+    }
+
+    private _ctrlSpace = (cells: IGridAddress[]) => {
+        if (this.props.onSpace) {
+            this.props.onSpace({ cells });
+        }
+    }
+    //#endregion
+
+    //#region elements handlers
+    private _onCellMouseDown = (e: React.MouseEvent<HTMLElement>) => {
+        e.persist();
+        let row = Number(e.currentTarget.getAttribute('x-row'));
+        let column = Number(e.currentTarget.getAttribute('x-col'));
+
+        if (e.button === 1) {
+            this._chromeFix = { row, column };
+        }
+
+        this.focus();
+
+        this._msCtr.mousedown(e, row, column);
+    }
+
+    private _onCellTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+        let row = Number(e.currentTarget.getAttribute('x-row'));
+        let column = Number(e.currentTarget.getAttribute('x-col'));
+
+        this._chromeFix = { row, column };
+
+        this.focus();
+    }
+
+    private _onHeaderMouseDownHeader = (e: React.MouseEvent<HTMLElement>) => {
+        e.persist();
+        let type: HeaderType = Number(e.currentTarget.getAttribute('x-type'));
+        let id = e.currentTarget.getAttribute('x-id');
+        let h = this.props.headers.getHeader(id);
+        this.focus();
+
+        if (!h) {
+            return;
+        }
+
+        if (this.props.onHeaderRightClick) {
+            this.props.onHeaderRightClick({ header: h, event: e });
+
+            if (e.defaultPrevented) {
+                return;
+            }
+        }
+
+        let leaves = this.props.headers.getHeaderLeaves(h);
+        let indices = leaves.map(v => this.props.headers.getViewIndex(v));
+
+        if (!indices.length) {
+            return;
+        }
+
+        let min = Math.min(...indices);
+        let max = Math.max(...indices);
+
+        this._msCtr.headerdown(e, type, min, max);
+    }
+
+    private _onCornerMouseDown = (e: React.MouseEvent<HTMLElement>) => {
+        if (this.state.edit || e.button !== 0) {
+            return;
+        }
+
+        const select = () => {
+            this.setState({
+                selection: [{
+                    row: 0,
+                    column: 0,
+                    width: this._columnCount - 1,
+                    height: this._rowCount - 1
+                }]
+            });
+        };
+
+        if (this.state.edit) {
+            this.closeEditor(true, select);
+            return;
+        }
+
+        select();
+    }
+
+    private _onCellMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
+        let row = Number(e.currentTarget.getAttribute('x-row'));
+        let column = Number(e.currentTarget.getAttribute('x-col'));
+        this._msCtr.mouseenter(row, column);
+    }
+    //#endregion
 
     private _onAutoMeasureApply(
         { cells, headers }: IMeasureResult,
@@ -488,114 +614,6 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         }
     }
 
-    private _onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-        e.persist();
-        this._kbCtr.keydown(e);
-    }
-
-    private _onMouseDown = (e: React.MouseEvent<HTMLElement>) => {
-        e.persist();
-        let row = Number(e.currentTarget.getAttribute('x-row'));
-        let column = Number(e.currentTarget.getAttribute('x-col'));
-
-        if (e.button === 1) {
-            this._chromeFix = { row, column };
-        }
-
-        this.focus();
-
-        this._msCtr.mousedown(e, row, column);
-    }
-
-    private _onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-        let row = Number(e.currentTarget.getAttribute('x-row'));
-        let column = Number(e.currentTarget.getAttribute('x-col'));
-
-        this._chromeFix = { row, column };
-
-        this.focus();
-    }
-
-    private _onMouseDownHeader = (e: React.MouseEvent<HTMLElement>) => {
-        e.persist();
-        let type: HeaderType = Number(e.currentTarget.getAttribute('x-type'));
-        let id = e.currentTarget.getAttribute('x-id');
-        let h = this.props.headers.getHeader(id);
-        this.focus();
-
-        if (!h) {
-            return;
-        }
-
-        if (this.props.onHeaderRightClick) {
-            this.props.onHeaderRightClick({ header: h, event: e });
-
-            if (e.defaultPrevented) {
-                return;
-            }
-        }
-
-        let leaves = this.props.headers.getHeaderLeaves(h);
-        let indices = leaves.map(v => this.props.headers.getViewIndex(v));
-
-        if (!indices.length) {
-            return;
-        }
-
-        let min = Math.min(...indices);
-        let max = Math.max(...indices);
-
-        this._msCtr.headerdown(e, type, min, max);
-    }
-
-    private _onMouseDownCorner = (e: React.MouseEvent<HTMLElement>) => {
-        if (this.state.edit || e.button !== 0) {
-            return;
-        }
-
-        const select = () => {
-            this.setState({
-                selection: [{
-                    row: 0,
-                    column: 0,
-                    width: this._columnCount - 1,
-                    height: this._rowCount - 1
-                }]
-            });
-        };
-
-        if (this.state.edit) {
-            this.closeEditor(true, select);
-            return;
-        }
-
-        select();
-    }
-
-    private _onMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
-        let row = Number(e.currentTarget.getAttribute('x-row'));
-        let column = Number(e.currentTarget.getAttribute('x-col'));
-        this._msCtr.mouseenter(row, column);
-    }
-
-    private _onRootMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-        e.persist();
-        let x = e.clientX;
-        let y = e.clientY;
-        let rect = this._ref.getBoundingClientRect();
-        this._msCtr.rootleave(x, y, rect);
-    }
-
-    private _onRootMouseEnter = () => {
-        this._msCtr.rootenter();
-    }
-
-    private _onRootMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (e.button === 2) {
-            this._blockContextMenu = true;
-        }
-    }
-
     private _createView() {
         const sl = this.state.scrollLeft;
         const st = this.state.scrollTop;
@@ -733,9 +751,9 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             'x-row': row,
             'x-col': col,
             key: `C${row}x${col}`,
-            onMouseDown: this._onMouseDown,
-            onMouseEnter: this._onMouseEnter,
-            onTouchStart: this._onTouchStart
+            onMouseDown: this._onCellMouseDown,
+            onMouseEnter: this._onCellMouseEnter,
+            onTouchStart: this._onCellTouchStart
         });
     }
 
@@ -903,7 +921,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             'x-type': type,
             'x-id': $id,
             key: $id,
-            onMouseDown: this._onMouseDownHeader
+            onMouseDown: this._onHeaderMouseDownHeader
         }));
 
         if (headerParent) {
@@ -1094,7 +1112,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         return jsx;
     }
 
-    private _headersRenderer = (event: IScrollViewUpdateEvent) => {
+    private _renderHeadersLayer = (event: IScrollViewUpdateEvent) => {
         const { clientWidth, clientHeight, scrollLeft, scrollTop } = event;
 
         return (
@@ -1155,7 +1173,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                             height: this.props.headers.canvasHeight,
                             width: this.props.headers.canvasWidth
                         }}
-                        onMouseDown={this._onMouseDownCorner}
+                        onMouseDown={this._onCornerMouseDown}
                     >
                     </div>
                 }
@@ -1207,7 +1225,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
 
     /** TODO: instead of using column index - use cell position and viewport minus scroll size */
-    public scrollTo(cell: { column?: number; row?: number; }) {
+    public scrollTo = (cell: { column?: number; row?: number; }) => {
         const ctr = this.props.headers;
 
         if (!this._refView || !ctr.columns.length || !ctr.rows.length) {
@@ -1412,7 +1430,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         });
     }
 
-    public async componentDidUpdate(pp: IGridProps) {
+    public componentDidUpdate(pp: IGridProps) {
         const isSourceChanged = pp.source !== this.props.source;
         const isHeadersChanged = pp.headers !== this.props.headers;
 
@@ -1438,20 +1456,21 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         return (
             <Context.Provider value={{ grid: this, headers: this.props.headers }}>
-                <div
+                <react-bolivianite-grid
                     className={this._theme.classNameGrid}
                     tabIndex={this.props.tabIndex == null ? -1 : this.props.tabIndex}
                     ref={this._onRef}
                     onBlur={this._onBlur}
                     onFocus={this._onFocus}
                     style={{
+                        display: 'block',
                         height: '100%',
                         width: '100%',
                         position: 'relative',
                         userSelect: 'none',
                         outline: 'none',
-                        ...this._theme.styleGrid,
-                        overflow: 'hidden'
+                        overflow: 'hidden',
+                        ...this._theme.styleGrid
                     }}
                     onKeyDown={this._onKeyDown}
                     onMouseLeave={this._onRootMouseLeave}
@@ -1463,11 +1482,13 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                         ref={this._onRefView}
                         onScroll={this._onScrollViewUpdate}
                         scrollerContainerProps={this._scrollerProps}
-                        headersRenderer={this._headersRenderer}
+                        headersRenderer={this._renderHeadersLayer}
                         bodyRenderer={this._bodyRenderer}
                     />
-                </div>
+                </react-bolivianite-grid>
             </Context.Provider>
         );
     }
 }
+
+export default Grid;

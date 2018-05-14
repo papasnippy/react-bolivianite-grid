@@ -9,13 +9,7 @@ export interface IScrollViewUpdateEvent {
     clientHeight: number;
 }
 
-export interface IScrollViewThemingProps {
-    classNameScroller?: string;
-    classNameScrollerContainer?: string;
-    styleScroller?: React.CSSProperties;
-}
-
-export interface IScrollViewProps extends IScrollViewThemingProps {
+export interface IScrollViewProps {
     scrollerContainerProps?: React.HTMLProps<HTMLDivElement>;
     onScroll: (event: IScrollViewUpdateEvent) => void;
     bodyRenderer: (event: IScrollViewUpdateEvent) => React.ReactNode;
@@ -133,19 +127,16 @@ export class ScrollView extends React.Component<IScrollViewProps, any> implement
 
         return (
             <div
-                className={this.props.classNameScroller}
                 style={{
                     height: '100%',
                     width: '100%',
                     boxSizing: 'border-box',
                     position: 'relative',
-                    overflow: 'hidden',
-                    ...this.props.styleScroller
+                    overflow: 'hidden'
                 }}
             >
                 <div
                     {...this.props.scrollerContainerProps}
-                    className={this.props.classNameScrollerContainer}
                     ref={this._onRef}
                     onScroll={this._onScroll}
                     style={{
