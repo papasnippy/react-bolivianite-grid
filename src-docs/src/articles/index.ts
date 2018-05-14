@@ -1,9 +1,9 @@
-import Article from '~/app/article';
+import { Article, Group } from '~/app/article';
 
 export default (
     Article('', 'Home', require('./index.md'))
         .append(
-            Article('examples', 'Examples', require('./examples/index.md'))
+            Group('examples', 'Examples')
                 .append(Article('simple', 'Simple', require('./examples/simple.md')))
                 .append(Article('editable', 'Editable', require('./examples/editable.md')))
                 .append(Article('filtering', 'Filtering', require('./examples/filtering.md')))
@@ -14,7 +14,7 @@ export default (
                 .append(Article('clipboard', 'Copy and paste', require('./examples/clipboard.md')))
         )
         .append(
-            Article('api', 'Api', require('./api/index.md'))
+            Group('api', 'Api')
                 .append(Article('grid', 'Grid', require('./api/grid.md')))
                 .append(Article('editor', 'Editor', require('./api/editor.md')))
                 .append(Article('headers', 'Headers', require('./api/headers.md')))

@@ -23,6 +23,16 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100%;
+
+            > div,
+            > a {
+                height: 100%;
+                align-items: center;
+                box-sizing: border-box;
+                padding: var(--padding-small);
+                display: flex;
+            }
         }
     }
     @media screen and (max-width: 450px) {

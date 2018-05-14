@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { SvgIcon } from '../ui';
 
+/**
+ * Icon path ripped from https://github.com/
+ * GitHub © 2018
+ */
 const PATH = [
     `M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-`,
     `.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1 1.8 `,

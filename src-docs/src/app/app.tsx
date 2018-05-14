@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as classnames from 'classnames';
 import { NavLink, withRouter, RouteComponentProps } from 'react-router-dom';
 import { Toolbar, Markdown, AppMaxWidth } from './ui';
-import { GitHubIcon, MenuIcon } from './icons';
+import { GitHubIcon, MenuIcon, HomeIcon, IssuesIcon } from './icons';
 import { Switch, Route } from 'react-router-dom';
 import { IArticleMap } from './article';
 
@@ -34,7 +34,19 @@ class App extends React.Component<IAppProps, any> {
                 })}
             >
                 {source.map((item) => {
+                    if (!item.url) {
+                        return null;
+                    }
+
                     const url = `/${item.url}`;
+
+                    if (item.isGroup) {
+                        return (
+                            <div key={url}>
+                                {item.caption}
+                            </div>
+                        );
+                    }
 
                     return (
                         <NavLink exact to={url} key={url} onClick={this._hideMenu}>
@@ -51,11 +63,19 @@ class App extends React.Component<IAppProps, any> {
     private _renderRoutes() {
         const { source } = this.props;
         return source.map((item) => {
+            if (item.isGroup) {
+                return null;
+            }
+
             const url = `/${item.url}`;
 
             return (
                 <Route exact path={url} key={url}>
-                    <article className={Style.articleBody}>
+                    <article
+                        className={classnames(Style.articleBody, {
+                            [Style.articleBlur]: this.state.menuOpened
+                        })}
+                    >
                         <Markdown
                             className={Style.articleChunk}
                             source={item.body}
@@ -86,16 +106,23 @@ class App extends React.Component<IAppProps, any> {
             <>
                 <Toolbar>
                     <div>
-                        <MenuIcon
+                        <div
                             className={classnames(Style.menu, {
                                 [Style.menuOpened]: this.state.menuOpened
-                            })}
-                            onClick={this._toggleMenu}
-                        />
-                    </div>
-                    <div>
-                        <a target="blank" href={process.env.GITHUB_URL}>
-                            <GitHubIcon />
+                                })}
+                            >
+                            <MenuIcon
+                                onClick={this._toggleMenu}
+                            />
+                        </div>
+                        <NavLink exact to="/" onClick={this._hideMenu} title="Home">
+                            <HomeIcon />
+                        </NavLink>
+                        <a target="blank" href={process.env.GITHUB_URL} title="GitHub page">
+                            <GitHubIcon size={20} />
+                        </a>
+                        <a target="blank" href={process.env.GITHUB_URL + '/issues'} title="Issues">
+                            <IssuesIcon />
                         </a>
                     </div>
                 </Toolbar>
@@ -104,6 +131,17 @@ class App extends React.Component<IAppProps, any> {
                         {this._renderNavigation()}
                         <Switch>
                             {this._renderRoutes()}
+                            <Route>
+                                <div
+                                    className={classnames(Style.articleBody, {
+                                        [Style.articleBlur]: this.state.menuOpened
+                                    })}
+                                >
+                                    <div>
+                                        Page not found.
+                                    </div>
+                                </div>
+                            </Route>
                         </Switch>
                     </AppMaxWidth>
                 </main>

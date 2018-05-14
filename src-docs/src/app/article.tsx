@@ -3,18 +3,19 @@ export interface IArticleItem {
     caption: string;
     body: string;
     deep: number;
+    isGroup: boolean;
 }
 
 export type IArticleMap = IArticleItem[];
 
-export class Article {
-    public parent: Article = null;
-    public children: Article[] = [];
+export class ArticleClass {
+    public parent: ArticleClass = null;
+    public children: ArticleClass[] = [];
 
-    constructor(public address: string, public caption = '', public text = '') { }
+    constructor(public address: string, public caption = '', public text = '', public isGroup = false) { }
 
     public get url() {
-        let seek: Article = this;
+        let seek: ArticleClass = this;
         let url: string[] = [];
 
         do {
@@ -39,25 +40,30 @@ export class Article {
             url: this.url,
             caption: this.caption,
             body: this.text,
-            deep: Math.max(0, deep)
+            deep: Math.max(0, deep),
+            isGroup: this.isGroup
         });
 
         this.children.forEach((node) => {
-            node._createList(out, deep + 1);
+            node._createList(out, node.isGroup ? deep : deep + 1);
         });
 
         return out;
     }
 
-    public append(child: Article) {
+    public append(child: ArticleClass) {
         child.parent = this;
         this.children.push(child);
         return this;
     }
 }
 
-export function Create(address: string, caption?: string, text?: string) {
-    return new Article(address, caption, text);
+export function Article(address: string, caption?: string, text?: string) {
+    return new ArticleClass(address, caption, text);
 }
 
-export default Create;
+export function Group(address: string, caption?: string) {
+    return new ArticleClass(address, caption, null, true);
+}
+
+export default Article;
