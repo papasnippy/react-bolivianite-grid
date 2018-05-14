@@ -1,7 +1,5 @@
 # React grid component
 
-> Under construction.
+Under construction.
 
-Useful links:
-- [Examples](https://papasnippy.github.io/react-bolivianite-grid/examples)
-- [Api](https://papasnippy.github.io/react-bolivianite-grid/api)
+You can check documentation and examples [here](https://papasnippy.github.io/react-bolivianite-grid).
