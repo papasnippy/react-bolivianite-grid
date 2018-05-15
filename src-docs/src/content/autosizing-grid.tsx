@@ -1,11 +1,16 @@
 import * as React from 'react';
 import Grid, {
-    ICellsMeasureEvent, ICellMeasureResult
+    ICellsMeasureEvent, ICellMeasureResult, HeaderType, IHeader
 } from 'react-bolivianite-grid';
 import ResizingGrid from './resizing-grid';
 import Theme from './style';
 
 export default class extends ResizingGrid {
+    measureHeader(header: IHeader, type: HeaderType, ctx: CanvasRenderingContext2D) {
+        const text = this.getHeaderCaption(header, type);
+        return ctx.measureText(String(text)).width;
+    }
+
     /** We use this method to get text width by providing known text style.
      * Unfortunately, there is no method to get exact cell size really fast.
      * You can render need cell and get it size, but it will take much time.
@@ -32,8 +37,7 @@ export default class extends ResizingGrid {
         });
 
         let measuredLevels = headers.map(({ header, type }) => {
-            const text = this.getHeaderCaption(header, type);
-            const width = ctx.measureText(String(text)).width + 10;
+            const width = this.measureHeader(header, type, ctx) + 10;
 
             return {
                 header, width,

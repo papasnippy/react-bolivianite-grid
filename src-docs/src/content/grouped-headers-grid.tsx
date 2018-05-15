@@ -9,9 +9,7 @@ import Theme from './style';
 export default class extends AutosizingExample {
     state = {
         history: [{
-            data: {} as {
-                [key: string]: string;
-            },
+            data: new Map<string, string>(),
             headers: new HeaderRepository({
                 columns: this.getHeaderTree('C', 4, 4, 4),
                 rows: this.getHeaderTree('R', 10, 4, 2),

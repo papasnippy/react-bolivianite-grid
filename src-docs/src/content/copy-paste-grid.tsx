@@ -55,14 +55,14 @@ export default class extends EditableGrid {
             },
             onPaste: ({ changes }) => {
                 let { data, headers } = this.currentState;
-                data = { ...data };
+                data = new Map(data);
 
                 changes.forEach(({ column, row, value }) => {
                     if (!headers.rows[row] || !headers.columns[column]) {
                         return;
                     }
 
-                    data[this.getDataKey(row, column)] = value;
+                    data.set(this.getDataKey(row, column), value);
                 });
 
                 this.pushHistory({ data, headers });

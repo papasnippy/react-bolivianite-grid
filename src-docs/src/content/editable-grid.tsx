@@ -29,9 +29,7 @@ const PATH_REDO = (
 
 /** Current header repository and data set state. */
 export interface HistoryState {
-    data?: {
-        [key: string]: string;
-    };
+    data?: Map<string, string>;
     headers?: HeaderRepository;
 }
 
@@ -45,10 +43,8 @@ export default class extends React.Component<IBaseExampleProps, any> {
 
     state = {
         history: [{
-            data: {} as {
-                [key: string]: string;
-            },
-            headers: this.generateHeaders(200, 100)
+            data: new Map(),
+            headers: this.generateHeaders(200, 200)
         } as HistoryState],
         index: 0, // current history page
         input: '' // this property will be used in header filter example
@@ -226,9 +222,10 @@ export default class extends React.Component<IBaseExampleProps, any> {
     }
 
     /** Value getter. */
-    getValue(rowHeader: IHeader, colHeader: IHeader, source: any) {
+    getValue(rowHeader: IHeader, colHeader: IHeader, source: Map<string, string>) {
         const key = this.getDataKey(rowHeader, colHeader);
-        return source[key] === void 0 ? key : source[key];
+        const value = source.get(key);
+        return value === void 0 ? key : value;
     }
 
     getHeaderCaption(header: IHeader, type: HeaderType) {
@@ -239,7 +236,7 @@ export default class extends React.Component<IBaseExampleProps, any> {
         return (
             type === HeaderType.Column
                 ? this.excelIndex(header.colIndex)
-                : header.rowIndex
+                : header.rowIndex + 1
         );
     }
 
@@ -350,12 +347,10 @@ export default class extends React.Component<IBaseExampleProps, any> {
 
     /** Called when user press DELETE key. */
     onNullify = ({ cells }: IGridNullifyEvent) => {
-        let data = {
-            ...this.currentState.data
-        };
+        let data = new Map(this.currentState.data);
 
         cells.forEach(({ column, row }) => {
-            data[this.getDataKey(row, column)] = null;
+            data.set(this.getDataKey(row, column), null);
         });
 
         this.pushHistory({ data });
@@ -363,13 +358,9 @@ export default class extends React.Component<IBaseExampleProps, any> {
 
     onUpdate = ({ cell, value }: IGridUpdateEvent) => {
         let key = this.getDataKey(cell.row, cell.column);
-
-        this.pushHistory({
-            data: {
-                ...this.currentState.data,
-                [key]: value
-            }
-        });
+        let data = new Map(this.currentState.data);
+        data.set(key, value);
+        this.pushHistory({ data });
     }
 
     renderGrid() {

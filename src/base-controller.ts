@@ -63,25 +63,25 @@ export class Controller {
     }
 
     protected _getSelectedCells(selection: IGridSelection[]) {
-        let map: {
-            [key: string]: IGridAddress;
-        } = {};
+        let lock = new Set<string>();
+        let list: IGridAddress[] = [];
 
         for (const { column, row, height, width } of selection) {
             for (let r = row, rLast = row + height; r <= rLast; r++) {
                 for (let c = column, cLast = column + width; c <= cLast; c++) {
                     let key = `${r}x${c}`;
 
-                    if (map[key]) {
+                    if (lock.has(key)) {
                         continue;
                     }
 
-                    map[key] = { row: r, column: c };
+                    lock.add(key);
+                    list.push({ row: r, column: c });
                 }
             }
         }
 
-        return Object.keys(map).sort().map(k => map[k]);
+        return list;
     }
 
     protected _request() {

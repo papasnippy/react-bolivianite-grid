@@ -1,10 +1,24 @@
 import * as React from 'react';
 import {
-    Resizer, IHeaderRendererEvent, HeaderType
+    Resizer, IHeaderRendererEvent, HeaderType, IHeader
 } from 'react-bolivianite-grid';
 import GroupedHeadersExample from './grouped-headers-grid';
 
 export default class extends GroupedHeadersExample {
+    measureHeader(header: IHeader, type: HeaderType, ctx: CanvasRenderingContext2D) {
+        const text = this.getHeaderCaption(header, type);
+        let width = ctx.measureText(String(text)).width;
+
+        // Headers has caption like this: [C|R][1|2|3][ ][(] ...
+        // Caption with char at index 1 with value '1' and '2' has expand/collapse button
+        // with width+margin around 20px. Not a battle ready solution, just example.
+        if (text[1] !== '3') {
+            width += 20;
+        }
+
+        return width;
+    }
+
     renderHeader = ({ style, type, selection, header, theme }: IHeaderRendererEvent) => {
         const nextStyle: React.CSSProperties = {
             ...style,
