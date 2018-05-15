@@ -51,8 +51,8 @@ All other callbacks. They all optional.
 |onSpace|[IGridSpaceEvent](#IGridSpaceEvent)|Called when space bar is pressed. Useful to manage cells with boolean type.|
 |onRemove|[IGridRemoveEvent](#IGridRemoveEvent)|Called when `CMD`+`DELETE` is pressed. Remove records here.|
 |onNullify|[IGridNullifyEvent](#IGridNullifyEvent)|Called when just `DELETE` is pressed. Remove cell values here.|
-|onCopy|[IGridCopyEvent](#IGridCopyEvent)|Callback used for copying cells. Read [copy-paste](/examples/clipboard) artice for details. |
-|onPaste|[IGridPasteEvent](#IGridPasteEvent)|Callback used for pasting cells. Read [copy-paste](/examples/clipboard) artice for details. |
+|onCopy|[IGridCopyEvent](#IGridCopyEvent)|Callback used for copying cells. Read [copy-paste](/examples/copy-and-paste) artice for details. |
+|onPaste|[IGridPasteEvent](#IGridPasteEvent)|Callback used for pasting cells. Read [copy-paste](/examples/copy-and-paste) artice for details. |
 |onRightClick|[IGridCellRightClickEvent](#IGridCellRightClickEvent)|Called when right click pressed on any cell.|
 |onHeaderRightClick|[IGridHeaderRightClickEvent](#IGridHeaderRightClickEvent)|Called when right click pressed on any header.|
 |onUpdate|[IGridUpdateEvent](#IGridUpdateEvent)|Called when any changes was commited. Update data source here.|

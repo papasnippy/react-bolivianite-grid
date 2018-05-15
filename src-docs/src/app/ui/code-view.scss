@@ -90,7 +90,7 @@
             background: var(--code-view--tab-selected-background);
         }
     }
-    @media screen and (max-width: 450px) {
+    @media screen and (max-width: 768px) {
         .tab {
             padding: 0 var(--padding-small);
         }

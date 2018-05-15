@@ -105,18 +105,18 @@
         padding-left: calc(var(--article--navigation) + var(--padding-big));
         flex-direction: column;
         &.articleBlur {
-            @media screen and (max-width: 450px) {
+            @media screen and (max-width: 768px) {
                 filter: blur(10px);
             }
         }
-        @media screen and (max-width: 450px) {
+        @media screen and (max-width: 768px) {
             padding-left: 0;
         }
     }
     .articleChunk {
         margin-bottom: var(--padding-small);
     }
-    @media screen and (max-width: 450px) {
+    @media screen and (max-width: 768px) {
         .footer {
             display: none;
         }

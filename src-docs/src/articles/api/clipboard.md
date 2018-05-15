@@ -2,7 +2,7 @@
 Special controller that must be used for copy-paste functionality.
 Methods of this class must be provided to Grid as event handlers.
 
-Go [here](/examples/clipboard) for example.
+Go [here](/examples/copy-and-paste) for example.
 
 ## Constructor properties
 | Property name | Required? | Description |
