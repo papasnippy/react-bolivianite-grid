@@ -103,6 +103,9 @@ module.exports = (env: any = {}) => {
             new CopyWebpackPlugin([{
                 from: './src/404.html',
                 to: '../docs/'
+            }, {
+                from: './src/favicon.ico',
+                to: '../docs/'
             }])
         ].filter(v => !!v),
         module: {
