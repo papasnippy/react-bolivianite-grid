@@ -8,12 +8,12 @@ Go [here](/examples/copy-and-paste) for example.
 | Property name | Required? | Description |
 |:---|:---:|:---|
 |`onInvalidSelection: () => void`||Called when user tries to copy selection that cannot be merged to valid table.|
-|`renderCell: (e: ICopyPasteRenderCellEvent) => string`|✓|Called on copy event. Render cell to clipboard string.|
-|`renderHeader: (e: ICopyPasteRenderHeaderEvent) => string`|✓|Called on copy event. Render header to clipboard string.|
-|`clipboardParser: (data: DataTransfer) => string[][]`|✓|Called on paste event. Must retrieve string table from DataTransfer object. Read [this](https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer) article for details.|
+|`renderCell: (e: ICopyPasteRenderCellEvent) => string`|✓|Called on copy event. Renders cell to clipboard string.|
+|`renderHeader: (e: ICopyPasteRenderHeaderEvent) => string`|✓|Called on copy event. Renders header to clipboard string.|
+|`clipboardParser: (data: DataTransfer) => string[][]`|✓|Called on paste event. Must get table from `DataTransfer` object. Read [this](https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer) article for details about this object.|
 |`cellParser: (e: ICopyPasteParseEvent) => any`|✓|Called on paste event. Returns inserting value and cell address. Useful when you show one value but store another.|
-|`onCopy: (e: ICopyPasteResultEvent) => void`|✓|Called on copy event. Returns rendered table. And `focus` callback to return focus to Grid component when copying to clipboard is finished. Copy this table to clipboard here.|
-|`onPaste: (e: ICopyPasteUpdateEvent) => void`|✓|Called on paste event. Returns parsed changes. Update table data set here.|
+|`onCopy: (e: ICopyPasteResultEvent) => void`|✓|Called on copy event. Returns rendered table. `focus` callback used to return focus to Grid component when copying to clipboard is finished. Copy stringified table to clipboard here.|
+|`onPaste: (e: ICopyPasteUpdateEvent) => void`|✓|Called on paste event. Returns parsed changes. Update Grid data here.|
 
 ## Class methods
 | Method | Description |

@@ -68,9 +68,9 @@ resizeHeaders(
     }
 ): HeaderRepository
 ```
-Return new immutable repository with resized headers.
-- `list` property must contain array of [IHeader](#IHeader) that needs to be resized.
-- Optional [HeaderClampFunction](#HeaderClampFunction) used to limit header new size.
+Returns new immutable repository with resized headers.
+- `headers` property must contain array of [IHeader](#IHeader) that needs to be resized.
+- Optional [HeaderClampFunction](#HeaderClampFunction) used to limit header's new size.
 - Optional [HeaderResizeBehavior](#HeaderResizeBehavior) defines how header will be resized. This affects autosizing behavior.
 
 ## Types

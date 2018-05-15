@@ -1,19 +1,17 @@
 # Grid component
 
-Grid is a low level React component that provides ability to show and position table data.
+Grid is a low level React component that provides ability to show and position tabular data.
 It doesn't implement full Excel-like spreadsheet features, but provides some api.
 
-Core feature of this component is to virtualize table data, show it and it's related headers.
-Component contains some keyboard shortcuts for navigating, editing and copy-pasting cells.
+Core feature of this component is to virtualize tabular data, show it and it's related headers.
+Component contains some keyboard shortcuts for navigating, editing and copy-pasting.
 However, component do not copy-paste data itself, but provides api for that.
 
-Component does not contain any theme but implements position-only inline styles.
-You can provide your custom css classnames and inline styles for every component of the Grid.
+Component does not contain any theme but implements positioning inline styles.
+You can provide your custom css class names and inline styles for every component of the Grid.
 
 Component by default has `width: 100%, height: 100%` style, so you can put Grid inside fixed size component
-or provide class name or css style.
-
-Grid does not support infinity scrolling. At least for now.
+or provide class name or css style. Grid autosizes itself.
 
 ## Prop types
 | Property name | Type | Required? | Description |
@@ -21,10 +19,9 @@ Grid does not support infinity scrolling. At least for now.
 |tabIndex|number||Root component tab index attribute. Default = -1.|
 |repository|[HeaderRepository](/api/headers)|✓|Read [this](/api/headers) article for details.|
 |data|any||Data source. Not used directly, only passed to all other grid properties. Can be any type.|
-|readOnly|boolean||Sets grid to readonly mode.|
-|overscanRows<br>overscanColumns|number||Grid renders only exact amount of row and columns that fits into viewport by default. This setting can expand this range.|
+|readOnly|boolean||Set Grid to readonly mode.|
+|overscanRows<br>overscanColumns|number||Grid renders only exact amount of row and columns that fits into viewport by default. This settings can expand this range.|
 |theme|[IGridTheme](#IGridTheme)||Grid theme. Used to define classnames and styles for grid parts, also provided to header and cell renderers.|
-
 
 ## Prop handlers
 All prop handlers implements this interface:
@@ -38,27 +35,27 @@ Every callback must return `JSX.Element` type.
 |:---|:---|:---:|:---|
 |onRenderCell|[ICellRendererEvent](#ICellRendererEvent)|✓|Cell renderer.|
 |onRenderHeader|[IHeaderRendererEvent](#IHeaderRendererEvent)|✓|Header renderer.|
-|onRenderSelection|[ISelectionRendererEvent](#ISelectionRendererEvent)|✓|Cell selections renderer. [Example](/examples/resizing).|
+|onRenderSelection|[ISelectionRendererEvent](#ISelectionRendererEvent)|✓|User's selection renderer. [Example](/examples/resizing).|
 |onRenderEditor|[ICellEditorEvent](#ICellEditorEvent)||Editor renderer. See [this](/api/editor) article for details.|
 |onRenderResizer|[IResizerRenderEvent](#IResizerRenderEvent)||Resizer renderer. [Example](/examples/resizing).|
 
 #### Other
-All other callbacks. They all optional.
+All other optional callbacks.
 
 | Property name | Event type | Description |
 |:---|:---|:---|:---|
 |onAutoMeasure|[ICellsMeasureEvent](#ICellsMeasureEvent)|Auto measure callback. Read [this](/examples/autosizing) article for details.|
-|onSpace|[IGridSpaceEvent](#IGridSpaceEvent)|Called when space bar is pressed. Useful to manage cells with boolean type.|
+|onSpace|[IGridSpaceEvent](#IGridSpaceEvent)|Called when space bar is pressed. Useful to manage cells wich rendered as checkboxes.|
 |onRemove|[IGridRemoveEvent](#IGridRemoveEvent)|Called when `CMD`+`DELETE` is pressed. Remove records here.|
-|onNullify|[IGridNullifyEvent](#IGridNullifyEvent)|Called when just `DELETE` is pressed. Remove cell values here.|
+|onNullify|[IGridNullifyEvent](#IGridNullifyEvent)|Called when `DELETE` key is pressed. Remove values here.|
 |onCopy|[IGridCopyEvent](#IGridCopyEvent)|Callback used for copying cells. Read [copy-paste](/examples/copy-and-paste) artice for details. |
 |onPaste|[IGridPasteEvent](#IGridPasteEvent)|Callback used for pasting cells. Read [copy-paste](/examples/copy-and-paste) artice for details. |
-|onRightClick|[IGridCellRightClickEvent](#IGridCellRightClickEvent)|Called when right click pressed on any cell.|
-|onHeaderRightClick|[IGridHeaderRightClickEvent](#IGridHeaderRightClickEvent)|Called when right click pressed on any header.|
-|onUpdate|[IGridUpdateEvent](#IGridUpdateEvent)|Called when any changes was commited. Update data source here.|
-|onActiveChanged|[IGridActiveChangeEvent](#IGridActiveChangeEvent)|Called when active cell is changed.|
-|onSelectionChanged|[IGridSelectionChangeEvent](#IGridSelectionChangeEvent)|Called when selection is changed.|
-|onHeaderResize|[IGridResizeCombinedEvent](#IGridResizeCombinedEvent)|Called when headers were resized by autosize event or manually.|
+|onRightClick|[IGridCellRightClickEvent](#IGridCellRightClickEvent)|Called when right click pressed on cell.|
+|onHeaderRightClick|[IGridHeaderRightClickEvent](#IGridHeaderRightClickEvent)|Called when right click pressed on header.|
+|onUpdate|[IGridUpdateEvent](#IGridUpdateEvent)|Called when editor changed cell's value. Update data source here.|
+|onActiveChanged|[IGridActiveChangeEvent](#IGridActiveChangeEvent)|Called when active cell (cursor) is changed.|
+|onSelectionChanged|[IGridSelectionChangeEvent](#IGridSelectionChangeEvent)|Called when user's selection is changed.|
+|onHeaderResize|[IGridResizeCombinedEvent](#IGridResizeCombinedEvent)|Called when headers were resized (by autosize event or manually).|
 
 ## Class methods
 | Method | Description |
