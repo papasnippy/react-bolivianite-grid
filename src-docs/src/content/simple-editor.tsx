@@ -42,7 +42,9 @@ export class Editor extends React.PureComponent<EditorProps, any> {
                     margin: 0,
                     border: 0,
                     background: 'transparent',
-                    outline: 'none'
+                    outline: 'none',
+                    fontFamily: 'var(--app--font-family)',
+                    fontSize: 'var(--app--font-size)'
                 }}
                 value={this.state.value}
                 onChange={(e) => {

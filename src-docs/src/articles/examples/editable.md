@@ -1,7 +1,6 @@
 # Editable grid
 
-Example of editable grid that implements Undo/Redo feature.
-
+Example of editable grid with Undo/Redo features.
 
 ```app.example
 {

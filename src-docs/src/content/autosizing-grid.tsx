@@ -11,17 +11,24 @@ export default class extends ResizingGrid {
         return ctx.measureText(String(text)).width;
     }
 
-    /** We use this method to get text width by providing known text style.
-     * Unfortunately, there is no method to get exact cell size really fast.
-     * You can render need cell and get it size, but it will take much time.
-     * So this automeasuring is up to you. In excel like spreadsheets this
-     * method is enough.
+    /**
+     * I use this method to get text width by providing known text style.
+     * Unfortunately, there is no method to get exact cell's size really fast.
+     * You can render full cell component and get it's rendered size,
+     * but it can take a lot of time when you will try to measure a lot of cells.
+     * So implementing automeasuring is up to you. In excel like spreadsheets this
+     * method very fast and it is enough in many cases.
      */
     autoMeasure = ({ cells, headers, callback, data }: ICellsMeasureEvent) => {
         const ctx = document.createElement('canvas').getContext('2d');
-        ctx.font = `13px "Open Sans", Verdana, Geneva, Tahoma, sans-serif`;
 
-        let measuredCells = cells.map(({ column, row, columnHeader, rowHeader }) => {
+        // Get font style from global CSS variables
+        const bodyStyle = getComputedStyle(document.body);
+        const fontStyle = bodyStyle.getPropertyValue('--app--font-family');
+        const fontSize = bodyStyle.getPropertyValue('--app--font-size');
+        ctx.font = `${fontSize} ${fontStyle}`;
+
+        const measuredCells = cells.map(({ column, row, columnHeader, rowHeader }) => {
             const value = this.getValue(rowHeader, columnHeader, data);
 
             if (value == null || value === '') {
@@ -36,12 +43,12 @@ export default class extends ResizingGrid {
             } as ICellMeasureResult;
         });
 
-        let measuredLevels = headers.map(({ header, type }) => {
+        const height = this.currentState.repository.headersHeight; // default row height
+        const measuredLevels = headers.map(({ header, type }) => {
             const width = this.measureHeader(header, type, ctx) + 10;
 
             return {
-                header, width,
-                height: this.currentState.repository.headersHeight // default row height
+                header, width, height
             };
         });
 

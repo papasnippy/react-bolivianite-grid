@@ -2,22 +2,16 @@ import * as React from 'react';
 import CopyPasteExample from './copy-paste-grid';
 import { HeaderType, HeaderRepository, IHeader } from 'react-bolivianite-grid';
 
-const INPUT_STYLE: React.CSSProperties = {
-    margin: 0,
-    marginLeft: 'var(--padding-small)',
-    border: 0,
-    height: '25px',
-    background: 'rgba(0, 0, 0, 0.3)',
-    color: '#ffffff',
-    boxSizing: 'border-box',
-    padding: '0 5px',
-    outline: 'none',
-    flex: 1,
-    borderBottom: 'rgba(255, 255, 255, 0.2) solid 1px',
-    borderRadius: 4
-};
-
 export default class extends CopyPasteExample {
+    state = {
+        history: [{
+            data: new Map<string, string>(),
+            repository: this.generateRepository(200, 200)
+        }],
+        index: 0,
+        input: ''
+    };
+
     generateRepository(rows: number, columns: number) {
         const colHeaders = (
             new Array(columns)
@@ -54,16 +48,24 @@ export default class extends CopyPasteExample {
     renderAdditionalControls() {
         return (
             <input
-                style={INPUT_STYLE}
+                style={{
+                    margin: 0,
+                    marginLeft: 'var(--padding-small)',
+                    border: 0,
+                    height: '25px',
+                    background: 'rgba(0, 0, 0, 0.3)',
+                    color: '#ffffff',
+                    boxSizing: 'border-box',
+                    padding: '0 5px',
+                    outline: 'none',
+                    flex: 1,
+                    borderBottom: 'rgba(255, 255, 255, 0.2) solid 1px',
+                    borderRadius: 4
+                }}
                 value={this.state.input}
                 placeholder="Try to type header name."
                 onChange={(e) => {
-                    this.setState({ input: e.target.value });
                     const state = this.state.history[this.state.history.length - 1];
-
-                    if (!state) {
-                        return;
-                    }
 
                     let v = e.target.value.toLowerCase();
                     let { repository } = state;
@@ -76,6 +78,7 @@ export default class extends CopyPasteExample {
                         return true;
                     });
 
+                    this.setState({ input: e.target.value });
                     this.pushHistory({ repository });
                 }}
             />

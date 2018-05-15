@@ -34,20 +34,22 @@ export interface HistoryState {
 }
 
 export interface IBaseExampleProps {
-    /** Provided by example wrapper component. We will place our undo/redo buttons here. */
+    /**
+     * Provided by example wrapper component.
+     * Undo and redo buttons will be placed inside this component.
+     */
     refControls?: HTMLElement;
 }
 
 export default class extends React.Component<IBaseExampleProps, any> {
-    private _isMounted = true;
+    protected _isMounted = true;
 
     state = {
         history: [{
             data: new Map(),
             repository: this.generateRepository(200, 200)
-        } as HistoryState],
+        }],
         index: 0, // current history page
-        input: '' // this property will be used in header filter example
     };
 
     /** Current header repository and data set. */
@@ -64,6 +66,11 @@ export default class extends React.Component<IBaseExampleProps, any> {
         return len && this.state.index !== len - 1;
     }
 
+    /**
+     * Push next state to history.
+     * @param state Next state.
+     * @param autosize If true - it will replace last page of history, instead of adding.
+     */
     pushHistory(state: HistoryState, autosize = false) {
         if (!this._isMounted) {
             return;
@@ -105,6 +112,7 @@ export default class extends React.Component<IBaseExampleProps, any> {
         });
     }
 
+    /** Returns keyboard modifier flags. */
     getModifiers(e: React.KeyboardEvent<HTMLElement>) {
         const { ctrlKey, altKey, shiftKey } = e;
         const cmdKey = e.getModifierState('Meta'); // Command key for Mac OS
@@ -151,6 +159,7 @@ export default class extends React.Component<IBaseExampleProps, any> {
         return null;
     }
 
+    /** Rendering undo/redo buttons. */
     renderControls() {
         if (!this.props.refControls) {
             return null;
@@ -213,7 +222,7 @@ export default class extends React.Component<IBaseExampleProps, any> {
         });
     }
 
-    /** Function to get data key, that associated by pair of headers. */
+    /** Get data key from pair of headers. */
     getDataKey(row: IHeader | number, col: IHeader | number) {
         const { repository } = this.currentState;
         const r = typeof row === 'number' ? repository.rows[row].rowIndex : row.rowIndex;
@@ -221,7 +230,7 @@ export default class extends React.Component<IBaseExampleProps, any> {
         return `${r} x ${c}`;
     }
 
-    /** Value getter. */
+    /** Get data value from pair of headers. */
     getValue(rowHeader: IHeader, colHeader: IHeader, source: Map<string, string>) {
         const key = this.getDataKey(rowHeader, colHeader);
         const value = source.get(key);
@@ -265,7 +274,11 @@ export default class extends React.Component<IBaseExampleProps, any> {
         );
     }
 
-    /** We will use this method later. */
+    /**
+     * We will use this method later.
+     * Just placeholder in header rendering.
+     * Header resizers will be rendered here.
+     */
     renderAdditionalHeaderContent(_e: IHeaderRendererEvent): React.ReactNode {
         return null;
     }
@@ -308,6 +321,11 @@ export default class extends React.Component<IBaseExampleProps, any> {
         style.width = Number(style.width) + 1;
         style.height = Number(style.height) + 1;
 
+        // `active` flag uses for active cell (cursor) indication.
+        // Usually this is normal selection component with transparent
+        // background and bold borders.
+        // `edit` is same, but rendered when cell is edited.
+
         return (
             <div
                 key={key}
@@ -321,7 +339,7 @@ export default class extends React.Component<IBaseExampleProps, any> {
         );
     }
 
-    editorRenderer = ({ style, update, data, theme, rowHeader, columnHeader }: ICellEditorEvent) => {
+    editorRenderer = ({ style, update, data, rowHeader, columnHeader }: ICellEditorEvent) => {
         let initialValue = this.getValue(rowHeader, columnHeader, data);
 
         return (
@@ -329,12 +347,9 @@ export default class extends React.Component<IBaseExampleProps, any> {
                 style={{
                     ...style,
                     boxSizing: 'border-box',
-                    borderRight: `solid 1px ${theme.editorBorderColor}`,
-                    borderBottom: `solid 1px ${theme.editorBorderColor}`,
                     padding: '0 3px',
                     display: 'flex',
-                    alignItems: 'center',
-                    background: theme.editorBackground
+                    alignItems: 'center'
                 }}
             >
                 <Editor
@@ -345,7 +360,7 @@ export default class extends React.Component<IBaseExampleProps, any> {
         );
     }
 
-    /** Called when user press DELETE key. */
+    /** On `DELETE`/`BACKSPACE` key. */
     onNullify = ({ cells }: IGridNullifyEvent) => {
         let data = new Map(this.currentState.data);
 
@@ -356,6 +371,7 @@ export default class extends React.Component<IBaseExampleProps, any> {
         this.pushHistory({ data });
     }
 
+    /** When **editor** updated cell value. */
     onUpdate = ({ cell, value }: IGridUpdateEvent) => {
         let key = this.getDataKey(cell.row, cell.column);
         let data = new Map(this.currentState.data);

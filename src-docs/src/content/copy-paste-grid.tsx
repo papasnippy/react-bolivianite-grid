@@ -22,8 +22,8 @@ export default class extends EditableGrid {
                 return this.getValue(rowHeader, colHeader, data);
             },
             // Parsing clipboard on paste event
-            clipboardParser: (transfer) => {
-                let text = transfer.getData('Text') || '';
+            clipboardParser: (dataTransfer) => {
+                let text = dataTransfer.getData('Text') || '';
                 let { data } = PapaParse.parse(text, { delimiter: '\t' });
                 return data || [];
             },

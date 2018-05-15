@@ -2,7 +2,6 @@ import * as React from 'react';
 import Grid, {
     Resizer, HeaderRepository, IHeader, IHeaderRendererEvent, HeaderType
 } from 'react-bolivianite-grid';
-import { HistoryState } from './editable-grid';
 import AutosizingExample from './autosizing-grid';
 import Theme from './style';
 
@@ -18,9 +17,8 @@ export default class extends AutosizingExample {
                 headersHeight: 24,
                 headersWidth: 60
             })
-        } as HistoryState],
-        index: 0,
-        input: ''
+        }],
+        index: 0
     };
 
     generateList(c: string, n: number, ct: { c?: number }, ch?: () => IHeader[]) {
@@ -56,7 +54,6 @@ export default class extends AutosizingExample {
             ...theme.headerStyle
         };
 
-
         switch (type) {
             case HeaderType.Row:
                 nextStyle.borderBottomColor = theme.headerBorderColor;
@@ -78,7 +75,6 @@ export default class extends AutosizingExample {
         if (selection) {
             nextStyle.background = theme.headerBackgroundColorSelected;
         }
-
 
         if (viewIndex != null) {
             nextStyle.justifyContent = type === HeaderType.Row ? 'flex-end' : 'center';

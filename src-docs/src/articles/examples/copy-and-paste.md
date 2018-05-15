@@ -1,6 +1,6 @@
 # Copy and paste
 
-Example of grid, based on [this](/examples/editable) example, that implements copy/paste feature.
+Example of grid, based on [this](/examples/editable) example, that adds copy/paste features.
 
 Notes:
 - `CMD/CTRL`+`C` - copy cells

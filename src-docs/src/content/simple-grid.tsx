@@ -87,7 +87,7 @@ export default class extends React.Component {
                 break;
         }
 
-        // Selection flag means that index of this header is inside user selection
+        // Selection flag means that index of this header is inside user's selection
         if (selection) {
             nextStyle.background = theme.headerBackgroundColorSelected;
         }
@@ -105,13 +105,18 @@ export default class extends React.Component {
         );
     }
 
-    /** Rendering user selection. */
+    /** Rendering user's selection. */
     renderSelection = ({ key, style, active, edit, theme }: ISelectionRendererEvent) => {
         // Modifying style size for proper border positioning.
         style.left = Number(style.left) - 1;
         style.top = Number(style.top) - 1;
         style.width = Number(style.width) + 1;
         style.height = Number(style.height) + 1;
+
+        // `active` flag uses for active cell (cursor) indication.
+        // Usually this is normal selection component with transparent
+        // background and bold borders.
+        // `edit` is same, but rendered when cell is edited.
 
         return (
             <div

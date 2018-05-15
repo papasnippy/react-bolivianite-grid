@@ -59,7 +59,7 @@ Return new immutable repository with updated headers.
 ```typescript
 resizeHeaders(
     props: {
-        list: {
+        headers: {
             header: IHeader;
             size: number;
         }[];

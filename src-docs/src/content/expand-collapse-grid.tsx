@@ -9,9 +9,9 @@ export default class extends GroupedHeadersExample {
         const text = this.getHeaderCaption(header, type);
         let width = ctx.measureText(String(text)).width;
 
-        // Headers has caption like this: [C|R][1|2|3][ ][(] ...
+        // Header has caption like this: [C|R][1|2|3][ ][(] ...
         // Caption with char at index 1 with value '1' and '2' has expand/collapse button
-        // with width+margin around 20px. Not a battle ready solution, just example.
+        // with width + margin around 20px. Not a battle-ready solution, just an example.
         if (text[1] !== '3') {
             width += 20;
         }
@@ -60,7 +60,7 @@ export default class extends GroupedHeadersExample {
                             height: 18
                         }}
                         onMouseDown={(e) => {
-                            // stop grid from selecting
+                            // Stop grid from selecting cells by click on header.
                             e.stopPropagation();
                             e.preventDefault();
 

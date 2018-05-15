@@ -30,8 +30,6 @@ const THEME = {
     // Custom grid theme properties
     cellBackgroundEven: '#EFEFEF',
     cellBackgroundOdd: '#FFFFFF',
-    editorBorderColor: '#BFBFBF',
-    editorBackground: '#FFFFFF',
     headerBorderColor: '#4d5160',
     headerBackgroundColorSelected: '#24262d',
     selectionBackground: 'rgba(1, 9, 40, 0.2)',

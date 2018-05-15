@@ -638,12 +638,12 @@ export class HeaderRepository {
      * @param behavior Defines flag when header was resized by autosize or manually.
      * Header will not be autosized when it was manually resized. Default `"manual"`.
      */
-    public resizeHeaders({ list, clamp, behavior }: {
-        list: { header: IHeader, size: number }[];
+    public resizeHeaders({ headers, clamp, behavior }: {
+        headers: { header: IHeader, size: number }[];
         clamp?: HeaderClampFunction;
         behavior?: HeaderResizeBehavior;
     }) {
-        if (!list || !list.length) {
+        if (!headers || !headers.length) {
             return this;
         }
 
@@ -653,7 +653,7 @@ export class HeaderRepository {
         let updates: { header: IHeader, update: IHeader }[] = [];
         let leaves: IHeader[] = [];
 
-        list.forEach((u) => {
+        headers.forEach((u) => {
             let resizeList = this._getResizeList(u.header, u.size, clamp);
 
             resizeList.forEach(({ header, size }) => {

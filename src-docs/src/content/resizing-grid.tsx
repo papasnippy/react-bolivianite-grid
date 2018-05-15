@@ -7,14 +7,20 @@ import Theme from './style';
 
 export default class extends CopyPasteExample {
     renderAdditionalHeaderContent ({ header }: IHeaderRendererEvent) {
-        return <Resizer header={header} />;
+        return (
+            <Resizer header={header} />
+        );
     }
 
-    /** Render simple resizing indication. */
+    /** Rendering resizing indication. */
     renderResizer = ({ style, theme }: IResizerRenderEvent) => {
-        style.background = theme.resizerBackground;
         return (
-            <div style={style} />
+            <div
+                style={{
+                    ...style,
+                    background: theme.resizerBackground
+                }}
+            />
         );
     }
 
@@ -25,8 +31,7 @@ export default class extends CopyPasteExample {
 
         if (headers) {
             next = next.resizeHeaders({
-                behavior,
-                list: headers,
+                behavior, headers,
                 clamp: ({ type, size }) => Math.max(size, type === HeaderType.Column ? 30 : 24)
             });
         }

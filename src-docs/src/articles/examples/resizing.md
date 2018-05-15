@@ -1,6 +1,8 @@
 # Resizable columns and rows
 
-To add ability manually resize headers just simply put `Resizer` component inside your rendered header.
+To add ability manually resize headers just put `Resizer` component inside your rendered header
+and provide resize handlers to Grid component.
+
 ```app.example
 {
     "main": "resizing-grid.tsx",
