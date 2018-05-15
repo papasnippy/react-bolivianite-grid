@@ -18,7 +18,7 @@ function createBuild(type: 'cjs' | 'es') {
 
 gulp.task(`copy`, () => {
     return gulp
-        .src(['./package.json', './LICENSE', './README'])
+        .src(['./package.json', './LICENSE', './README.md'])
         .pipe(gulp.dest('build'));
 });
 
