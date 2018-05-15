@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Grid, {
-    HeaderType, ICellsMeasureEvent, ICellMeasureResult
+    ICellsMeasureEvent, ICellMeasureResult
 } from 'react-bolivianite-grid';
 import ResizingGrid from './resizing-grid';
 import Theme from './style';
@@ -31,13 +31,8 @@ export default class extends ResizingGrid {
             } as ICellMeasureResult;
         });
 
-        let measuredLevels = headers.map(({ index, header, type }) => {
-            const text = String(
-                type === HeaderType.Column && index != null
-                    ? this.excelIndex(index)
-                    : index
-            );
-
+        let measuredLevels = headers.map(({ header, type }) => {
+            const text = this.getHeaderCaption(header, type);
             const width = ctx.measureText(String(text)).width + 10;
 
             return {
