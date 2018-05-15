@@ -1,6 +1,8 @@
 # React bolivianite grid
 
-This is a React component for rendering large tabular data.
+React component for rendering large tabular data.
+
+![Screenshot](https://raw.githubusercontent.com/papasnippy/react-bolivianite-grid/master/src-docs/src/table.png)
 
 ## Installation
 
@@ -13,4 +15,13 @@ yarn add react-bolivianite-grid
 ```
 
 ## Examples and documentation
-https://papasnippy.github.io/react-bolivianite-grid
+- https://papasnippy.github.io/react-bolivianite-grid
+
+## Requirements
+- React.JS at least v16.3
+
+## Dependencies
+- None
+
+## License
+- MIT
