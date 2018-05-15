@@ -94,6 +94,7 @@ interface IGridTheme {
     classNameGridCorner?: string;
     classNameGridRows?: string;
     classNameGridColumns?: string;
+    classNameScrollView?: string;
 
     styleGrid?: React.CSSProperties;
     styleGridCorner?: React.CSSProperties;

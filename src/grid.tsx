@@ -30,7 +30,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     private _scrollUpdateTrottled = this._rt.create();
     private _ref: HTMLDivElement = null;
     private _refView: FallbackScrollView = null;
-    private _scrollerProps: React.HTMLProps<HTMLDivElement> = { style: { willChange: 'transform', zIndex: 0 } };
+    private _scrollerStyle: React.CSSProperties = { willChange: 'transform', zIndex: 0 };
     private _lastView: IGridView = null;
     private _lastOverscan: IGridOverscan = null;
     private _focused = false;
@@ -106,12 +106,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
     //#region getters
     private get _theme() {
-        let theme = { ...(this.props.theme || {}) };
-        theme.styleGrid = theme.styleGrid || {};
-        theme.styleGridColumns = theme.styleGridColumns || {};
-        theme.styleGridRows = theme.styleGridRows || {};
-        theme.styleGridCorner = theme.styleGridCorner || {};
-        return theme;
+        return this.props.theme || {};
     }
 
     private get _columnCount() {
@@ -634,7 +629,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
             rowsHeight += hsize;
 
-            if (lastRow === -1 && rowsHeight >= st + vh /*+ (this._theme.scrollbarWidth || 0)*/) {
+            if (lastRow === -1 && rowsHeight >= st + vh) {
                 lastRow = rowIndex;
                 break;
             }
@@ -659,7 +654,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
             columnsWidth += csize;
 
-            if (lastColumn === -1 && columnsWidth >= sl + vw /*+ (this._theme.scrollbarWidth || 0)*/) {
+            if (lastColumn === -1 && columnsWidth >= sl + vw) {
                 lastColumn = colIndex;
                 break;
             }
@@ -1478,10 +1473,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                     onMouseDown={this._onRootMouseDown}
                 >
                     <ScrollView
-                        {...this.props.theme}
+                        className={this._theme.classNameScrollView}
                         ref={this._onRefView}
                         onScroll={this._onScrollViewUpdate}
-                        scrollerContainerProps={this._scrollerProps}
+                        style={this._scrollerStyle}
                         headersRenderer={this._renderHeadersLayer}
                         bodyRenderer={this._bodyRenderer}
                     />
