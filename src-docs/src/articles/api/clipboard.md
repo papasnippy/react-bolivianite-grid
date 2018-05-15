@@ -27,7 +27,7 @@ Go [here](/examples/clipboard) for example.
 interface ICopyPasteRenderCellEvent {
     cell: IGridAddress;
     source: any;
-    headers: HeaderRepository;
+    repository: HeaderRepository;
 }
 ```
 

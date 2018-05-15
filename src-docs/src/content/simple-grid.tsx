@@ -7,10 +7,10 @@ import Theme from './style';
 
 export default class extends React.Component {
     state = {
-        headers: this.generateHeaders(200, 100)
+        repository: this.generateRepository(200, 100)
     };
 
-    generateHeaders(rows: number, columns: number) {
+    generateRepository(rows: number, columns: number) {
         const colHeaders = (
             new Array(columns)
                 .fill(null)
@@ -131,7 +131,7 @@ export default class extends React.Component {
         return (
             <Grid
                 readOnly
-                headers={this.state.headers}
+                repository={this.state.repository}
                 overscanRows={3}
                 theme={Theme}
                 onRenderCell={this.renderCell}

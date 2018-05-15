@@ -16,10 +16,10 @@ export default class extends EditableGrid {
                 return this.getHeaderCaption(header, type);
             },
             // Rendering cell on copy event
-            renderCell: ({ cell, source, headers }) => {
-                let rowHeader = headers.rows[cell.row];
-                let colHeader = headers.columns[cell.column];
-                return this.getValue(rowHeader, colHeader, source);
+            renderCell: ({ cell, data, repository }) => {
+                let rowHeader = repository.rows[cell.row];
+                let colHeader = repository.columns[cell.column];
+                return this.getValue(rowHeader, colHeader, data);
             },
             // Parsing clipboard on paste event
             clipboardParser: (transfer) => {
@@ -54,29 +54,29 @@ export default class extends EditableGrid {
                 }
             },
             onPaste: ({ changes }) => {
-                let { data, headers } = this.currentState;
+                let { data, repository } = this.currentState;
                 data = new Map(data);
 
                 changes.forEach(({ column, row, value }) => {
-                    if (!headers.rows[row] || !headers.columns[column]) {
+                    if (!repository.rows[row] || !repository.columns[column]) {
                         return;
                     }
 
                     data.set(this.getDataKey(row, column), value);
                 });
 
-                this.pushHistory({ data, headers });
+                this.pushHistory({ data, repository });
             }
         });
     }
 
     renderGrid() {
-        const { data, headers } = this.currentState;
+        const { data, repository } = this.currentState;
         return (
             <Grid
-                headers={headers}
+                repository={repository}
                 overscanRows={3}
-                source={data}
+                data={data}
                 theme={Theme}
                 onRenderCell={this.renderCell}
                 onRenderHeader={this.renderHeader}

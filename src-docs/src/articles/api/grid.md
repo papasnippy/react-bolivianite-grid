@@ -19,8 +19,8 @@ Grid does not support infinity scrolling. At least for now.
 | Property name | Type | Required? | Description |
 |:---|:---|:---:|:---|
 |tabIndex|number||Root component tab index attribute. Default = -1.|
-|headers|[HeaderRepository](/api/headers)|✓|Read [this](/api/headers) article for details.|
-|source|any||Data source. Not used directly, only passed to all other grid properties. Can be any type.|
+|repository|[HeaderRepository](/api/headers)|✓|Read [this](/api/headers) article for details.|
+|data|any||Data source. Not used directly, only passed to all other grid properties. Can be any type.|
 |readOnly|boolean||Sets grid to readonly mode.|
 |overscanRows<br>overscanColumns|number||Grid renders only exact amount of row and columns that fits into viewport by default. This setting can expand this range.|
 |theme|[IGridTheme](#IGridTheme)||Grid theme. Used to define classnames and styles for grid parts, also provided to header and cell renderers.|
@@ -117,7 +117,7 @@ interface ICellRendererEvent {
     // column header object
     columnHeader: IHeader;
     // data source
-    source: any;
+    data: any;
     // active cell flag
     active: boolean;
     // positioning style, must be applied to rendering element
@@ -172,7 +172,7 @@ interface ICellEditorEvent {
     column: number;
     rowHeader: IHeader;
     columnHeader: IHeader;
-    source: any;
+    data: any;
     active: boolean;
     style: React.CSSProperties;
     theme: IGridTheme;
@@ -201,7 +201,6 @@ interface ICellRenderBaseEvent {
     column: number;
     rowHeader: IHeader;
     columnHeader: IHeader;
-    source: any;
 }
 
 interface IHeaderMeasure {
@@ -209,7 +208,6 @@ interface IHeaderMeasure {
     type: HeaderType;
     level: number;
     header: IHeader;
-    source: any;
 }
 
 interface ICellMeasureResult {
@@ -233,6 +231,7 @@ interface IMeasureResult {
 interface ICellsMeasureEvent {
     cells: ICellRenderBaseEvent[];
     headers: IHeaderMeasure[];
+    data: any;
     callback: (result: IMeasureResult) => void;
 }
 ```
@@ -263,8 +262,8 @@ interface IGridNullifyEvent {
 ```typescript
 interface IGridCopyEvent {
     cells: IGridAddress[];
-    source: any;
-    headers: HeaderRepository;
+    data: any;
+    repository: HeaderRepository;
     // This flag shows, that cells must be copied with headers
     withHeaders: boolean;
     // Focus grid callback
@@ -275,8 +274,8 @@ interface IGridCopyEvent {
 #### <a name="IGridPasteEvent"></a>
 ```typescript
 interface IGridPasteEvent {
-    headers: HeaderRepository;
-    source: any;
+    repository: HeaderRepository;
+    data: any;
     target: IGridAddress;
 }
 ```

@@ -21,7 +21,7 @@ export default class extends CopyPasteExample {
     /** Update header repository on resize. */
     resizeHeaders = ({ headers, levels, behavior }: IGridResizeCombinedEvent) => {
         const state = this.currentState;
-        let next = state.headers;
+        let next = state.repository;
 
         if (headers) {
             next = next.resizeHeaders({
@@ -43,20 +43,20 @@ export default class extends CopyPasteExample {
             });
         }
 
-        if (state.headers === next) {
+        if (state.repository === next) {
             return;
         }
 
-        this.pushHistory({ headers: next }, behavior === 'auto');
+        this.pushHistory({ repository: next }, behavior === 'auto');
     }
 
     renderGrid() {
-        const { data, headers } = this.currentState;
+        const { data, repository } = this.currentState;
         return (
             <Grid
-                headers={headers}
+                repository={repository}
                 overscanRows={3}
-                source={data}
+                data={data}
                 theme={Theme}
                 onRenderCell={this.renderCell}
                 onRenderHeader={this.renderHeader}

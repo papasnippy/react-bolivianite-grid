@@ -30,7 +30,7 @@ const PATH_REDO = (
 /** Current header repository and data set state. */
 export interface HistoryState {
     data?: Map<string, string>;
-    headers?: HeaderRepository;
+    repository?: HeaderRepository;
 }
 
 export interface IBaseExampleProps {
@@ -44,7 +44,7 @@ export default class extends React.Component<IBaseExampleProps, any> {
     state = {
         history: [{
             data: new Map(),
-            headers: this.generateHeaders(200, 200)
+            repository: this.generateRepository(200, 200)
         } as HistoryState],
         index: 0, // current history page
         input: '' // this property will be used in header filter example
@@ -182,7 +182,7 @@ export default class extends React.Component<IBaseExampleProps, any> {
     }
 
     /** Generating header reporitory. */
-    generateHeaders(rows: number, columns: number) {
+    generateRepository(rows: number, columns: number) {
         const colHeaders = (
             new Array(columns)
                 .fill(null)
@@ -215,9 +215,9 @@ export default class extends React.Component<IBaseExampleProps, any> {
 
     /** Function to get data key, that associated by pair of headers. */
     getDataKey(row: IHeader | number, col: IHeader | number) {
-        const { headers } = this.currentState;
-        const r = typeof row === 'number' ? headers.rows[row].rowIndex : row.rowIndex;
-        const c = typeof col === 'number' ? headers.columns[col].colIndex : col.colIndex;
+        const { repository } = this.currentState;
+        const r = typeof row === 'number' ? repository.rows[row].rowIndex : row.rowIndex;
+        const c = typeof col === 'number' ? repository.columns[col].colIndex : col.colIndex;
         return `${r} x ${c}`;
     }
 
@@ -251,7 +251,7 @@ export default class extends React.Component<IBaseExampleProps, any> {
         return c;
     }
 
-    renderCell = ({ style, row, source, rowHeader, columnHeader, theme }: ICellRendererEvent) => {
+    renderCell = ({ style, row, data, rowHeader, columnHeader, theme }: ICellRendererEvent) => {
         return (
             <div
                 style={{
@@ -260,7 +260,7 @@ export default class extends React.Component<IBaseExampleProps, any> {
                     background: row % 2 ? theme.cellBackgroundEven : theme.cellBackgroundOdd
                 }}
             >
-                {this.getValue(rowHeader, columnHeader, source )}
+                {this.getValue(rowHeader, columnHeader, data )}
             </div>
         );
     }
@@ -321,8 +321,8 @@ export default class extends React.Component<IBaseExampleProps, any> {
         );
     }
 
-    editorRenderer = ({ style, update, source, theme, rowHeader, columnHeader }: ICellEditorEvent) => {
-        let initialValue = this.getValue(rowHeader, columnHeader, source);
+    editorRenderer = ({ style, update, data, theme, rowHeader, columnHeader }: ICellEditorEvent) => {
+        let initialValue = this.getValue(rowHeader, columnHeader, data);
 
         return (
             <div
@@ -364,12 +364,12 @@ export default class extends React.Component<IBaseExampleProps, any> {
     }
 
     renderGrid() {
-        const { data, headers } = this.currentState;
+        const { data, repository } = this.currentState;
         return (
             <Grid
-                headers={headers}
+                repository={repository}
                 overscanRows={3}
-                source={data}
+                data={data}
                 theme={Theme}
                 onRenderCell={this.renderCell}
                 onRenderHeader={this.renderHeader}

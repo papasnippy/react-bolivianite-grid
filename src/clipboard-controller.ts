@@ -3,8 +3,8 @@ import { HeaderRepository } from './header-repository';
 
 export interface ICopyPasteRenderCellEvent {
     cell: IGridAddress;
-    source: any;
-    headers: HeaderRepository;
+    data: any;
+    repository: HeaderRepository;
 }
 
 export interface ICopyPasteRenderHeaderEvent {
@@ -89,7 +89,7 @@ export class ClipboardController {
         return out;
     }
 
-    public onCopy = ({ cells, headers, source, withHeaders, focus }: IGridCopyEvent) => {
+    public onCopy = ({ cells, repository, data, withHeaders, focus }: IGridCopyEvent) => {
         let table = this._getValidatedTable(cells);
 
         if (!table) {
@@ -100,7 +100,7 @@ export class ClipboardController {
             return;
         }
 
-        let out = table.map(r => r.map(c => this.props.renderCell({ source, headers, cell: c })));
+        let out = table.map(r => r.map(c => this.props.renderCell({ data, repository, cell: c })));
 
         if (withHeaders) {
             let lock: { [headerId: string]: boolean } = {};
@@ -113,24 +113,24 @@ export class ClipboardController {
 
             // render column headers
             columnLine.forEach(({ column }, c) => {
-                let h = headers.columns[column];
-                let level = headers.getLevel(h);
+                let h = repository.columns[column];
+                let level = repository.getLevel(h);
 
                 do {
                     top[level] = top[level] || new Array(columnLen).fill('');
-                    top[level][c] = this._renderHeader(h, headers.getHeaderType(h), lock);
-                } while (level-- , h = headers.getParent(h));
+                    top[level][c] = this._renderHeader(h, repository.getHeaderType(h), lock);
+                } while (level-- , h = repository.getParent(h));
             });
 
             // render row headers
             rowLine.forEach(({ row }, r) => {
-                let h = headers.rows[row];
-                let level = headers.getLevel(h);
+                let h = repository.rows[row];
+                let level = repository.getLevel(h);
 
                 do {
                     left[level] = left[level] || new Array(rowLen).fill('');
-                    left[level][r] = this._renderHeader(h, headers.getHeaderType(h), lock);
-                } while (level-- , h = headers.getParent(h));
+                    left[level][r] = this._renderHeader(h, repository.getHeaderType(h), lock);
+                } while (level-- , h = repository.getParent(h));
             });
 
             // insert padding for top headers

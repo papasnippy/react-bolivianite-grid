@@ -42,7 +42,7 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
     private _escListener: any = null;
     private _moved = false;
     private _grid: Grid;
-    private _headers: HeaderRepository;
+    private _repository: HeaderRepository;
 
     private _unbind() {
         if (this._moving) {
@@ -111,7 +111,7 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
                     headers: [{
                         type: type === 'row' ? HeaderType.Row : HeaderType.Column,
                         header: header,
-                        size: this._headers.getSize(header) + change
+                        size: this._repository.getSize(header) + change
                     }]
                 });
                 break;
@@ -120,14 +120,14 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
             case 'top-level':
                 let start = (
                     type === 'left-level'
-                        ? this._headers.getLeftLevelWidth(this._headers.getLevel(header))
-                        : this._headers.getTopLevelHeight(this._headers.getLevel(header))
+                        ? this._repository.getLeftLevelWidth(this._repository.getLevel(header))
+                        : this._repository.getTopLevelHeight(this._repository.getLevel(header))
                 );
                 this._grid.resizeHeaders({
                     behavior: 'manual',
                     levels: [{
                         type: type === 'left-level' ? HeaderType.Row : HeaderType.Column,
-                        level: this._headers.getLevel(header),
+                        level: this._repository.getLevel(header),
                         size: start + change
                     }]
                 });
@@ -146,7 +146,7 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
 
         let type = e.currentTarget.getAttribute('x-type') as ('r' | 'b');
         let p = type === 'r' ? e.pageX : e.pageY;
-        let headerType = this._headers.getHeaderType(this.props.header);
+        let headerType = this._repository.getHeaderType(this.props.header);
         let isRow = headerType === HeaderType.Row;
 
         this._unbind();
@@ -220,9 +220,9 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
     public render() {
         return (
             <Context.Consumer>
-                {({ grid, headers }) => {
+                {({ grid, repository }) => {
                     this._grid = grid;
-                    this._headers = headers;
+                    this._repository = repository;
 
                     return (
                         <>

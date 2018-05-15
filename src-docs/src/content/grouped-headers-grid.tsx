@@ -10,7 +10,7 @@ export default class extends AutosizingExample {
     state = {
         history: [{
             data: new Map<string, string>(),
-            headers: new HeaderRepository({
+            repository: new HeaderRepository({
                 columns: this.getHeaderTree('C', 4, 4, 4),
                 rows: this.getHeaderTree('R', 10, 4, 2),
                 columnWidth: 100,
@@ -96,12 +96,12 @@ export default class extends AutosizingExample {
     }
 
     renderGrid() {
-        const { data, headers } = this.currentState;
+        const { data, repository } = this.currentState;
         return (
             <Grid
-                headers={headers}
+                repository={repository}
                 overscanRows={3}
-                source={data}
+                data={data}
                 theme={Theme}
                 onRenderCell={this.renderCell}
                 onRenderHeader={this.renderHeader}

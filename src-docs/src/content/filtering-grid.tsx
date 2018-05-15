@@ -18,7 +18,7 @@ const INPUT_STYLE: React.CSSProperties = {
 };
 
 export default class extends CopyPasteExample {
-    generateHeaders(rows: number, columns: number) {
+    generateRepository(rows: number, columns: number) {
         const colHeaders = (
             new Array(columns)
                 .fill(null)
@@ -66,9 +66,9 @@ export default class extends CopyPasteExample {
                     }
 
                     let v = e.target.value.toLowerCase();
-                    let { headers } = state;
+                    let { repository } = state;
 
-                    headers = headers.updateFilter(({ header, type }) => {
+                    repository = repository.updateFilter(({ header, type }) => {
                         if ((v[0] === 'c' && type === HeaderType.Column) || (v[0] === 'r' && type === HeaderType.Row)) {
                             return header.caption.toLowerCase().indexOf(v) !== -1;
                         }
@@ -76,7 +76,7 @@ export default class extends CopyPasteExample {
                         return true;
                     });
 
-                    this.pushHistory({ headers });
+                    this.pushHistory({ repository });
                 }}
             />
         );

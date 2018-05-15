@@ -17,12 +17,12 @@ export default class extends ResizingGrid {
      * So this automeasuring is up to you. In excel like spreadsheets this
      * method is enough.
      */
-    autoMeasure = ({ cells, headers, callback }: ICellsMeasureEvent) => {
+    autoMeasure = ({ cells, headers, callback, data }: ICellsMeasureEvent) => {
         const ctx = document.createElement('canvas').getContext('2d');
         ctx.font = `13px "Open Sans", Verdana, Geneva, Tahoma, sans-serif`;
 
-        let measuredCells = cells.map(({ column, row, source, columnHeader, rowHeader }) => {
-            const value = this.getValue(rowHeader, columnHeader, source);
+        let measuredCells = cells.map(({ column, row, columnHeader, rowHeader }) => {
+            const value = this.getValue(rowHeader, columnHeader, data);
 
             if (value == null || value === '') {
                 return null;
@@ -41,7 +41,7 @@ export default class extends ResizingGrid {
 
             return {
                 header, width,
-                height: this.currentState.headers.headersHeight // default row height
+                height: this.currentState.repository.headersHeight // default row height
             };
         });
 
@@ -49,12 +49,12 @@ export default class extends ResizingGrid {
     }
 
     renderGrid() {
-        const { data, headers } = this.currentState;
+        const { data, repository } = this.currentState;
         return (
             <Grid
-                headers={headers}
+                repository={repository}
                 overscanRows={3}
-                source={data}
+                data={data}
                 theme={Theme}
                 onRenderCell={this.renderCell}
                 onRenderHeader={this.renderHeader}

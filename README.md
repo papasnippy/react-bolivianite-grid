@@ -8,20 +8,13 @@ React component for rendering large tabular data.
 - https://papasnippy.github.io/react-bolivianite-grid
 
 ## Installation
-
-```bash
-# For npm:
-npm i react-bolivianite-grid
-
-# For yarn:
-yarn add react-bolivianite-grid
-```
+|Package manager|Command|
+|:--|:--|
+|NPM|`npm i react-bolivianite-grid`|
+|Yarn|`yarn add react-bolivianite-grid`|
 
 ## Requirements
-- React.JS at least v16.3
-
-## Dependencies
-- None
+React.js at least v16.3
 
 ## License
-- MIT
+The MIT License

@@ -64,9 +64,9 @@ export default class extends GroupedHeadersExample {
                             e.stopPropagation();
                             e.preventDefault();
 
-                            let { data, headers } = this.currentState;
+                            let { data, repository } = this.currentState;
 
-                            headers = headers.updateHeaders([{
+                            repository = repository.updateHeaders([{
                                 header,
                                 update: {
                                     $collapsed: !header.$collapsed
@@ -74,7 +74,7 @@ export default class extends GroupedHeadersExample {
                             }]);
 
                             this.pushHistory({
-                                data, headers
+                                data, repository
                             });
                         }}
                     >

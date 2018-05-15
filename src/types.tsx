@@ -62,13 +62,13 @@ export interface ICellRenderBaseEvent {
     column: number;
     rowHeader: IHeader;
     columnHeader: IHeader;
-    source: any;
 }
 
 export interface ICellRendererEvent extends ICellRenderBaseEvent {
     active: boolean;
     style: React.CSSProperties;
     theme: IGridTheme;
+    data: any;
 }
 
 export interface IHeaderMeasure {
@@ -76,7 +76,6 @@ export interface IHeaderMeasure {
     type: HeaderType;
     level: number;
     header: IHeader;
-    source: any;
 }
 
 export interface ICellMeasureResult {
@@ -100,6 +99,7 @@ export interface IMeasureResult {
 export interface ICellsMeasureEvent {
     cells: ICellRenderBaseEvent[];
     headers: IHeaderMeasure[];
+    data: any;
     callback: (result: IMeasureResult) => void;
 }
 
@@ -158,8 +158,8 @@ export interface IGridNullifyEvent extends IGridSpaceEvent { }
 
 export interface IGridCopyEvent {
     cells: IGridAddress[];
-    source: any;
-    headers: HeaderRepository;
+    data: any;
+    repository: HeaderRepository;
     withHeaders: boolean;
     focus: () => void;
 }
@@ -183,8 +183,8 @@ export interface IGridResizeCombinedEvent {
 }
 
 export interface IGridPasteEvent extends IKeyboardControllerPasteEvent {
-    headers: HeaderRepository;
-    source: any;
+    repository: HeaderRepository;
+    data: any;
     target: IGridAddress;
 }
 
@@ -222,10 +222,10 @@ export interface IGridProps {
     tabIndex?: number;
 
     /** Reference to headers repository. */
-    headers: HeaderRepository;
+    repository: HeaderRepository;
 
     /** Not used directly by Component, but provided to the cell renderer. */
-    source?: any;
+    data?: any;
 
     /** Prevent editors to appear. `onNullify`, `onRemove`, `onSpace` and `onPaste` events will not be invoked. */
     readOnly?: boolean;
