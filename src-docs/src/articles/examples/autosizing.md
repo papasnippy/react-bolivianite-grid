@@ -1,6 +1,6 @@
 # Autosizing
 
-Column autosize example. Try to type something long, resize header and then double click on resizer to reset it's width.
+Column autosize example. Try to type something long, resize header and then double click on resizer to reset its width.
 
 ```app.example
 {

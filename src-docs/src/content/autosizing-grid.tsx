@@ -16,7 +16,7 @@ export default class extends ResizingGrid {
      * Unfortunately, there is no method to get exact cell's size really fast.
      * You can render full cell component and get it's rendered size,
      * but it can take a lot of time when you will try to measure a lot of cells.
-     * So implementing automeasuring is up to you. In excel like spreadsheets this
+     * So, implementing auto measuring is up to you. In excel like spreadsheets this
      * method very fast and it is enough in many cases.
      */
     autoMeasure = ({ cells, headers, callback, data }: ICellsMeasureEvent) => {

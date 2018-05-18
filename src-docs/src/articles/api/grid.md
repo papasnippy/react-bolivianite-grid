@@ -1,17 +1,17 @@
 # Grid component
 
 Grid is a low level React component that provides ability to show and position tabular data.
-It doesn't implement full Excel-like spreadsheet features, but provides some api.
+It doesn't implement full Excel-like spreadsheet features but provides some API.
 
-Core feature of this component is to virtualize tabular data, show it and it's related headers.
+Core feature of this component is to virtualize tabular data, show it and its related headers.
 Component contains some keyboard shortcuts for navigating, editing and copy-pasting.
 However, component do not copy-paste data itself, but provides api for that.
 
 Component does not contain any theme but implements positioning inline styles.
-You can provide your custom css class names and inline styles for every component of the Grid.
+You can provide your custom CSS class names and inline styles for every component of the Grid.
 
 Component by default has `width: 100%, height: 100%` style, so you can put Grid inside fixed size component
-or provide class name or css style. Grid autosizes itself.
+or provide class name or CSS style. Grid autosizes itself.
 
 ## Prop types
 | Property name | Type | Required? | Description |
@@ -20,11 +20,11 @@ or provide class name or css style. Grid autosizes itself.
 |repository|[HeaderRepository](/api/headers)|✓|Read [this](/api/headers) article for details.|
 |data|any||Data source. Not used directly, only passed to all other grid properties. Can be any type.|
 |readOnly|boolean||Set Grid to readonly mode.|
-|overscanRows<br>overscanColumns|number||Grid renders only exact amount of row and columns that fits into viewport by default. This settings can expand this range.|
-|theme|[IGridTheme](#IGridTheme)||Grid theme. Used to define classnames and styles for grid parts, also provided to header and cell renderers.|
+|overscanRows<br>overscanColumns|number||Grid renders only exact amount of row and columns that fits into viewport by default. These settings can expand this range.|
+|theme|[IGridTheme](#IGridTheme)||Grid theme. Used to define class names and styles for grid parts, also provided to header and cell renderers.|
 
 ## Prop handlers
-All prop handlers implements this interface:
+All prop handlers implement this interface:
 ```typescript
 onName(e: EventType) => (JSX.Element | void)
 ```
@@ -45,11 +45,11 @@ All other optional callbacks.
 | Property name | Event type | Description |
 |:---|:---|:---|:---|
 |onAutoMeasure|[ICellsMeasureEvent](#ICellsMeasureEvent)|Auto measure callback. Read [this](/examples/autosizing) article for details.|
-|onSpace|[IGridSpaceEvent](#IGridSpaceEvent)|Called when space bar is pressed. Useful to manage cells wich rendered as checkboxes.|
+|onSpace|[IGridSpaceEvent](#IGridSpaceEvent)|Called when space bar is pressed. Useful to manage cells which rendered as checkboxes.|
 |onRemove|[IGridRemoveEvent](#IGridRemoveEvent)|Called when `CMD`+`DELETE` is pressed. Remove records here.|
 |onNullify|[IGridNullifyEvent](#IGridNullifyEvent)|Called when `DELETE` key is pressed. Remove values here.|
-|onCopy|[IGridCopyEvent](#IGridCopyEvent)|Callback used for copying cells. Read [copy-paste](/examples/copy-and-paste) artice for details. |
-|onPaste|[IGridPasteEvent](#IGridPasteEvent)|Callback used for pasting cells. Read [copy-paste](/examples/copy-and-paste) artice for details. |
+|onCopy|[IGridCopyEvent](#IGridCopyEvent)|Callback used for copying cells. Read [copy-paste](/examples/copy-and-paste) article for details. |
+|onPaste|[IGridPasteEvent](#IGridPasteEvent)|Callback used for pasting cells. Read [copy-paste](/examples/copy-and-paste) article for details. |
 |onRightClick|[IGridCellRightClickEvent](#IGridCellRightClickEvent)|Called when right click pressed on cell.|
 |onHeaderRightClick|[IGridHeaderRightClickEvent](#IGridHeaderRightClickEvent)|Called when right click pressed on header.|
 |onUpdate|[IGridUpdateEvent](#IGridUpdateEvent)|Called when editor changed cell's value. Update data source here.|
@@ -62,7 +62,7 @@ All other optional callbacks.
 |:---|:---|:---|
 |`scrollTo(cell: { column?: number, row?: number })`|Scroll to specific column, row or cell.|
 |`openEditor(cell: { column? number, row: number })`|Opens editor in this cell.|
-|`closeEditor(commit: boolean, callback?: () => void)`|Close opened editor.<br>- `commit` parameter defines if updated value must be commited to data source.<br>- optional `callback` called after editor is closed and grid rendered with new state.|
+|`closeEditor(commit: boolean, callback?: () => void)`|Close opened editor.<br>- `commit` parameter defines if updated value must be committed to data source.<br>- optional `callback` called after editor is closed and grid rendered with new state.|
 
 ## Types
 

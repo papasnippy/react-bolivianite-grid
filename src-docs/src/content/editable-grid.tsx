@@ -190,7 +190,7 @@ export default class extends React.Component<IBaseExampleProps, any> {
         ), this.props.refControls);
     }
 
-    /** Generating header reporitory. */
+    /** Generating header repository. */
     generateRepository(rows: number, columns: number) {
         const colHeaders = (
             new Array(columns)

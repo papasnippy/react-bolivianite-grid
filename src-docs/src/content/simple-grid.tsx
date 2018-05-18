@@ -53,7 +53,7 @@ export default class extends React.Component {
         return c;
     }
 
-    /** Rendering cell. Using header's rowIndex and colIndex as cell's conent. */
+    /** Rendering cell. Using header's rowIndex and colIndex as cell's content. */
     renderCell = ({ style, row, theme, rowHeader, columnHeader }: ICellRendererEvent) => {
         return (
             <div

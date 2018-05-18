@@ -3,11 +3,11 @@ Immutable container. Can be used in Redux store. Contains all headers, it's size
 Because of immutable nature can be easily used for undo-redo. See [this](/examples/editable) example for details.
 
 All headers **must** implement [IHeader](#IHeader) interface.
-Important note about `$id` property - this is an unique header identifier for all headers.
+Important note about `$id` property - this is a unique header identifier for all headers.
 If it is undefined - it will be set by `HeaderRepository` as mutable operation. This is the only mutable operation.
 
 When it is possible to use just view row and column indices to identify cells in grid, it is strongly
-recommended to use custom idenfiers in headers for that, like `header.rowIndex` and `header.columnIndex`.
+recommended to use custom identifiers in headers for that, like `header.rowIndex` and `header.columnIndex`.
 
 ## Prop types
 

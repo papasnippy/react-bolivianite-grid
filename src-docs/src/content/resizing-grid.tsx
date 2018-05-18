@@ -12,7 +12,7 @@ export default class extends CopyPasteExample {
         );
     }
 
-    /** Rendering resizing indication. */
+    /** Rendering resizing indicator. */
     renderResizer = ({ style, theme }: IResizerRenderEvent) => {
         return (
             <div
