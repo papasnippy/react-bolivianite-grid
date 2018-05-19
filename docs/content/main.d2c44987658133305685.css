@@ -379,6 +379,14 @@
   cursor: default;
 }
 
+react-bolivianite-grid {
+  background: var(--color--accent);
+}
+
+.scrollview {
+  background: white;
+}
+
 .app__main___112Pi {
   padding-top: var(--toolbar--height);
   flex: 1 0 auto;

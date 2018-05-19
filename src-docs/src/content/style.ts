@@ -2,9 +2,6 @@ import { IGridTheme } from 'react-bolivianite-grid';
 
 const REQUIRED_THEME: IGridTheme = {
     classNameScrollView: 'scrollview',
-    styleGrid: {
-        background: '#FFFFFF'
-    },
     styleGridColumns: {
         background: '#363944',
         boxShadow: '0 0 5px #000',

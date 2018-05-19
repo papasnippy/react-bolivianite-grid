@@ -24,3 +24,14 @@
         }
     }
 }
+
+// Fix for Safari scrollbar flickering for some screen resolutions when
+// custom `--webkit` scrollbars styles are applied.
+:global {
+    react-bolivianite-grid {
+        background: var(--color--accent);
+    }
+    .scrollview {
+        background: white;
+    }
+}
