@@ -78,11 +78,13 @@ export class HeaderRepository {
         return this._state.headersWidth;
     }
 
-    get canvasWidth() {
+    /** Total width of row headers. */
+    get offsetWidth() {
         return this._headersWidth;
     }
 
-    get canvasHeight() {
+    /** Total height of column headers. */
+    get offsetHeight() {
         return this._headersHeight;
     }
 
@@ -117,8 +119,8 @@ export class HeaderRepository {
                 rowHeight: this.rowHeight,
                 headersHeight: this.headersHeight,
                 headersWidth: this.headersWidth,
-                canvasHeight: this.canvasHeight,
-                canvasWidth: this.canvasWidth,
+                canvasHeight: this.offsetHeight,
+                canvasWidth: this.offsetWidth,
                 topLevels: this.topLevels,
                 leftLevels: this.leftLevels,
                 filter: !!this._state.filter
@@ -545,7 +547,7 @@ export class HeaderRepository {
 
     public getLeftLevelWidth(level: number, isCollapsed?: boolean) {
         if (isCollapsed) {
-            return this.canvasWidth - this.getLeftLevelPosition(level);
+            return this.offsetWidth - this.getLeftLevelPosition(level);
         }
 
         let v = this._state.leftLevels[level];
@@ -554,7 +556,7 @@ export class HeaderRepository {
 
     public getTopLevelHeight(level: number, isCollapsed?: boolean) {
         if (isCollapsed) {
-            return this.canvasHeight - this.getTopLevelPosition(level);
+            return this.offsetHeight - this.getTopLevelPosition(level);
         }
 
         let v = this._state.topLevels[level];

@@ -102,7 +102,7 @@ export class ClipboardController {
 
         let out = table.map(r => r.map(c => this.props.renderCell({ data, repository, cell: c })));
 
-        if (withHeaders) {
+        if (withHeaders && (repository.offsetWidth || repository.offsetHeight)) {
             let lock: { [headerId: string]: boolean } = {};
             let top: string[][] = [];
             let left: string[][] = [];
@@ -112,26 +112,30 @@ export class ClipboardController {
             let rowLen = rowLine.length;
 
             // render column headers
-            columnLine.forEach(({ column }, c) => {
-                let h = repository.columns[column];
-                let level = repository.getLevel(h);
+            if (repository.offsetHeight) {
+                columnLine.forEach(({ column }, c) => {
+                    let h = repository.columns[column];
+                    let level = repository.getLevel(h);
 
-                do {
-                    top[level] = top[level] || new Array(columnLen).fill('');
-                    top[level][c] = this._renderHeader(h, repository.getHeaderType(h), lock);
-                } while (level-- , h = repository.getParent(h));
-            });
+                    do {
+                        top[level] = top[level] || new Array(columnLen).fill('');
+                        top[level][c] = this._renderHeader(h, repository.getHeaderType(h), lock);
+                    } while (level-- , h = repository.getParent(h));
+                });
+            }
 
             // render row headers
-            rowLine.forEach(({ row }, r) => {
-                let h = repository.rows[row];
-                let level = repository.getLevel(h);
+            if (repository.offsetWidth) {
+                rowLine.forEach(({ row }, r) => {
+                    let h = repository.rows[row];
+                    let level = repository.getLevel(h);
 
-                do {
-                    left[level] = left[level] || new Array(rowLen).fill('');
-                    left[level][r] = this._renderHeader(h, repository.getHeaderType(h), lock);
-                } while (level-- , h = repository.getParent(h));
-            });
+                    do {
+                        left[level] = left[level] || new Array(rowLen).fill('');
+                        left[level][r] = this._renderHeader(h, repository.getHeaderType(h), lock);
+                    } while (level-- , h = repository.getParent(h));
+                });
+            }
 
             // insert padding for top headers
             let paddingLeft = left.length;
@@ -139,7 +143,7 @@ export class ClipboardController {
             top = top.map((line) => [...(new Array(paddingLeft).fill('')), ...line]);
 
             // insert left headers
-            out = out.map((line, r) => [...left[r], ...line]);
+            out = out.map((line, r) => [...(left[r] || []), ...(line || [])]);
 
             out = [...top, ...out];
         }

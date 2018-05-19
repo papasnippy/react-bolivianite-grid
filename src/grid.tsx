@@ -118,11 +118,11 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
 
     private get _headersHeight() {
-        return this.props.repository.canvasHeight || 0;
+        return this.props.repository.offsetHeight || 0;
     }
 
     private get _headersWidth() {
-        return this.props.repository.canvasWidth || 0;
+        return this.props.repository.offsetWidth || 0;
     }
     //#endregion
 
@@ -871,7 +871,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
             let levels = this.props.repository.leftLevels;
             if (level < (levels - 1) && (!$children || !$children.length)) {
-                style.width = this.props.repository.canvasWidth - style.left;
+                style.width = this.props.repository.offsetWidth - style.left;
             }
         } else {
             style.top = this.props.repository.getTopLevelPosition(level);
@@ -881,7 +881,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
             let levels = this.props.repository.topLevels;
             if (level < (levels - 1) && (!$children || !$children.length)) {
-                style.height = this.props.repository.canvasHeight - style.top;
+                style.height = this.props.repository.offsetHeight - style.top;
             }
         }
 
@@ -983,14 +983,14 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 orientation = 'horizontal';
                 styleChanged.left = styleInitial.left = 0;
                 styleChanged.right = styleInitial.right = 0;
-                styleChanged.top = styleInitial.top = this.props.repository.canvasHeight + headerPosition - scrollTop;
+                styleChanged.top = styleInitial.top = this.props.repository.offsetHeight + headerPosition - scrollTop;
                 styleInitial.height = headerSize;
                 styleChanged.height = headerSize + change;
             } else {
                 orientation = 'vertical';
                 styleChanged.top = styleInitial.top = 0;
                 styleChanged.bottom = styleInitial.bottom = 0;
-                styleChanged.left = styleInitial.left = this.props.repository.canvasWidth + headerPosition - scrollLeft;
+                styleChanged.left = styleInitial.left = this.props.repository.offsetWidth + headerPosition - scrollLeft;
                 styleInitial.width = headerSize;
                 styleChanged.width = headerSize + change;
             }
@@ -1120,7 +1120,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                     position: 'absolute'
                 }}
             >
-                {!!this.props.repository.canvasHeight &&
+                {!!this.props.repository.offsetHeight &&
                     <div
                         className={this._theme.classNameGridColumns}
                         style={{
@@ -1128,16 +1128,16 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                             pointerEvents: 'initial',
                             position: 'absolute',
                             overflow: 'hidden',
-                            left: this.props.repository.canvasWidth,
+                            left: this.props.repository.offsetWidth,
                             top: 0,
                             right: 0,
-                            height: this.props.repository.canvasHeight
+                            height: this.props.repository.offsetHeight
                         }}
                     >
                         {this._renderHeaders(HeaderType.Column, scrollLeft)}
                     </div>
                 }
-                {!!this.props.repository.canvasWidth &&
+                {!!this.props.repository.offsetWidth &&
                     <div
                         className={this._theme.classNameGridRows}
                         style={{
@@ -1146,15 +1146,15 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                             position: 'absolute',
                             overflow: 'hidden',
                             left: 0,
-                            top: this.props.repository.canvasHeight,
+                            top: this.props.repository.offsetHeight,
                             bottom: 0,
-                            width: this.props.repository.canvasWidth
+                            width: this.props.repository.offsetWidth
                         }}
                     >
                         {this._renderHeaders(HeaderType.Row, scrollTop)}
                     </div>
                 }
-                {!!(this.props.repository.canvasHeight || this.props.repository.canvasWidth) &&
+                {!!(this.props.repository.offsetHeight || this.props.repository.offsetWidth) &&
                     <div
                         className={this._theme.classNameGridCorner}
                         style={{
@@ -1164,8 +1164,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                             overflow: 'hidden',
                             left: 0,
                             top: 0,
-                            height: this.props.repository.canvasHeight,
-                            width: this.props.repository.canvasWidth
+                            height: this.props.repository.offsetHeight,
+                            width: this.props.repository.offsetWidth
                         }}
                         onMouseDown={this._onCornerMouseDown}
                     >
