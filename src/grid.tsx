@@ -430,7 +430,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             });
 
             for (let { row, column, height, width } of cells) {
-                columns[column] = Math.max(headerColSizes[row] || 0, columns[column] == null ? width : Math.max(width, columns[column]));
+                columns[column] = Math.max(headerColSizes[column] || 0, columns[column] == null ? width : Math.max(width, columns[column]));
                 rows[row] = Math.max(headerRowSizes[row] || 0, rows[row] == null ? height : Math.max(height, rows[row]));
             }
 
@@ -554,8 +554,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         const { columns, rows } = ctr;
         const cells: ICellRenderBaseEvent[] = [];
 
-        for (let r = firstRow; r < lastRow; r++) {
-            for (let c = firstColumn; c < lastColumn; c++) {
+        for (let r = firstRow; r <= lastRow; r++) {
+            for (let c = firstColumn; c <= lastColumn; c++) {
                 cells.push({
                     column: c,
                     row: r,
