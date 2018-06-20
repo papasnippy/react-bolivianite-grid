@@ -22,6 +22,8 @@ or provide class name or CSS style. Grid autosizes itself.
 |readOnly|boolean||Set Grid to readonly mode.|
 |overscanRows<br>overscanColumns|number||Grid renders only exact amount of row and columns that fits into viewport by default. These settings can expand this range.|
 |theme|[IGridTheme](#IGridTheme)||Grid theme. Used to define class names and styles for grid parts, also provided to header and cell renderers.|
+|selection|[IGridSelection\[\]](#IGridSelection)||Controlled selection.|
+|active|[IGridAddress](#IGridAddress)||Controlled active cell.|
 
 ## Prop handlers
 All prop handlers implement this interface:
@@ -63,6 +65,7 @@ All other optional callbacks.
 |`scrollTo(cell: { column?: number, row?: number })`|Scroll to specific column, row or cell.|
 |`openEditor(cell: { column? number, row: number })`|Opens editor in this cell.|
 |`closeEditor(commit: boolean, callback?: () => void)`|Close opened editor.<br>- `commit` parameter defines if updated value must be committed to data source.<br>- optional `callback` called after editor is closed and grid rendered with new state.|
+|`updateSelection(event: { active?: IGridAddress, selection?: IGridSelection[] }, callback?: () => void)`|Update selection or/and active cell. Callback called after internal state was updated.|
 
 ## Types
 

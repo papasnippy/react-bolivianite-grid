@@ -86,7 +86,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             onCloseEditor: this.closeEditor,
             onOpenEditor: this.openEditor,
             onScroll: this.scrollTo,
-            onUpdateSelection: this._ctrlOnUpdateSelection,
+            onUpdateSelection: this.updateSelection,
             onCopy: this._ctrlCopy,
             onPaste: this._ctrlPaste,
             onNullify: this._ctrlNullify,
@@ -99,7 +99,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             onCloseEditor: this.closeEditor,
             onOpenEditor: this.openEditor,
             onScroll: this.scrollTo,
-            onUpdateSelection: this._ctrlOnUpdateSelection,
+            onUpdateSelection: this.updateSelection,
             onRightClick: this._ctrlRightClick
         });
     }
@@ -123,6 +123,14 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
     private get _headersWidth() {
         return this.props.repository.offsetWidth || 0;
+    }
+
+    private get _selection() {
+        return this.props.selection || this.state.selection;
+    }
+
+    private get _active() {
+        return this.props.active || this.state.active;
     }
     //#endregion
 
@@ -189,7 +197,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         return {
             active: this.state.active,
             editor: this.state.edit,
-            selection: this.state.selection,
+            selection: this._selection,
             focused: this._focused,
             columns: this._columnCount,
             rows: this._rowCount,
@@ -229,34 +237,6 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         return () => this.props.onSelectionChanged({ previous: prev, active: next });
     }
 
-    private _ctrlOnUpdateSelection = ({ active, selection }: IUpdateSelectionEvent, callback: () => void) => {
-        if (!active && !selection) {
-            return;
-        }
-
-        let nextActive = active || this.state.active;
-        let nextSelection = selection || this.state.selection;
-        let notifyActiveChanged = this._ctrlGetActiveNotifier(this.state.active, nextActive);
-        let notifySelectionChanged = this._ctrlGetSelectionNotifier(this.state.selection, nextSelection);
-
-        this.setState({
-            active: nextActive,
-            selection: nextSelection
-        }, () => {
-            if (callback) {
-                callback();
-            }
-
-            if (notifyActiveChanged) {
-                notifyActiveChanged();
-            }
-
-            if (notifySelectionChanged) {
-                notifySelectionChanged();
-            }
-        });
-    }
-
     private _ctrlRightClick = (cell: IGridAddress, event: React.MouseEvent<HTMLElement>) => {
         if (this.props.onRightClick) {
             this.props.onRightClick({ cell, event });
@@ -283,7 +263,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 repository: this.props.repository,
                 data: this.props.data,
                 target: {
-                    ...this.state.active
+                    ...this._active
                 }
             });
         }
@@ -718,7 +698,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             column: col,
             rowHeader: rh,
             columnHeader: ch,
-            active: row === this.state.active.row && col === this.state.active.column,
+            active: row === this._active.row && col === this._active.column,
             data: this.props.data,
             theme: this.props.theme,
             style: {
@@ -887,7 +867,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         let selection = false;
 
-        for (let s of this.state.selection) {
+        for (let s of this._selection) {
             if (type === HeaderType.Row) {
                 if (index >= s.row && index <= (s.row + s.height)) {
                     selection = true;
@@ -1047,7 +1027,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         let lastCol = this.props.repository.columns.length - 1;
         let lastRow = this.props.repository.rows.length - 1;
 
-        return this.state.selection.filter(({ column, row }) => {
+        return this._selection.filter(({ column, row }) => {
             return row <= lastRow && column <= lastCol;
         });
     }
@@ -1083,9 +1063,9 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         let ax = jsx.length;
 
-        if (!this._isAddressOutOfBounds(this.state.active)) {
-            let rh = ctr.rows[this.state.active.row];
-            let ch = ctr.columns[this.state.active.column];
+        if (!this._isAddressOutOfBounds(this._active)) {
+            let rh = ctr.rows[this._active.row];
+            let ch = ctr.columns[this._active.column];
 
             jsx.push(this.props.onRenderSelection({
                 key: ax,
@@ -1311,6 +1291,34 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         if (this.props.onHeaderResize) {
             this.props.onHeaderResize(e);
         }
+    }
+
+    public updateSelection = ({ active, selection }: IUpdateSelectionEvent, callback?: () => void) => {
+        if (!active && !selection) {
+            return;
+        }
+
+        let nextActive = active || this._active;
+        let nextSelection = selection || this._selection;
+        let notifyActiveChanged = this._ctrlGetActiveNotifier(this._active, nextActive);
+        let notifySelectionChanged = this._ctrlGetSelectionNotifier(this._selection, nextSelection);
+
+        this.setState({
+            active: nextActive,
+            selection: nextSelection
+        }, () => {
+            if (callback) {
+                callback();
+            }
+
+            if (notifyActiveChanged) {
+                notifyActiveChanged();
+            }
+
+            if (notifySelectionChanged) {
+                notifySelectionChanged();
+            }
+        });
     }
 
     public autoMeasure(headers: IHeader[], type: 'levels' | 'cells' = 'cells') {

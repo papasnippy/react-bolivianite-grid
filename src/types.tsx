@@ -235,6 +235,10 @@ export interface IGridProps {
 
     theme?: IGridTheme;
 
+    active?: IGridAddress;
+
+    selection?: IGridSelection[];
+
     /** Cell renderer. Required. Some event handlers will be bound. */
     onRenderCell: (e: ICellRendererEvent) => JSX.Element;
 
