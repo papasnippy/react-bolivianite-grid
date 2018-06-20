@@ -40,7 +40,7 @@
         }
 
         &.code,
-        react-bolivianite-grid :global(.scrollview) {
+        :global(.demo-grid .scrollview) {
             &::-webkit-scrollbar {
                 background: var(--color--accent);
                 width: 10px;

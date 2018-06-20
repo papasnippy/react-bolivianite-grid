@@ -1448,7 +1448,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         return (
             <Context.Provider value={{ grid: this, repository: this.props.repository }}>
-                <react-bolivianite-grid
+                <div
                     className={this._theme.classNameGrid}
                     tabIndex={this.props.tabIndex == null ? -1 : this.props.tabIndex}
                     ref={this._onRef}
@@ -1477,7 +1477,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                         headersRenderer={this._renderHeadersLayer}
                         bodyRenderer={this._bodyRenderer}
                     />
-                </react-bolivianite-grid>
+                </div>
             </Context.Provider>
         );
     }

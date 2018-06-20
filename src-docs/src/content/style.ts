@@ -1,6 +1,7 @@
 import { IGridTheme } from 'react-bolivianite-grid';
 
 const REQUIRED_THEME: IGridTheme = {
+    classNameGrid: 'demo-grid',
     classNameScrollView: 'scrollview',
     styleGridColumns: {
         background: '#363944',
