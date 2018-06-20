@@ -284,19 +284,19 @@
 }
 
 .code-view__container___3sk5c.code-view__code___1dzXz::-webkit-scrollbar,
-.code-view__container___3sk5c react-bolivianite-grid .scrollview::-webkit-scrollbar {
+.code-view__container___3sk5c .demo-grid .scrollview::-webkit-scrollbar {
   background: var(--color--accent);
   width: 10px;
   height: 10px;
 }
 
 .code-view__container___3sk5c.code-view__code___1dzXz::-webkit-scrollbar-corner,
-.code-view__container___3sk5c react-bolivianite-grid .scrollview::-webkit-scrollbar-corner {
+.code-view__container___3sk5c .demo-grid .scrollview::-webkit-scrollbar-corner {
   background: var(--color--accent);
 }
 
 .code-view__container___3sk5c.code-view__code___1dzXz::-webkit-scrollbar-thumb,
-.code-view__container___3sk5c react-bolivianite-grid .scrollview::-webkit-scrollbar-thumb {
+.code-view__container___3sk5c .demo-grid .scrollview::-webkit-scrollbar-thumb {
   background: var(--color--environment);
   box-sizing: border-box;
   border-radius: 10px;
@@ -304,7 +304,7 @@
 }
 
 .code-view__container___3sk5c.code-view__code___1dzXz::-webkit-scrollbar-thumb:hover,
-.code-view__container___3sk5c react-bolivianite-grid .scrollview::-webkit-scrollbar-thumb:hover {
+.code-view__container___3sk5c .demo-grid .scrollview::-webkit-scrollbar-thumb:hover {
   background: var(--color--text-main);
 }
 
