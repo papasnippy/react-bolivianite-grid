@@ -1,4 +1,4 @@
-# React bolivianite component
+# React bolivianite grid
 React grid component for virtualized rendering large tabular data.
 
 ```app.example
