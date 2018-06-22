@@ -390,7 +390,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             behavior
         };
 
-        if ((workType === 'all' || workType === 'cells') && cells.length) {
+        if ((workType === 'all' || workType === 'cells')) {
             const columnHeaders = ctr.columns;
             const rowHeaders = ctr.rows;
 
@@ -408,6 +408,31 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                     headerColSizes[vi] = Math.max(headerColSizes[vi] || 0, width);
                 }
             });
+
+            if (!cells.length) {
+                let { firstColumn, firstRow, lastRow, lastColumn } = this._lastView;
+
+                if (firstRow !== -1 || firstColumn !== -1) {
+                    if (firstRow === -1) {
+                        firstRow = 0;
+                        lastRow = 0;
+                    } else {
+                        firstColumn = 0;
+                        lastColumn = 0;
+                    }
+
+                    for (let r = firstRow; r <= lastRow; r++) {
+                        for (let c = firstColumn; c <= lastColumn; c++) {
+                            cells.push({
+                                column: c,
+                                row: r,
+                                height: 0,
+                                width: 0
+                            });
+                        }
+                    }
+                }
+            }
 
             for (let { row, column, height, width } of cells) {
                 columns[column] = Math.max(headerColSizes[column] || 0, columns[column] == null ? width : Math.max(width, columns[column]));
