@@ -536,12 +536,14 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         for (let r = firstRow; r <= lastRow; r++) {
             for (let c = firstColumn; c <= lastColumn; c++) {
-                cells.push({
-                    column: c,
-                    row: r,
-                    columnHeader: columns[c],
-                    rowHeader: rows[r]
-                });
+                if (columns[c] && rows[r]) {
+                    cells.push({
+                        column: c,
+                        row: r,
+                        columnHeader: columns[c],
+                        rowHeader: rows[r]
+                    });
+                }
             }
         }
 
@@ -1354,23 +1356,27 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                         let c = repository.getViewIndex(h);
 
                         for (let r = firstRow; r <= lastRow; r++) {
-                            cellNodes.push({
-                                column: c,
-                                row: r,
-                                columnHeader: columns[c],
-                                rowHeader: rows[r]
-                            });
+                            if (columns[c] && rows[r]) {
+                                cellNodes.push({
+                                    column: c,
+                                    row: r,
+                                    columnHeader: columns[c],
+                                    rowHeader: rows[r]
+                                });
+                            }
                         }
                     } else {
                         let r = repository.getViewIndex(h);
 
                         for (let c = firstColumn; c <= lastColumn; c++) {
-                            cellNodes.push({
-                                column: c,
-                                row: r,
-                                columnHeader: columns[c],
-                                rowHeader: rows[r]
-                            });
+                            if (columns[c] && rows[r]) {
+                                cellNodes.push({
+                                    column: c,
+                                    row: r,
+                                    columnHeader: columns[c],
+                                    rowHeader: rows[r]
+                                });
+                            }
                         }
                     }
                 }
