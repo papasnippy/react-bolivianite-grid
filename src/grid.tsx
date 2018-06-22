@@ -526,10 +526,6 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         const { firstColumn, firstRow, lastRow, lastColumn } = this._lastView;
 
-        if (firstColumn === -1 || firstRow === -1) {
-            return;
-        }
-
         const ctr = this.props.repository;
         const { columns, rows } = ctr;
         const cells: ICellRenderBaseEvent[] = [];
@@ -547,10 +543,6 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             }
         }
 
-        if (!cells.length) {
-            return;
-        }
-
         const columnHeaders = ctr.getNodesBottomUp(columns.slice(firstColumn, lastColumn + 1));
         const rowHeaders = ctr.getNodesBottomUp(rows.slice(firstRow, lastRow + 1));
 
@@ -562,6 +554,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 header: h
             };
         });
+
+        if (!cells.length && !headers.length) {
+            return;
+        }
 
         this.props.onAutoMeasure({
             cells,
@@ -1163,8 +1159,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             <>
                 <div
                     style={{
-                        height: this._lastView.rowsHeight,
-                        width: this._lastView.columnsWidth,
+                        height: Math.max(1, this._lastView.rowsHeight),
+                        width: Math.max(1, this._lastView.columnsWidth),
                         boxSizing: 'border-box',
                         position: 'relative',
                         marginLeft: this._headersWidth,
