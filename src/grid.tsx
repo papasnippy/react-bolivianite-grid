@@ -169,6 +169,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
 
     private _onRootMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+        this.focus();
+
         if (e.button === 2) {
             this._blockContextMenu = true;
         }
@@ -1212,6 +1214,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     public focus() {
         if (this._ref) {
             this._ref.focus();
+            this._focused = true;
         }
     }
 
