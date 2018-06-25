@@ -1114,6 +1114,12 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     private _renderHeadersLayer = (event: IScrollViewUpdateEvent) => {
         const { clientWidth, clientHeight, scrollLeft, scrollTop } = event;
 
+        const cornerJsx = (
+            this.props.onRenderHeaderCorner
+                ? this.props.onRenderHeaderCorner()
+                : null
+        );
+
         return (
             <div
                 style={{
@@ -1174,6 +1180,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                         }}
                         onMouseDown={this._onCornerMouseDown}
                     >
+                        {cornerJsx}
                     </div>
                 }
                 {this._renderResizing(event)}
@@ -1514,6 +1521,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                         style={this._scrollerStyle}
                         headersRenderer={this._renderHeadersLayer}
                         bodyRenderer={this._bodyRenderer}
+                        preserveScrollbars={this.props.preserveScrollbars}
                     />
                 </div>
             </Context.Provider>

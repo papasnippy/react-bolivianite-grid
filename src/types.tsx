@@ -221,6 +221,9 @@ export interface IGridTheme {
 export interface IGridProps {
     tabIndex?: number;
 
+    /** Always show scrollbars. Otherwise it will be automatically hidden. */
+    preserveScrollbars?: boolean;
+
     /** Reference to headers repository. */
     repository: HeaderRepository;
 
@@ -244,6 +247,8 @@ export interface IGridProps {
 
     /** Header renderer. Required. */
     onRenderHeader: (e: IHeaderRendererEvent) => JSX.Element;
+
+    onRenderHeaderCorner?: () => JSX.Element;
 
     /** Selection renderer. Required. If active property is true - this renders active cell selection. */
     onRenderSelection: (e: ISelectionRendererEvent) => JSX.Element;

@@ -1,6 +1,6 @@
 {
   "name": "react-bolivianite-grid",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "React grid component for virtualized rendering large tabular data.",
   "main": "index.js",
   "module": "__es_module/index.js",

@@ -12,6 +12,7 @@ export interface IScrollViewUpdateEvent {
 export interface IScrollViewProps {
     className?: string;
     style?: React.CSSProperties;
+    preserveScrollbars?: boolean;
     onScroll: (event: IScrollViewUpdateEvent) => void;
     bodyRenderer: (event: IScrollViewUpdateEvent) => React.ReactNode;
     headersRenderer: (event: IScrollViewUpdateEvent) => React.ReactNode;
@@ -147,7 +148,7 @@ export class ScrollView extends React.Component<IScrollViewProps, any> implement
                         top: 0,
                         right: 0,
                         bottom: 0,
-                        overflow: 'scroll'
+                        overflow: this.props.preserveScrollbars ? 'scroll' : 'auto'
                     }}
                 >
                     {this.props.bodyRenderer(view)}

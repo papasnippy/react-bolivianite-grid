@@ -17,6 +17,7 @@ or provide class name or CSS style. Grid autosizes itself.
 | Property name | Type | Required? | Description |
 |:---|:---|:---:|:---|
 |tabIndex|number||Root component tab index attribute. Default = -1.|
+|preserveScrollbars|boolean||Always show scrollbars. Otherwise it will be automatically hidden. Defailt is `false`.|
 |repository|[HeaderRepository](/api/headers)|✓|Read [this](/api/headers) article for details.|
 |data|any||Data source. Not used directly, only passed to all other grid properties. Can be any type.|
 |readOnly|boolean||Set Grid to readonly mode.|
@@ -37,6 +38,7 @@ Every callback must return `JSX.Element` type.
 |:---|:---|:---:|:---|
 |onRenderCell|[ICellRendererEvent](#ICellRendererEvent)|✓|Cell renderer.|
 |onRenderHeader|[IHeaderRendererEvent](#IHeaderRendererEvent)|✓|Header renderer.|
+|onRenderHeaderCorner|||Header corner (top left) renderer.|
 |onRenderSelection|[ISelectionRendererEvent](#ISelectionRendererEvent)|✓|User's selection renderer. [Example](/examples/resizing).|
 |onRenderEditor|[ICellEditorEvent](#ICellEditorEvent)||Editor renderer. See [this](/api/editor) article for details.|
 |onRenderResizer|[IResizerRenderEvent](#IResizerRenderEvent)||Resizer renderer. [Example](/examples/resizing).|
