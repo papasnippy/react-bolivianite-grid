@@ -275,15 +275,18 @@ export class HeaderRepository {
     }
 
     private _calcLevels() {
-        this._headersWidth = 0;
+        let w = 0, h = 0;
+
         for (let i = 0; i < this._state.viewLeftLevels; i++) {
-            this._headersWidth += this.getLeftLevelWidth(i);
+            w += this.getLeftLevelWidth(i);
         }
 
-        this._headersHeight = 0;
         for (let i = 0; i < this._state.viewTopLevels; i++) {
-            this._headersHeight += this.getTopLevelHeight(i);
+            h += this.getTopLevelHeight(i);
         }
+
+        this._headersWidth = w || this._state.headersWidth;
+        this._headersHeight = h || this._state.headersHeight;
     }
 
     private _calcPosition(from = 0) {
