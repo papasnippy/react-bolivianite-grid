@@ -287,6 +287,8 @@ interface IGridPasteEvent {
 interface IGridCellRightClickEvent {
     cell: IGridAddress;
     event: React.MouseEvent<HTMLElement>;
+    /** Select current cell. */
+    select: () => void;
 }
 ```
 

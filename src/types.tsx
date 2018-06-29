@@ -145,6 +145,8 @@ export interface IGridSpaceEvent {
 export interface IGridCellRightClickEvent {
     cell: IGridAddress;
     event: React.MouseEvent<HTMLElement>;
+    /** Select current cell. */
+    select: () => void;
 }
 
 export interface IGridHeaderRightClickEvent {

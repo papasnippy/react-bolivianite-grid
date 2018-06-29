@@ -3,7 +3,7 @@ import { IGridAddress, HeaderType } from './types';
 import { Controller, IControllerProps } from './base-controller';
 
 export interface IMouseControllerProps extends IControllerProps {
-    onRightClick: (cell: IGridAddress, event: React.MouseEvent<HTMLElement>) => void;
+    onRightClick: (cell: IGridAddress, event: React.MouseEvent<HTMLElement>, select: () => void) => void;
 }
 
 export class MouseController extends Controller {
@@ -153,25 +153,19 @@ export class MouseController extends Controller {
             return;
         }
 
-        let { shiftKey } = this._getModifiers(e);
+        let active = {
+            row: type === HeaderType.Column ? 0 : first,
+            column: type === HeaderType.Column ? first : 0
+        };
 
-        if (shiftKey) {
-
-        } else {
-            let active = {
-                row: type === HeaderType.Column ? 0 : first,
-                column: type === HeaderType.Column ? first : 0
-            };
-
-            this._props.onUpdateSelection({
-                active,
-                selection: [{
-                    ...active,
-                    height: type === HeaderType.Column ? rows - 1 : last - first,
-                    width: type === HeaderType.Column ? last - first : columns - 1
-                }]
-            });
-        }
+        this._props.onUpdateSelection({
+            active,
+            selection: [{
+                ...active,
+                height: type === HeaderType.Column ? rows - 1 : last - first,
+                width: type === HeaderType.Column ? last - first : columns - 1
+            }]
+        });
     }
 
     public mousedown(e: MouseEvent<HTMLElement>, row: number, column: number) {
@@ -231,17 +225,13 @@ export class MouseController extends Controller {
                 this._down = { row, column };
             }
         } else if (e.button === 2) {
-            this._props.onUpdateSelection({
-                active: { row, column },
-                selection: [{ row, column, height: 0, width: 0 }]
+            e.persist();
+            this._props.onRightClick({ row, column }, e, () => {
+                this._props.onUpdateSelection({
+                    active: { row, column },
+                    selection: [{ row, column, height: 0, width: 0 }]
+                });
             });
-
-            try {
-                e.persist();
-                this._props.onRightClick({ row, column }, e);
-            } catch (err) {
-                console.log(err);
-            }
         }
     }
 
