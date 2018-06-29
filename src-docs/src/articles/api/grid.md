@@ -289,6 +289,8 @@ interface IGridCellRightClickEvent {
     event: React.MouseEvent<HTMLElement>;
     /** Select current cell. */
     select: () => void;
+    /** Right click was inside any selection. */
+    inside: boolean;
 }
 ```
 

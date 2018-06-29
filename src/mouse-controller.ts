@@ -3,7 +3,7 @@ import { IGridAddress, HeaderType } from './types';
 import { Controller, IControllerProps } from './base-controller';
 
 export interface IMouseControllerProps extends IControllerProps {
-    onRightClick: (cell: IGridAddress, event: React.MouseEvent<HTMLElement>, select: () => void) => void;
+    onRightClick: (cell: IGridAddress, event: React.MouseEvent<HTMLElement>, select: () => void, inside: boolean) => void;
 }
 
 export class MouseController extends Controller {
@@ -226,12 +226,16 @@ export class MouseController extends Controller {
             }
         } else if (e.button === 2) {
             e.persist();
-            this._props.onRightClick({ row, column }, e, () => {
+            let cell: IGridAddress = { row, column };
+            let inside = this._isInsideSelection(cell, selection);
+            let select = () => {
                 this._props.onUpdateSelection({
                     active: { row, column },
                     selection: [{ row, column, height: 0, width: 0 }]
                 });
-            });
+            };
+
+            this._props.onRightClick(cell, e, select, inside);
         }
     }
 

@@ -239,9 +239,14 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         return () => this.props.onSelectionChanged({ previous: prev, active: next });
     }
 
-    private _ctrlRightClick = (cell: IGridAddress, event: React.MouseEvent<HTMLElement>, select: () => void) => {
+    private _ctrlRightClick = (
+        cell: IGridAddress,
+        event: React.MouseEvent<HTMLElement>,
+        select: () => void,
+        inside: boolean
+    ) => {
         if (this.props.onRightClick) {
-            this.props.onRightClick({ cell, event, select });
+            this.props.onRightClick({ cell, event, select, inside });
         }
     }
 

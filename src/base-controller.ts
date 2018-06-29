@@ -84,6 +84,12 @@ export class Controller {
         return list;
     }
 
+    protected _isInsideSelection({ column: c, row: r }: IGridAddress, selection: IGridSelection[]) {
+        return selection.findIndex(({ row, column, height, width }) => {
+            return row <= r && r <= (row + height) && column <= c && c <= (column + width);
+        }) !== -1;
+    }
+
     protected _request() {
         return this._state = this._props.getState();
     }
