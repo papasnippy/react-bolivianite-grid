@@ -660,16 +660,12 @@ export class KeyboardController extends Controller {
 
         switch (e.keyCode) {
             case 45: // insert
-                if (!shiftKey && !cmdKey) {
+                if (!cmdKey) {
                     break;
                 }
 
-                if (shiftKey && !cmdKey) {
-                    // this._onPaste();
-                } else if (!shiftKey && cmdKey) {
-                    e.preventDefault();
-                    this._onCopy(altKey);
-                }
+                e.preventDefault();
+                this._onCopy(shiftKey || altKey);
                 break;
 
             case 8: // backspace
@@ -690,7 +686,7 @@ export class KeyboardController extends Controller {
                     break;
                 }
                 e.preventDefault();
-                this._onCopy(altKey);
+                this._onCopy(shiftKey || altKey);
                 break;
 
             case 86: // v
