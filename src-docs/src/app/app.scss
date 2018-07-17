@@ -62,7 +62,8 @@
             border-width: 3px;
             border-color: var(--menu-item--color);
             border-right-style: solid;
-            &[aria-current="true"] {
+            &[aria-current],
+            &:global(.active){
                 color: var(--menu-item--selected-color) !important;
                 border-color: var(--menu-item--selected-color);
                 background: var(--menu-item--selected-background);
