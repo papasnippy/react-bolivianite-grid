@@ -34,7 +34,20 @@ const THEME = {
     selectionBackgroundActive: 'transparent',
     selectionBorder: 'solid 1px #24262d',
     selectionBorderActive: 'solid 2px #24262d',
-    resizerBackground: 'rgba(0, 0, 0, 0.4)',
+    resizer: {
+        background: 'var(--color--accent)',
+        opacity: 0.5
+    },
+    resizerChangeV: {
+        boxSizing: 'border-box',
+        borderLeft: 'solid 2px var(--color--accent)',
+        borderRight: 'solid 2px var(--color--accent)'
+    },
+    resizerChangeH: {
+        boxSizing: 'border-box',
+        borderTop: 'solid 2px var(--color--accent)',
+        borderBottom: 'solid 2px var(--color--accent)'
+    },
     cellStyle: {
         boxSizing: 'border-box',
         borderRight: `solid 1px #BFBFBF`,

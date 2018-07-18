@@ -13,12 +13,18 @@ export default class extends CopyPasteExample {
     }
 
     /** Rendering resizing indicator. */
-    renderResizer = ({ style, theme }: IResizerRenderEvent) => {
+    renderResizer = ({ style, theme, resizer, orientation }: IResizerRenderEvent) => {
         return (
             <div
                 style={{
                     ...style,
-                    background: theme.resizerBackground
+                    ...(
+                        resizer === 'initial'
+                            ? theme.resizer
+                            : orientation === 'horizontal'
+                                ? theme.resizerChangeH
+                                : theme.resizerChangeV
+                    )
                 }}
             />
         );
