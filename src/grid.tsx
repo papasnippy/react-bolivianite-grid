@@ -8,7 +8,7 @@ import { IUpdateSelectionEvent } from './base-controller';
 
 import {
     IGridProps, IGridResizeCombinedEvent, IMeasureResult, ICellRenderBaseEvent, ICellRendererEvent,
-    IGridAddress, IGridSelection, IGridView, IGridOverscan, IHeader, HeaderType, HeaderResizeBehavior
+    IGridAddress, IGridSelection, IGridView, IGridOverscan, IHeader, HeaderType, HeaderResizeBehavior, IGridReadOnlyEvent
 } from './types';
 
 import Context from './context';
@@ -91,7 +91,8 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             onPaste: this._ctrlPaste,
             onNullify: this._ctrlNullify,
             onRemove: this._ctrlRemove,
-            onSpace: this._ctrlSpace
+            onSpace: this._ctrlSpace,
+            onReadOnlyFilter: this._ctrlOnReadOnlyFilter
         });
 
         this._msCtr = new MouseController({
@@ -277,7 +278,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
     private _ctrlNullify = (cells: IGridAddress[]) => {
         if (this.props.onNullify) {
-            this.props.onNullify({ cells });
+            this.props.onNullify({ cells: this._ctrlOnReadOnlyFilter(cells) });
         }
     }
 
@@ -291,6 +292,23 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         if (this.props.onSpace) {
             this.props.onSpace({ cells });
         }
+    }
+
+    private _ctrlIsReadOnly(e: IGridReadOnlyEvent) {
+        if (this.props.onReadOnly) {
+            return this.props.onReadOnly(e);
+        }
+
+        return e.column.$readOnly || e.row.$readOnly;
+    }
+
+    private _ctrlOnReadOnlyFilter = (cells: IGridAddress[]) => {
+        return cells.filter(({ row, column }) => {
+            let ch = this.props.repository.columns[column];
+            let rh = this.props.repository.rows[row];
+
+            return ch && rh && !this._ctrlIsReadOnly({ row: rh, column: ch });
+        });
     }
     //#endregion
 
@@ -1292,7 +1310,12 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             return;
         }
 
-        this.setState({ edit: cell });
+        let ch = this.props.repository.columns[cell.column];
+        let rh = this.props.repository.rows[cell.row];
+
+        if (ch && rh && !this._ctrlIsReadOnly({ column: ch, row: rh })) {
+            this.setState({ edit: cell });
+        }
     }
 
     public closeEditor = (commit: boolean, callback?: () => void) => {

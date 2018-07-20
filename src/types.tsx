@@ -20,6 +20,8 @@ export interface IHeader {
     $sizeCollapsed?: number;
     /** Filter flag. */
     $collapsed?: boolean;
+    /** Marks this column or row read only. */
+    $readOnly?: boolean;
 
     /** Any other custom properties. */
     [prop: string]: any;
@@ -207,6 +209,11 @@ export interface IGridSelectionChangeEvent {
     active: IGridSelection[];
 }
 
+export interface IGridReadOnlyEvent {
+    column: IHeader;
+    row: IHeader;
+}
+
 export interface IGridTheme {
     classNameGrid?: string;
     classNameGridCorner?: string;
@@ -297,6 +304,9 @@ export interface IGridProps {
 
     /** Called when header set was resized. */
     onHeaderResize?: (e: IGridResizeCombinedEvent) => void;
+
+    /** Checks if current cell is readonly. Pasting and editing of that cell will be forbidden. */
+    onReadOnly?: (e: IGridReadOnlyEvent) => boolean;
 
     /** Hidded property, sometime I will document it. (ಠ_ಠ) Not supposed to be used for now. */
     scrollViewClass?: IScrollViewInterface;

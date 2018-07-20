@@ -112,6 +112,8 @@ interface IHeader {
     $sizeCollapsed?: number;
     /** Filter flag. */
     $collapsed?: boolean;
+    /** Marks this column or row read only. */
+    $readOnly?: boolean;
 
     /** Any other custom properties. */
     [prop: string]: any;

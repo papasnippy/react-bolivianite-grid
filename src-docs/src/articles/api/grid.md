@@ -49,8 +49,8 @@ All other optional callbacks.
 | Property name | Event type | Description |
 |:---|:---|:---|:---|
 |onAutoMeasure|[ICellsMeasureEvent](#ICellsMeasureEvent)|Auto measure callback. Read [this](/examples/autosizing) article for details.|
-|onSpace|[IGridSpaceEvent](#IGridSpaceEvent)|Called when space bar is pressed. Useful to manage cells which rendered as checkboxes.|
-|onRemove|[IGridRemoveEvent](#IGridRemoveEvent)|Called when `CMD`+`DELETE` is pressed. Remove records here.|
+|onSpace|[IGridSpaceEvent](#IGridSpaceEvent)|Called when space bar is pressed. Useful to manage cells which rendered as checkboxes. Header read only check is not applied here.|
+|onRemove|[IGridRemoveEvent](#IGridRemoveEvent)|Called when `CMD`+`DELETE` is pressed. Remove records here. Header read only check is not applied here.|
 |onNullify|[IGridNullifyEvent](#IGridNullifyEvent)|Called when `DELETE` key is pressed. Remove values here.|
 |onCopy|[IGridCopyEvent](#IGridCopyEvent)|Callback used for copying cells. Read [copy-paste](/examples/copy-and-paste) article for details. |
 |onPaste|[IGridPasteEvent](#IGridPasteEvent)|Callback used for pasting cells. Read [copy-paste](/examples/copy-and-paste) article for details. |
@@ -60,6 +60,7 @@ All other optional callbacks.
 |onActiveChanged|[IGridActiveChangeEvent](#IGridActiveChangeEvent)|Called when active cell (cursor) is changed.|
 |onSelectionChanged|[IGridSelectionChangeEvent](#IGridSelectionChangeEvent)|Called when user's selection is changed.|
 |onHeaderResize|[IGridResizeCombinedEvent](#IGridResizeCombinedEvent)|Called when headers were resized (by autosize event or manually).|
+|onReadOnly|[IGridReadOnlyEvent](#IGridReadOnlyEvent)|Checks if current cell is readonly. If returns true, editing of that cell will be forbidden. Header's `$readOnly` property will not be used.|
 
 ## Class methods
 | Method | Description |
@@ -323,6 +324,14 @@ interface IGridActiveChangeEvent {
 interface IGridSelectionChangeEvent {
     previous: IGridSelection[];
     active: IGridSelection[];
+}
+```
+
+#### <a name="IGridReadOnlyEvent"></a>
+```typescript
+interface IGridReadOnlyEvent {
+    column: IHeader;
+    row: IHeader;
 }
 ```
 
