@@ -92,7 +92,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             onNullify: this._ctrlNullify,
             onRemove: this._ctrlRemove,
             onSpace: this._ctrlSpace,
-            onReadOnlyFilter: this._ctrlOnReadOnlyFilter
+            onReadOnly: this._ctrlIsCellReadOnly
         });
 
         this._msCtr = new MouseController({
@@ -262,12 +262,13 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         }
     }
 
-    private _ctrlPaste = ({ clipboard, getAllSelectedCells, getLastSelectedCells }: IKeyboardControllerPasteEvent) => {
+    private _ctrlPaste = ({ clipboard, getAllSelectedCells, getLastSelectedCells, isReadOnly }: IKeyboardControllerPasteEvent) => {
         if (this.props.onPaste) {
             this.props.onPaste({
                 clipboard,
                 getAllSelectedCells,
                 getLastSelectedCells,
+                isReadOnly,
                 repository: this.props.repository,
                 data: this.props.data,
                 target: {
@@ -302,13 +303,14 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         return e.column.$readOnly || e.row.$readOnly;
     }
 
-    private _ctrlOnReadOnlyFilter = (cells: IGridAddress[]) => {
-        return cells.filter(({ row, column }) => {
-            let ch = this.props.repository.columns[column];
-            let rh = this.props.repository.rows[row];
+    private _ctrlIsCellReadOnly = ({ row, column }: IGridAddress) => {
+        let ch = this.props.repository.columns[column];
+        let rh = this.props.repository.rows[row];
+        return ch && rh && this._ctrlIsReadOnly({ row: rh, column: ch });
+    }
 
-            return ch && rh && !this._ctrlIsReadOnly({ row: rh, column: ch });
-        });
+    private _ctrlOnReadOnlyFilter = (cells: IGridAddress[]) => {
+        return cells.filter(e => !this._ctrlIsCellReadOnly(e));
     }
     //#endregion
 

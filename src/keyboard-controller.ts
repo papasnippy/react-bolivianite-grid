@@ -11,6 +11,7 @@ export interface IKeyboardControllerPasteEvent {
     clipboard: DataTransfer;
     getAllSelectedCells: () => IGridAddress[];
     getLastSelectedCells: () => IGridAddress[];
+    isReadOnly: (cell: IGridAddress) => boolean;
 }
 
 export interface IKeyboardControllerProps extends IControllerProps {
@@ -19,7 +20,7 @@ export interface IKeyboardControllerProps extends IControllerProps {
     onSpace: (cells: IGridAddress[]) => void;
     onCopy: (cells: IGridAddress[], withHeaders: boolean) => void;
     onPaste: (event: IKeyboardControllerPasteEvent) => void;
-    onReadOnlyFilter: (cells: IGridAddress[]) => IGridAddress[];
+    onReadOnly: (cell: IGridAddress) => boolean;
 }
 
 export class KeyboardController extends Controller {
@@ -718,12 +719,13 @@ export class KeyboardController extends Controller {
 
         this._props.onPaste({
             clipboard: e.clipboardData,
+            isReadOnly: this._props.onReadOnly,
             getAllSelectedCells: () => {
-                return this._props.onReadOnlyFilter(this._getSelectedCells(selection));
+                return this._getSelectedCells(selection);
             },
             getLastSelectedCells: () => {
                 let { last } = this._splitSelection(selection);
-                return this._props.onReadOnlyFilter(this._getSelectedCells([last]));
+                return this._getSelectedCells([last]);
             }
         });
     }

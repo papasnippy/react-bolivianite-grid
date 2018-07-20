@@ -151,7 +151,7 @@ export class ClipboardController {
         this.props.onCopy({ table: out, focus });
     }
 
-    public onPaste = ({ clipboard, target }: IGridPasteEvent) => {
+    public onPaste = ({ clipboard, target, isReadOnly }: IGridPasteEvent) => {
         let table = this.props.clipboardParser(clipboard);
 
         if (!Array.isArray(table) || !table.length || !Array.isArray(table[0]) || !table[0].length) {
@@ -162,18 +162,27 @@ export class ClipboardController {
 
         for (let r = 0, rLen = table.length; r < rLen; r++) {
             for (let c = 0, cLen = table[r].length; c < cLen; c++) {
+                let column = target.column + c;
+                let row = target.row + r;
+
+                if (isReadOnly({ row, column })) {
+                    continue;
+                }
+
                 changes.push({
-                    column: target.column + c,
-                    row: target.row + r,
+                    column,
+                    row,
                     value: this.props.cellParser({
-                        column: target.column + c,
-                        row: target.row + r,
+                        column,
+                        row,
                         value: table[r][c]
                     })
                 });
             }
         }
 
-        this.props.onPaste({ changes });
+        if (changes.length) {
+            this.props.onPaste({ changes });
+        }
     }
 }
