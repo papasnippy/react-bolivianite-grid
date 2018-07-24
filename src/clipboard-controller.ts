@@ -68,12 +68,12 @@ export class ClipboardController {
         return table.filter(v => !!v).map(r => r.filter(c => !!c));
     }
 
-    private _renderHeader(header: IHeader, type: HeaderType, lock: { [headerId: string]: boolean }) {
-        if (lock[header.$id]) {
+    private _renderHeader(header: IHeader, type: HeaderType, lock: Set<string | number>) {
+        if (lock.has(header.$id)) {
             return '';
         }
 
-        lock[header.$id] = true;
+        lock.add(header.$id);
         return this.props.renderHeader({ header, type });
     }
 
@@ -103,7 +103,7 @@ export class ClipboardController {
         let out = table.map(r => r.map(c => this.props.renderCell({ data, repository, cell: c })));
 
         if (withHeaders && (repository.offsetWidth || repository.offsetHeight)) {
-            let lock: { [headerId: string]: boolean } = {};
+            let lock = new Set<string | number>();
             let top: string[][] = [];
             let left: string[][] = [];
             let columnLine = table[0];

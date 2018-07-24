@@ -874,16 +874,16 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         index: number,
         header: IHeader,
         scrollPos: number,
-        lock: { [id: string]: boolean },
+        lock: Set<string | number>,
         parent: boolean
     ) {
         let { $id, $children } = header;
 
-        if (lock[$id]) {
+        if (lock.has($id)) {
             return;
         }
 
-        lock[$id] = true;
+        lock.add($id);
 
         let style: React.CSSProperties = {
             position: 'absolute',
@@ -967,7 +967,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         let len = Math.max(0, Math.min(max - first, 1 + last - first));
         let jsx: JSX.Element[] = [];
-        let lock: { [id: string]: boolean } = {};
+        let lock = new Set<string | number>();
 
         for (let i = 0; i < len; i++) {
             let ix = i + first;
@@ -1447,9 +1447,9 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         if (type === 'cells') {
             headers = repository.getNodesTopDown(headers);
         } else {
-            const levels: { [level: number]: boolean } = [];
+            const levels = new Set<number>();
             headers.forEach((h) => {
-                levels[repository.getLevel(h)] = true;
+                levels.add(repository.getLevel(h));
             });
 
             const list = (
@@ -1458,7 +1458,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                     : repository.rows.slice(firstRow, lastRow + 1)
             );
 
-            headers = repository.getNodesBottomUp(list).filter(h => !!levels[repository.getLevel(h)]);
+            headers = repository.getNodesBottomUp(list).filter(h => levels.has(repository.getLevel(h)));
         }
 
         const headerNodes = headers.map((h) => {

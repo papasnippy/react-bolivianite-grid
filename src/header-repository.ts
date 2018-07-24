@@ -22,8 +22,8 @@ export interface IHeaderRepositoryState extends IHeaderRepositoryProps {
     positions: { [headerId: string]: number };
     levels: { [headerId: string]: number };
     parents: { [headerId: string]: IHeader };
-    headerManualResized: { [headerId: string]: boolean };
-    levelManualResized: { [headerId: string]: boolean };
+    headerManualResized: Set<string | number>;
+    levelManualResized: Set<string | number>;
 }
 
 export class HeaderRepository {
@@ -51,8 +51,8 @@ export class HeaderRepository {
             positions: {},
             levels: {},
             parents: {},
-            headerManualResized: {},
-            levelManualResized: {}
+            headerManualResized: new Set<string>(),
+            levelManualResized: new Set<string>()
         };
 
         this._state.viewColumns = this._create(props.columns, [], HeaderType.Column, props.filter);
@@ -171,8 +171,8 @@ export class HeaderRepository {
             positions: { ...this._state.positions },
             levels: { ...this._state.levels },
             parents: { ...this._state.parents },
-            headerManualResized: { ...this._state.headerManualResized },
-            levelManualResized: { ...this._state.levelManualResized }
+            headerManualResized: new Set(this._state.headerManualResized),
+            levelManualResized: new Set(this._state.levelManualResized)
         };
 
         return c;
@@ -197,7 +197,7 @@ export class HeaderRepository {
     }
 
     private _applyParentPosition(list: IHeader[], type: HeaderType) {
-        let lock: { [k: string]: boolean } = {};
+        let lock = new Set<string | number>();
         let parents: IHeader[] = [];
 
         list.forEach((h) => {
@@ -212,8 +212,8 @@ export class HeaderRepository {
 
             let parent = this._state.parents[h.$id];
 
-            if (parent && !lock[parent.$id]) {
-                lock[parent.$id] = true;
+            if (parent && !lock.has(parent.$id)) {
+                lock.add(parent.$id);
                 parents.push(parent);
             }
         });
@@ -232,7 +232,7 @@ export class HeaderRepository {
         let cursor = this._state.positions[list[from].$id];
 
         let levels = 0;
-        let lock: { [k: string]: boolean } = {};
+        let lock = new Set<string | number>();
         let parents: IHeader[] = [];
 
         for (let i = from; i < len; i++) {
@@ -261,8 +261,8 @@ export class HeaderRepository {
             this._idMap[h.$id] = h;
 
             let parent = this._state.parents[h.$id];
-            if (parent && !lock[parent.$id]) {
-                lock[parent.$id] = true;
+            if (parent && !lock.has(parent.$id)) {
+                lock.add(parent.$id);
                 parents.push(parent);
             }
         }
@@ -317,35 +317,35 @@ export class HeaderRepository {
         return out;
     }
 
-    private _getAllNodesByChildren(headers: IHeader[], map: { [id: string]: boolean } = {}, out: IHeader[] = []) {
+    private _getAllNodesByChildren(headers: IHeader[], lock = new Set<string | number>(), out: IHeader[] = []) {
         headers.forEach((h) => {
             if (!h) {
                 return;
             }
 
-            if (!map[h.$id]) {
+            if (!lock.has(h.$id)) {
                 out.push(h);
-                map[h.$id] = true;
+                lock.add(h.$id);
             }
 
             if (h.$children && h.$children.length) {
-                this._getAllNodesByChildren(h.$children, map, out);
+                this._getAllNodesByChildren(h.$children, lock, out);
             }
         });
 
         return out;
     }
 
-    private _getAllNodesByParents(headers: IHeader[], map: { [id: string]: boolean } = {}, out: IHeader[] = []) {
+    private _getAllNodesByParents(headers: IHeader[], lock = new Set<string | number>(), out: IHeader[] = []) {
         const seek = (h: IHeader) => {
             if (!h) {
                 return;
 
             }
 
-            if (!map[h.$id]) {
+            if (!lock.has(h.$id)) {
                 out.push(h);
-                map[h.$id] = true;
+                lock.add(h.$id);
             }
 
             seek(this.getParent(h));
@@ -521,11 +521,11 @@ export class HeaderRepository {
     }
 
     public getManualResized(h: IHeader) {
-        return !!this._state.headerManualResized[h.$id];
+        return this._state.headerManualResized.has(h.$id);
     }
 
     public getManualResizedLevel(type: HeaderType, level: number) {
-        return !!this._state.levelManualResized[`${type}:${level}`];
+        return this._state.levelManualResized.has(`${type}:${level}`);
     }
 
     public getLevel(h: IHeader) {
@@ -683,9 +683,9 @@ export class HeaderRepository {
                 let isManual = behavior === 'manual';
                 leaves.forEach((header) => {
                     if (isManual) {
-                        c._state.headerManualResized[header.$id] = true;
+                        c._state.headerManualResized.add(header.$id);
                     } else {
-                        delete c._state.headerManualResized[header.$id];
+                        c._state.headerManualResized.delete(header.$id);
                     }
                 });
         }
@@ -725,9 +725,9 @@ export class HeaderRepository {
                     let isManual = behavior === 'manual';
                     let key = `${type}:${level}`;
                     if (isManual) {
-                        next._state.levelManualResized[key] = true;
+                        next._state.levelManualResized.add(key);
                     } else {
-                        delete next._state.levelManualResized[key];
+                        next._state.levelManualResized.delete(key);
                     }
             }
         }

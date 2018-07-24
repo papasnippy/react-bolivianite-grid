@@ -617,22 +617,17 @@ export class KeyboardController extends Controller {
             return;
         }
 
-        let rowMap: { [row: number]: boolean } = {};
-        let colMap: { [col: number]: boolean } = {};
+        let rowMap = new Set<number>();
+        let colMap = new Set<number>();
 
         this._getSelectedCells(this._state.selection).forEach(({ column, row }) => {
-            if (!rowMap[row]) {
-                rowMap[row] = true;
-            }
-
-            if (!colMap[column]) {
-                colMap[row] = true;
-            }
+            rowMap.add(row);
+            colMap.add(column);
         });
 
         this._props.onRemove({
-            rows: Object.keys(rowMap).map(Number).sort(),
-            columns: Object.keys(colMap).map(Number).sort()
+            rows: Array.from(rowMap).sort(),
+            columns: Array.from(colMap).sort()
         });
     }
 
