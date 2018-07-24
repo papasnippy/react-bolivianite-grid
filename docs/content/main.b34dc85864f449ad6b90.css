@@ -308,8 +308,8 @@
   background: var(--color--text-main);
 }
 
-.code-view__container___3sk5c.code-view__code___1dzXz > div:first-child,
-.code-view__container___3sk5c .demo-grid .scrollview > div:first-child {
+.code-view__container___3sk5c.code-view__code___1dzXz > div:first-child:not(.code-view__file___2Nt8q),
+.code-view__container___3sk5c .demo-grid .scrollview > div:first-child:not(.code-view__file___2Nt8q) {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
