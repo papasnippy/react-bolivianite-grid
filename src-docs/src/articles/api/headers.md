@@ -114,6 +114,8 @@ interface IHeader {
     $collapsed?: boolean;
     /** Marks this column or row read only. */
     $readOnly?: boolean;
+    /** Deleting or pasting is allowed, but editor cannot be opened. */
+    $noEditor?: boolean;
 
     /** Any other custom properties. */
     [prop: string]: any;

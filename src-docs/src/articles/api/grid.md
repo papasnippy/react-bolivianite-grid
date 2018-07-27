@@ -327,11 +327,17 @@ interface IGridSelectionChangeEvent {
 }
 ```
 
+#### <a name="TGridReadOnlyEventSource"></a>
+```typescript
+type TGridReadOnlyEventSource = 'editor' | 'paste' | 'nullify' | 'remove';
+```
+
 #### <a name="IGridReadOnlyEvent"></a>
 ```typescript
 interface IGridReadOnlyEvent {
     column: IHeader;
     row: IHeader;
+    source: TGridReadOnlyEventSource;
 }
 ```
 

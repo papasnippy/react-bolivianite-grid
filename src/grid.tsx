@@ -7,7 +7,7 @@ import debounce from './debounce';
 import { IUpdateSelectionEvent } from './base-controller';
 
 import {
-    IGridProps, IGridResizeCombinedEvent, IMeasureResult, ICellRenderBaseEvent, ICellRendererEvent,
+    IGridProps, IGridResizeCombinedEvent, IMeasureResult, ICellRenderBaseEvent, ICellRendererEvent, TGridReadOnlyEventSource,
     IGridAddress, IGridSelection, IGridView, IGridOverscan, IHeader, HeaderType, HeaderResizeBehavior, IGridReadOnlyEvent
 } from './types';
 
@@ -277,9 +277,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             });
         }
     }
+
     private _ctrlNullify = (cells: IGridAddress[]) => {
         if (this.props.onNullify) {
-            this.props.onNullify({ cells: this._ctrlOnReadOnlyFilter(cells) });
+            this.props.onNullify({ cells: this._ctrlOnReadOnlyFilter(cells, 'nullify') });
         }
     }
 
@@ -303,14 +304,18 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         return e.column.$readOnly || e.row.$readOnly;
     }
 
-    private _ctrlIsCellReadOnly = ({ row, column }: IGridAddress) => {
-        let ch = this.props.repository.columns[column];
-        let rh = this.props.repository.rows[row];
-        return ch && rh && this._ctrlIsReadOnly({ row: rh, column: ch });
+    private _ctrlIsNoEditor(e: IGridReadOnlyEvent) {
+        return e.column.$noEditor || e.row.$noEditor;
     }
 
-    private _ctrlOnReadOnlyFilter = (cells: IGridAddress[]) => {
-        return cells.filter(e => !this._ctrlIsCellReadOnly(e));
+    private _ctrlIsCellReadOnly = ({ row, column }: IGridAddress, source: TGridReadOnlyEventSource) => {
+        let ch = this.props.repository.columns[column];
+        let rh = this.props.repository.rows[row];
+        return ch && rh && this._ctrlIsReadOnly({ row: rh, column: ch, source });
+    }
+
+    private _ctrlOnReadOnlyFilter = (cells: IGridAddress[], source: TGridReadOnlyEventSource) => {
+        return cells.filter(e => !this._ctrlIsCellReadOnly(e, source));
     }
     //#endregion
 
@@ -1315,8 +1320,9 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         let ch = this.props.repository.columns[cell.column];
         let rh = this.props.repository.rows[cell.row];
+        let hs = { column: ch, row: rh, source: 'editor' } as IGridReadOnlyEvent;
 
-        if (ch && rh && !this._ctrlIsReadOnly({ column: ch, row: rh })) {
+        if (ch && rh && !this._ctrlIsNoEditor(hs) && !this._ctrlIsReadOnly(hs)) {
             this.setState({ edit: cell });
         }
     }

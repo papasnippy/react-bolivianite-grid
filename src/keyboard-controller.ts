@@ -1,5 +1,5 @@
 import { KeyboardEvent } from 'react';
-import { IGridAddress, IGridSelection } from './types';
+import { IGridAddress, IGridSelection, TGridReadOnlyEventSource } from './types';
 import { Controller, IControllerProps } from './base-controller';
 
 export interface IKeyboardControllerRemoveEvent {
@@ -20,7 +20,7 @@ export interface IKeyboardControllerProps extends IControllerProps {
     onSpace: (cells: IGridAddress[]) => void;
     onCopy: (cells: IGridAddress[], withHeaders: boolean) => void;
     onPaste: (event: IKeyboardControllerPasteEvent) => void;
-    onReadOnly: (cell: IGridAddress) => boolean;
+    onReadOnly: (cell: IGridAddress, source: TGridReadOnlyEventSource) => boolean;
 }
 
 export class KeyboardController extends Controller {
@@ -714,7 +714,9 @@ export class KeyboardController extends Controller {
 
         this._props.onPaste({
             clipboard: e.clipboardData,
-            isReadOnly: this._props.onReadOnly,
+            isReadOnly: (a) => {
+                return this._props.onReadOnly(a, 'paste');
+            },
             getAllSelectedCells: () => {
                 return this._getSelectedCells(selection);
             },
