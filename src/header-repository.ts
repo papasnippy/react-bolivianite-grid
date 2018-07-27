@@ -1,6 +1,8 @@
 import { IHeader, HeaderType, HeaderResizeBehavior, HeaderFilter, HeaderClampFunction } from './types';
+import { IHeaderRepositoryCache } from './header-repository-cache';
 
 export interface IHeaderRepositoryProps {
+    cache?: IHeaderRepositoryCache;
     rows: IHeader[];
     columns: IHeader[];
     columnWidth: number;
@@ -13,16 +15,37 @@ export interface IHeaderRepositoryProps {
 export interface IHeaderRepositoryState extends IHeaderRepositoryProps {
     viewColumns: IHeader[];
     viewRows: IHeader[];
+    offsetWidth: number;
+    offsetHeight: number;
+
+    /** header's type */
+    types: { [headerId: string]: HeaderType };
+
+    /** header's parent */
+    parents: { [headerId: string]: IHeader };
+
+    /** header's position */
+    positions: { [headerId: string]: number };
+
+    /** header's index */
+    indices: { [headerId: string]: number };
+
+    /** header's level */
+    levels: { [headerId: string]: number };
+
+    // CACHED:
+    /** maximum levels */
     viewLeftLevels: number;
     viewTopLevels: number;
+
+    /** level sizes */
     leftLevels: { [level: number]: number };
     topLevels: { [level: number]: number };
-    types: { [headerId: string]: HeaderType };
-    indices: { [headerId: string]: number };
-    positions: { [headerId: string]: number };
-    levels: { [headerId: string]: number };
-    parents: { [headerId: string]: IHeader };
+
+    /** header manual resized flag */
     headerManualResized: Set<string | number>;
+
+    /** level manual resized flag */
     levelManualResized: Set<string | number>;
 }
 
@@ -30,8 +53,6 @@ export class HeaderRepository {
     private _idCounter = 0;
     private _state: IHeaderRepositoryState;
     private _idMap: { [id: string]: IHeader; } = {};
-    private _headersWidth = 0;
-    private _headersHeight = 0;
 
     constructor(props: IHeaderRepositoryProps) {
         if (!props) {
@@ -40,6 +61,8 @@ export class HeaderRepository {
 
         this._state = {
             ...props,
+            offsetWidth: 0,
+            offsetHeight: 0,
             viewColumns: null,
             viewRows: null,
             viewLeftLevels: 0,
@@ -80,20 +103,36 @@ export class HeaderRepository {
 
     /** Total width of row headers. */
     get offsetWidth() {
-        return this._headersWidth;
+        return (
+            this._state.cache
+                ? this._state.cache.getOffset('left')
+                : this._state.offsetWidth
+        );
     }
 
     /** Total height of column headers. */
     get offsetHeight() {
-        return this._headersHeight;
+        return (
+            this._state.cache
+                ? this._state.cache.getOffset('top')
+                : this._state.offsetHeight
+        );
     }
 
     get topLevels() {
-        return this._state.viewTopLevels;
+        return (
+            this._state.cache
+                ? this._state.cache.getLevels('top')
+                : this._state.viewTopLevels
+        );
     }
 
     get leftLevels() {
-        return this._state.viewLeftLevels;
+        return (
+            this._state.cache
+                ? this._state.cache.getLevels('left')
+                : this._state.viewLeftLevels
+        );
     }
 
     get columns() {
@@ -210,6 +249,10 @@ export class HeaderRepository {
             this._state.positions[h.$id] = this._state.positions[first.$id];
             h.$size = this._state.positions[last.$id] + this.getSize(last) - this._state.positions[first.$id];
 
+            if (this._state.cache) {
+                this._state.cache.setHeaderSize(h.$size, h, type);
+            }
+
             let parent = this._state.parents[h.$id];
 
             if (parent && !lock.has(parent.$id)) {
@@ -238,27 +281,34 @@ export class HeaderRepository {
         for (let i = from; i < len; i++) {
             let h = list[i];
 
+            this._state.indices[h.$id] = (!h.$collapsed && h.$children && h.$children[0]) ? -1 : i;
+            this._state.positions[h.$id] = cursor;
+            this._state.types[h.$id] = type;
+            this._idMap[h.$id] = h;
+
             if (!h.$size) {
-                h.$size = size;
+                if (this._state.cache) {
+                    h.$size = this._state.cache.getHeaderSize(h, type) || size;
+                } else {
+                    h.$size = size;
+                }
             }
 
             if (!h.$sizeCollapsed) {
-                h.$sizeCollapsed = size;
+                h.$sizeCollapsed = h.$size;
             }
 
-            this._state.indices[h.$id] = (!h.$collapsed && h.$children && h.$children[0]) ? -1 : i;
-            this._state.positions[h.$id] = cursor;
-            cursor += this.getSize(h);
+            if (this._state.cache) {
+                this._state.cache.setHeaderSize(h.$collapsed ? h.$sizeCollapsed : h.$size, h, type);
+            }
 
-            this._state.types[h.$id] = type;
+            cursor += this.getSize(h);
 
             let l = this._applyHeaderLevel(h);
 
             if (l > levels) {
                 levels = l;
             }
-
-            this._idMap[h.$id] = h;
 
             let parent = this._state.parents[h.$id];
             if (parent && !lock.has(parent.$id)) {
@@ -277,25 +327,35 @@ export class HeaderRepository {
     private _calcLevels() {
         let w = 0, h = 0;
 
-        for (let i = 0; i < this._state.viewLeftLevels; i++) {
+        for (let i = 0; i < this.leftLevels; i++) {
             w += this.getLeftLevelWidth(i);
         }
 
-        for (let i = 0; i < this._state.viewTopLevels; i++) {
+        for (let i = 0; i < this.topLevels; i++) {
             h += this.getTopLevelHeight(i);
         }
 
-        this._headersWidth = w || this._state.headersWidth;
-        this._headersHeight = h || this._state.headersHeight;
+        this._state.offsetWidth = w || this._state.headersWidth;
+        this._state.offsetHeight = h || this._state.headersHeight;
+
+        if (this._state.cache) {
+            this._state.cache.setOffset(this._state.offsetWidth, 'left');
+            this._state.cache.setOffset(this._state.offsetHeight, 'top');
+        }
     }
 
     private _calcPosition(from = 0) {
         this._state.viewTopLevels = this._proceedHeaders(this._state.viewColumns, from, this._state.columnWidth, HeaderType.Column);
         this._state.viewLeftLevels = this._proceedHeaders(this._state.viewRows, from, this._state.rowHeight, HeaderType.Row);
+
+        if (this._state.cache) {
+            this._state.cache.setLevels(this._state.viewLeftLevels, 'left');
+            this._state.cache.setLevels(this._state.viewTopLevels, 'top');
+        }
     }
 
     private _getLevelPosition(type: 'left' | 'top', level: number) {
-        if (level >= (type === 'left' ? this._state.viewLeftLevels : this._state.viewTopLevels)) {
+        if (level >= (type === 'left' ? this.leftLevels : this.topLevels)) {
             return 0;
         }
 
@@ -448,8 +508,6 @@ export class HeaderRepository {
     private _recalcHeaders() {
         this._state.viewColumns = null;
         this._state.viewRows = null;
-        this._state.viewLeftLevels = 0;
-        this._state.viewTopLevels = 0;
         this._state.types = {};
         this._state.indices = {};
         this._state.positions = {};
@@ -525,11 +583,19 @@ export class HeaderRepository {
     }
 
     public getManualResized(h: IHeader) {
-        return this._state.headerManualResized.has(h.$id);
+        return (
+            this._state.cache
+                ? this._state.cache.getHeaderLock(h, this._state.types[h.$id])
+                : this._state.headerManualResized.has(h.$id)
+        );
     }
 
     public getManualResizedLevel(type: HeaderType, level: number) {
-        return this._state.levelManualResized.has(`${type}:${level}`);
+        return (
+            this._state.cache
+                ? this._state.cache.getLevelLock(level, type)
+                : this._state.levelManualResized.has(`${type}:${level}`)
+        );
     }
 
     /** Header level in logic tree. Used for positioning. */
@@ -539,8 +605,8 @@ export class HeaderRepository {
 
     /** Header level in canvas. Used for measuring. */
     public getPositionLevel(h: IHeader) {
-        const level = this._state.levels[h.$id];
-        const maxLevel = (this._state.types[h.$id] === HeaderType.Column ? this._state.viewTopLevels : this._state.viewLeftLevels) - 1;
+        const level = this.getLevel(h);
+        const maxLevel = (this._state.types[h.$id] === HeaderType.Column ? this.topLevels : this.leftLevels) - 1;
         const hasChildren = h.$children && h.$children.length;
         return level < maxLevel && (h.$collapsed || !hasChildren) ? maxLevel : level;
     }
@@ -558,7 +624,15 @@ export class HeaderRepository {
     }
 
     public getSize(h: IHeader) {
-        return h ? h.$collapsed ? h.$sizeCollapsed : h.$size : 0;
+        if (!h) {
+            return 0;
+        }
+
+        if (this._state.cache) {
+            return this._state.cache.getHeaderSize(h, this._state.types[h.$id]);
+        }
+
+        return h.$collapsed ? h.$sizeCollapsed : h.$size;
     }
 
     public getLeftLevelWidth(level: number, isCollapsed?: boolean) {
@@ -566,7 +640,11 @@ export class HeaderRepository {
             return this.offsetWidth - this.getLeftLevelPosition(level);
         }
 
-        let v = this._state.leftLevels[level];
+        let v = (
+            this._state.cache
+                ? this._state.cache.getLevelSize(level, 'left')
+                : this._state.leftLevels[level]
+        );
         return v == null ? this._state.headersWidth : v;
     }
 
@@ -575,7 +653,11 @@ export class HeaderRepository {
             return this.offsetHeight - this.getTopLevelPosition(level);
         }
 
-        let v = this._state.topLevels[level];
+        let v = (
+            this._state.cache
+                ? this._state.cache.getLevelSize(level, 'top')
+                : this._state.topLevels[level]
+        );
         return v == null ? this._state.headersHeight : v;
     }
 
@@ -595,6 +677,7 @@ export class HeaderRepository {
 
     public getSource() {
         return {
+            cache: this._state.cache,
             columns: this._state.columns,
             rows: this._state.rows,
             columnWidth: this._state.columnWidth,
@@ -685,6 +768,10 @@ export class HeaderRepository {
                             : { $size: size }
                     )
                 });
+
+                if (this._state.cache) {
+                    this._state.cache.setHeaderSize(size, header, this._state.types[header.$id]);
+                }
             });
         });
 
@@ -697,8 +784,16 @@ export class HeaderRepository {
                 leaves.forEach((header) => {
                     if (isManual) {
                         c._state.headerManualResized.add(header.$id);
+
+                        if (c._state.cache) {
+                            c._state.cache.setHeaderLock(true, header, this._state.types[header.$id]);
+                        }
                     } else {
                         c._state.headerManualResized.delete(header.$id);
+
+                        if (c._state.cache) {
+                            c._state.cache.setHeaderLock(false, header, this._state.types[header.$id]);
+                        }
                     }
                 });
         }
@@ -725,12 +820,21 @@ export class HeaderRepository {
             min = min == null ? 5 : min;
             max = max == null ? Infinity : max;
 
-            let t: 'leftLevels' | 'topLevels' = type === HeaderType.Column ? 'topLevels' : 'leftLevels';
-            if (size <= min) {
-                size = min;
-            }
+            let levelSize = Math.min(Math.max(min, size), max);
 
-            next._state[t][level] = Math.min(Math.max(min, size), max);
+            if (type === HeaderType.Column) {
+                if (next._state.cache) {
+                    next._state.cache.setLevelSize(levelSize, level, 'top');
+                }
+
+                next._state.topLevels[level] = levelSize;
+            } else {
+                if (next._state.cache) {
+                    next._state.cache.setLevelSize(levelSize, level, 'left');
+                }
+
+                next._state.leftLevels[level] = levelSize;
+            }
 
             switch (behavior) {
                 case 'manual':
@@ -739,8 +843,16 @@ export class HeaderRepository {
                     let key = `${type}:${level}`;
                     if (isManual) {
                         next._state.levelManualResized.add(key);
+
+                        if (next._state.cache) {
+                            next._state.cache.setLevelLock(true, level, type);
+                        }
                     } else {
                         next._state.levelManualResized.delete(key);
+
+                        if (next._state.cache) {
+                            next._state.cache.setLevelLock(false, level, type);
+                        }
                     }
             }
         }
