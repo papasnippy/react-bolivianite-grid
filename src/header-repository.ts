@@ -425,6 +425,10 @@ export class HeaderRepository {
     }
 
     private _mapBranch(address: number[], list: IHeader[], map: (h: IHeader) => IHeader): IHeader[] {
+        if (!list) {
+            return list;
+        }
+
         let len = address.length;
 
         let output = list.map((h) => {
@@ -528,8 +532,17 @@ export class HeaderRepository {
         return this._state.levelManualResized.has(`${type}:${level}`);
     }
 
+    /** Header level in logic tree. Used for positioning. */
     public getLevel(h: IHeader) {
         return this._state.levels[h.$id];
+    }
+
+    /** Header level in canvas. Used for measuring. */
+    public getPositionLevel(h: IHeader) {
+        const level = this._state.levels[h.$id];
+        const maxLevel = (this._state.types[h.$id] === HeaderType.Column ? this._state.viewTopLevels : this._state.viewLeftLevels) - 1;
+        const hasChildren = h.$children && h.$children.length;
+        return level < maxLevel && (h.$collapsed || !hasChildren) ? maxLevel : level;
     }
 
     public getParent(h: IHeader) {

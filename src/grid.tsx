@@ -509,7 +509,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
             for (let { header: h, height, width } of headers) {
                 const type = ctr.getHeaderType(h);
-                const level = ctr.getLevel(h);
+                const level = ctr.getPositionLevel(h);
 
                 if (ctr.getManualResizedLevel(type, level) && !isReset) {
                     return;
@@ -602,7 +602,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             return {
                 index: ctr.getViewIndex(h),
                 type: ctr.getHeaderType(h),
-                level: ctr.getLevel(h),
+                level: ctr.getPositionLevel(h),
                 header: h
             };
         });
@@ -944,6 +944,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         out.push(React.cloneElement(React.Children.only(cell), {
             'x-type': type,
             'x-id': $id,
+            'x-lvl': level,
             key: $id,
             onMouseDown: this._onHeaderMouseDownHeader
         }));
@@ -1031,7 +1032,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
             let { change, header } = this.state.resizeLevelPreview;
             let headerType = this.props.repository.getHeaderType(header);
-            let level = this.props.repository.getLevel(header);
+            let level = this.props.repository.getPositionLevel(header);
 
             if (headerType === HeaderType.Row) { // resizing left level
                 orientation = 'vertical';
@@ -1449,7 +1450,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
         } else {
             const levels = new Set<number>();
             headers.forEach((h) => {
-                levels.add(repository.getLevel(h));
+                levels.add(repository.getPositionLevel(h));
             });
 
             const list = (
@@ -1458,14 +1459,14 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                     : repository.rows.slice(firstRow, lastRow + 1)
             );
 
-            headers = repository.getNodesBottomUp(list).filter(h => levels.has(repository.getLevel(h)));
+            headers = repository.getNodesBottomUp(list).filter(h => levels.has(repository.getPositionLevel(h)));
         }
 
         const headerNodes = headers.map((h) => {
             return {
                 index: repository.getViewIndex(h),
                 type: repository.getHeaderType(h),
-                level: repository.getLevel(h),
+                level: repository.getPositionLevel(h),
                 header: h
             };
         });

@@ -120,14 +120,14 @@ export class Resizer extends React.PureComponent<IResizerProps, any> {
             case 'top-level':
                 let start = (
                     type === 'left-level'
-                        ? this._repository.getLeftLevelWidth(this._repository.getLevel(header))
-                        : this._repository.getTopLevelHeight(this._repository.getLevel(header))
+                        ? this._repository.getLeftLevelWidth(this._repository.getPositionLevel(header))
+                        : this._repository.getTopLevelHeight(this._repository.getPositionLevel(header))
                 );
                 this._grid.resizeHeaders({
                     behavior: 'manual',
                     levels: [{
                         type: type === 'left-level' ? HeaderType.Row : HeaderType.Column,
-                        level: this._repository.getLevel(header),
+                        level: this._repository.getPositionLevel(header),
                         size: start + change
                     }]
                 });
