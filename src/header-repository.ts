@@ -286,20 +286,20 @@ export class HeaderRepository {
             this._state.types[h.$id] = type;
             this._idMap[h.$id] = h;
 
-            if (!h.$size || !h.$sizeCollapsed) {
-                let newSize = this._state.cache ? this._state.cache.getHeaderSize(h, type) || size : size;
+            for (let p of ['$size', '$sizeCollapsed']) {
+                if (!h[p]) {
+                    if (this._state.cache) {
+                        let _h = { ...h, $collapsed: p === '$sizeCollapsed' };
+                        let cachedSize = this._state.cache.getHeaderSize(_h, type);
+                        h[p] = cachedSize || size;
 
-                if (!h.$size) {
-                    h.$size = newSize;
+                        if (!cachedSize) {
+                            this._state.cache.setHeaderSize(h[p], _h, type);
+                        }
+                    } else {
+                        h[p] = size;
+                    }
                 }
-
-                if (!h.$sizeCollapsed) {
-                    h.$sizeCollapsed = newSize;
-                }
-            }
-
-            if (this._state.cache) {
-                this._state.cache.setHeaderSize(h.$collapsed ? h.$sizeCollapsed : h.$size, h, type);
             }
 
             cursor += this.getSize(h);
