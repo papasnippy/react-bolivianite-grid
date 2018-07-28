@@ -645,7 +645,8 @@ export class HeaderRepository {
                 ? this._state.cache.getLevelSize(level, 'left')
                 : this._state.leftLevels[level]
         );
-        return v == null ? this._state.headersWidth : v;
+
+        return v || this._state.headersWidth;
     }
 
     public getTopLevelHeight(level: number, isCollapsed?: boolean) {
@@ -658,7 +659,8 @@ export class HeaderRepository {
                 ? this._state.cache.getLevelSize(level, 'top')
                 : this._state.topLevels[level]
         );
-        return v == null ? this._state.headersHeight : v;
+
+        return v || this._state.headersHeight;
     }
 
     public getHeaderLeaves(h: IHeader) {

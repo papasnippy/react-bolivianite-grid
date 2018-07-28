@@ -11,6 +11,7 @@ export default (
                 .append(Article('filtering', 'Filtering', require('./examples/filtering.md')))
                 .append(Article('resizing', 'Resizing', require('./examples/resizing.md')))
                 .append(Article('autosizing', 'Autosizing', require('./examples/autosizing.md')))
+                .append(Article('repository-cache', 'Repository cache', require('./examples/repository-cache.md')))
                 .append(Article('grouped-headers', 'Grouped headers', require('./examples/grouped-headers.md')))
                 .append(Article('expand-collapse', 'Expand/Collapse', require('./examples/expand-collapse.md')))
         )
