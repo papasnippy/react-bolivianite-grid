@@ -1,14 +1,16 @@
 import * as React from 'react';
+import * as PropType from 'prop-types';
 import FallbackScrollView, { IScrollViewUpdateEvent } from './scroll-view';
 import KeyboardController, { IKeyboardControllerRemoveEvent, IKeyboardControllerPasteEvent } from './keyboard-controller';
 import MouseController from './mouse-controller';
 import RenderThrottler from './render-throttler';
 import debounce from './debounce';
 import { IUpdateSelectionEvent } from './base-controller';
-
+import { HeaderRepository } from './header-repository';
 import {
     IGridProps, IGridResizeCombinedEvent, IMeasureResult, ICellRenderBaseEvent, ICellRendererEvent, TGridReadOnlyEventSource,
-    IGridAddress, IGridSelection, IGridView, IGridOverscan, IHeader, HeaderType, HeaderResizeBehavior, IGridReadOnlyEvent
+    IGridAddress, IGridSelection, IGridView, IGridOverscan, IHeader, HeaderType, HeaderResizeBehavior, IGridReadOnlyEvent,
+    IGridSelectionEvent
 } from './types';
 
 import Context from './context';
@@ -21,7 +23,49 @@ declare global {
     }
 }
 
+const DUMMY_CELL_ADDRESS: IGridAddress = { row: -1, column: -1 };
+
 export class Grid extends React.PureComponent<IGridProps, any> {
+    static propTypes = {
+        tabIndex: PropType.number,
+        preserveScrollbars: PropType.bool,
+        repository: PropType.instanceOf(HeaderRepository).isRequired,
+        data: PropType.any,
+        readOnly: PropType.bool,
+        overscanRows: PropType.number,
+        overscanColumns: PropType.number,
+        theme: PropType.object,
+        active: PropType.object,
+        selection: PropType.array,
+        onRenderCell: PropType.func.isRequired,
+        onRenderHeader: PropType.func.isRequired,
+        onRenderHeaderCorner: PropType.func,
+        onRenderSelection: PropType.func,
+        onRenderEditor: PropType.func,
+        onRenderResizer: PropType.func,
+        onAutoMeasure: PropType.func,
+        onSpace: PropType.func,
+        onRemove: PropType.func,
+        onNullify: PropType.func,
+        onCopy: PropType.func,
+        onPaste: PropType.func,
+        onRightClick: PropType.func,
+        onHeaderRightClick: PropType.func,
+        onUpdate: PropType.func,
+        onSelection: PropType.func,
+        onHeaderResize: PropType.func,
+        onReadOnly: PropType.func,
+        scrollViewClass: PropType.any
+    };
+
+    static defaultProps = {
+        tabIndex: -1,
+        preserveScrollbars: false,
+        readOnly: false,
+        overscanRows: 0,
+        overscanColumns: 0
+    };
+
     //#region properties
     private _detached = false;
     private _blockContextMenu = false;
@@ -131,7 +175,11 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
 
     private get _active() {
-        return this.props.active || this.state.active;
+        return (
+            this.props.onRenderSelection
+                ? this.props.active || this.state.active
+                : DUMMY_CELL_ADDRESS
+        );
     }
     //#endregion
 
@@ -198,9 +246,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     //#region controller handlers
     private _ctrlGetState = () => {
         return {
-            active: this.state.active,
-            editor: this.state.edit,
+            enabled: !!this.props.onRenderSelection,
+            active: this._active,
             selection: this._selection,
+            editor: this.state.edit,
             focused: this._focused,
             columns: this._columnCount,
             rows: this._rowCount,
@@ -210,17 +259,17 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
 
     private _ctrlGetActiveNotifier(prev: IGridAddress, next: IGridAddress) {
-        if (!this.props.onActiveChanged || prev == next || (prev && next && prev.column === next.column && prev.row === next.row)) {
+        if (!this.props.onSelection || prev == next || (prev && next && prev.column === next.column && prev.row === next.row)) {
             return null;
         }
 
         prev = prev ? { ...prev } : null;
         next = next ? { ...next } : null;
-        return () => this.props.onActiveChanged({ previous: prev, active: next });
+        return { previous: prev, current: next };
     }
 
     private _ctrlGetSelectionNotifier(prev: IGridSelection[], next: IGridSelection[]) {
-        if (!this.props.onSelectionChanged || prev == next) {
+        if (!this.props.onSelection || prev == next) {
             return null;
         }
 
@@ -237,7 +286,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         prev = prev ? prev.slice().map(a => ({ ...a })) : null;
         next = next ? next.slice().map(a => ({ ...a })) : null;
-        return () => this.props.onSelectionChanged({ previous: prev, active: next });
+        return { previous: prev, current: next };
     }
 
     private _ctrlRightClick = (
@@ -376,7 +425,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
 
     private _onCornerMouseDown = (e: React.MouseEvent<HTMLElement>) => {
-        if (e.button !== 0 || e.defaultPrevented) {
+        if (!this.props.onRenderSelection || e.button !== 0 || e.defaultPrevented) {
             return;
         }
 
@@ -776,13 +825,22 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         const cell = this.props.onRenderCell(props);
 
+        let eventHandlers: React.HTMLProps<HTMLDivElement> = null;
+
+        if (this.props.onRenderSelection) {
+            eventHandlers = {
+                onMouseDown: this._onCellMouseDown,
+                onMouseEnter: this._onCellMouseEnter,
+                onTouchStart: this._onCellTouchStart
+            };
+        }
+
+
         return React.cloneElement(React.Children.only(cell), {
             'x-row': row,
             'x-col': col,
             key: `C${row}x${col}`,
-            onMouseDown: this._onCellMouseDown,
-            onMouseEnter: this._onCellMouseEnter,
-            onTouchStart: this._onCellTouchStart
+            ...eventHandlers
         });
     }
 
@@ -922,16 +980,18 @@ export class Grid extends React.PureComponent<IGridProps, any> {
 
         let selection = false;
 
-        for (let s of this._selection) {
-            if (type === HeaderType.Row) {
-                if (index >= s.row && index <= (s.row + s.height)) {
-                    selection = true;
-                    break;
-                }
-            } else {
-                if (index >= s.column && index <= (s.column + s.width)) {
-                    selection = true;
-                    break;
+        if (this.props.onRenderSelection) {
+            for (let s of this._selection) {
+                if (type === HeaderType.Row) {
+                    if (index >= s.row && index <= (s.row + s.height)) {
+                        selection = true;
+                        break;
+                    }
+                } else {
+                    if (index >= s.column && index <= (s.column + s.width)) {
+                        selection = true;
+                        break;
+                    }
                 }
             }
         }
@@ -946,12 +1006,20 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             viewIndex: this.props.repository.getViewIndex(header)
         });
 
+        let eventHandlers: React.HTMLProps<HTMLDivElement> = null;
+
+        if (this.props.onRenderSelection) {
+            eventHandlers = {
+                onMouseDown: this._onHeaderMouseDownHeader
+            };
+        }
+
         out.push(React.cloneElement(React.Children.only(cell), {
             'x-type': type,
             'x-id': $id,
             'x-lvl': level,
             key: $id,
-            onMouseDown: this._onHeaderMouseDownHeader
+            ...eventHandlers
         }));
 
         if (headerParent) {
@@ -1089,6 +1157,10 @@ export class Grid extends React.PureComponent<IGridProps, any> {
     }
 
     private _renderSelections(): JSX.Element[] {
+        if (!this.props.onRenderSelection) {
+            return null;
+        }
+
         const ctr = this.props.repository;
 
         if (!ctr.columns.length || !ctr.rows.length) {
@@ -1381,12 +1453,18 @@ export class Grid extends React.PureComponent<IGridProps, any> {
                 callback();
             }
 
-            if (notifyActiveChanged) {
-                notifyActiveChanged();
-            }
+            if (notifyActiveChanged || notifySelectionChanged) {
+                let e: IGridSelectionEvent = {};
 
-            if (notifySelectionChanged) {
-                notifySelectionChanged();
+                if (notifyActiveChanged) {
+                    e.active = notifyActiveChanged;
+                }
+
+                if (notifySelectionChanged) {
+                    e.selection = notifySelectionChanged;
+                }
+
+                this.props.onSelection(e);
             }
         });
     }
@@ -1532,7 +1610,7 @@ export class Grid extends React.PureComponent<IGridProps, any> {
             <Context.Provider value={{ grid: this, repository: this.props.repository }}>
                 <div
                     className={this._theme.classNameGrid}
-                    tabIndex={this.props.tabIndex == null ? -1 : this.props.tabIndex}
+                    tabIndex={this.props.tabIndex}
                     ref={this._onRef}
                     onBlur={this._onBlur}
                     onFocus={this._onFocus}

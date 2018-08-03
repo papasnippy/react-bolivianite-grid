@@ -7,7 +7,8 @@ import Theme from './style';
 
 export default class extends React.Component {
     state = {
-        repository: this.generateRepository(200, 100)
+        repository: this.generateRepository(200, 100),
+        active: { row: 1, column: 1}
     };
 
     generateRepository(rows: number, columns: number) {

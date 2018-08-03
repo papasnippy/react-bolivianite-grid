@@ -4,6 +4,7 @@ import { IGridAddress, IGridSelection, IGridView } from './types';
 const IS_MACOS = navigator.platform.slice(0, 3) === 'Mac';
 
 export interface IState {
+    enabled: boolean;
     focused: boolean;
     editor: IGridAddress;
     active: IGridAddress;

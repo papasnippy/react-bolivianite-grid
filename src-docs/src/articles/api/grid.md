@@ -39,7 +39,7 @@ Every callback must return `JSX.Element` type.
 |onRenderCell|[ICellRendererEvent](#ICellRendererEvent)|✓|Cell renderer.|
 |onRenderHeader|[IHeaderRendererEvent](#IHeaderRendererEvent)|✓|Header renderer.|
 |onRenderHeaderCorner|||Header corner (top left) renderer.|
-|onRenderSelection|[ISelectionRendererEvent](#ISelectionRendererEvent)|✓|User's selection renderer. [Example](/examples/resizing).|
+|onRenderSelection|[ISelectionRendererEvent](#ISelectionRendererEvent)||User's selection renderer. [Example](/examples/resizing). Of not provided - cell selection, mouse and keyboard interaction will be disabled.|
 |onRenderEditor|[ICellEditorEvent](#ICellEditorEvent)||Editor renderer. See [this](/api/editor) article for details.|
 |onRenderResizer|[IResizerRenderEvent](#IResizerRenderEvent)||Resizer renderer. [Example](/examples/resizing).|
 
@@ -57,8 +57,7 @@ All other optional callbacks.
 |onRightClick|[IGridCellRightClickEvent](#IGridCellRightClickEvent)|Called when right click pressed on cell.|
 |onHeaderRightClick|[IGridHeaderRightClickEvent](#IGridHeaderRightClickEvent)|Called when right click pressed on header.|
 |onUpdate|[IGridUpdateEvent](#IGridUpdateEvent)|Called when editor changed cell's value. Update data source here.|
-|onActiveChanged|[IGridActiveChangeEvent](#IGridActiveChangeEvent)|Called when active cell (cursor) is changed.|
-|onSelectionChanged|[IGridSelectionChangeEvent](#IGridSelectionChangeEvent)|Called when user's selection is changed.|
+|onSelection|[IGridSelectionEvent](#IGridSelectionEvent)|Called when active cell (cursor) or selection is changed.|
 |onHeaderResize|[IGridResizeCombinedEvent](#IGridResizeCombinedEvent)|Called when headers were resized (by autosize event or manually).|
 |onReadOnly|[IGridReadOnlyEvent](#IGridReadOnlyEvent)|Checks if current cell is readonly. If returns true, editing of that cell will be forbidden. Header's `$readOnly` property will not be used.|
 
@@ -311,19 +310,17 @@ interface IGridUpdateEvent {
 }
 ```
 
-#### <a name="IGridActiveChangeEvent"></a>
+#### <a name="IGridSelectionEvent"></a>
 ```typescript
-interface IGridActiveChangeEvent {
-    previous: IGridAddress;
-    active: IGridAddress;
-}
-```
-
-#### <a name="IGridSelectionChangeEvent"></a>
-```typescript
-interface IGridSelectionChangeEvent {
-    previous: IGridSelection[];
-    active: IGridSelection[];
+interface IGridSelectionEvent {
+    active?: {
+        previous: IGridAddress;
+        current: IGridAddress;
+    };
+    selection?: {
+        previous: IGridSelection[];
+        current: IGridSelection[];
+    };
 }
 ```
 

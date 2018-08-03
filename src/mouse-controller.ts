@@ -147,9 +147,9 @@ export class MouseController extends Controller {
             return;
         }
 
-        const { editor, rows, columns } = this._request();
+        const { enabled, editor, rows, columns } = this._request();
 
-        if (editor) {
+        if (!enabled || editor) {
             return;
         }
 
@@ -169,7 +169,12 @@ export class MouseController extends Controller {
     }
 
     public mousedown(e: MouseEvent<HTMLElement>, row: number, column: number) {
-        const { selection, editor } = this._request();
+        const { enabled, selection, editor } = this._request();
+
+        if (!enabled) {
+            return;
+        }
+
         const { cmdKey, shiftKey } = this._getModifiers(e);
 
         const clickInEditor = editor && editor.row === row && editor.column === column;

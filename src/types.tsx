@@ -201,14 +201,15 @@ export interface IGridUpdateEvent {
     value: any;
 }
 
-export interface IGridActiveChangeEvent {
-    previous: IGridAddress;
-    active: IGridAddress;
-}
-
-export interface IGridSelectionChangeEvent {
-    previous: IGridSelection[];
-    active: IGridSelection[];
+export interface IGridSelectionEvent {
+    active?: {
+        previous: IGridAddress;
+        current: IGridAddress;
+    };
+    selection?: {
+        previous: IGridSelection[];
+        current: IGridSelection[];
+    };
 }
 
 export type TGridReadOnlyEventSource = 'editor' | 'paste' | 'nullify';
@@ -267,7 +268,7 @@ export interface IGridProps {
     onRenderHeaderCorner?: () => JSX.Element;
 
     /** Selection renderer. Required. If active property is true - this renders active cell selection. */
-    onRenderSelection: (e: ISelectionRendererEvent) => JSX.Element;
+    onRenderSelection?: (e: ISelectionRendererEvent) => JSX.Element;
 
     /** Editor renderer. Optional. */
     onRenderEditor?: (e: ICellEditorEvent) => JSX.Element;
@@ -301,11 +302,8 @@ export interface IGridProps {
     /** Invoked on editor close when value was changed. */
     onUpdate?: (e: IGridUpdateEvent) => void;
 
-    /** Invoked when active cell changed. */
-    onActiveChanged?: (e: IGridActiveChangeEvent) => void;
-
-    /** Invoked when selection changed. */
-    onSelectionChanged?: (e: IGridSelectionChangeEvent) => void;
+    /** Invoked when active cell or selection changed. */
+    onSelection?: (e: IGridSelectionEvent) => void;
 
     /** Called when header set was resized. */
     onHeaderResize?: (e: IGridResizeCombinedEvent) => void;

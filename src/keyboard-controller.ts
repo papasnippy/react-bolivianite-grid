@@ -706,9 +706,9 @@ export class KeyboardController extends Controller {
     }
 
     protected _paste = (e: ClipboardEvent) => {
-        const { focused, readOnly, selection } = this._props.getState();
+        const { enabled, focused, readOnly, selection } = this._props.getState();
 
-        if (!focused || readOnly) {
+        if (!enabled || !focused || readOnly) {
             return;
         }
 
@@ -728,9 +728,9 @@ export class KeyboardController extends Controller {
     }
 
     public keydown(e: KeyboardEvent<HTMLDivElement>) {
-        const { editor, active, focused, rows, columns } = this._request();
+        const { enabled, editor, active, focused, rows, columns } = this._request();
 
-        if (!rows || !columns) {
+        if (!enabled || !rows || !columns) {
             return;
         }
 
