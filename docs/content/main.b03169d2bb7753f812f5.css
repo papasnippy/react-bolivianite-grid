@@ -546,8 +546,8 @@ react-bolivianite-grid {
   .app__navigation___1izG6 {
     top: var(--toolbar--height);
     box-shadow: var(--shadow--medium);
-    width: 85%;
-    background: #000;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8);
     padding: 10px;
     box-sizing: border-box;
     left: -100%;
@@ -561,6 +561,7 @@ react-bolivianite-grid {
 
   .app__navigation___1izG6 > a {
     min-height: 4rem;
+    background: var(--menu-item--background-m);
   }
 
   .app__navigation___1izG6 > div {
@@ -622,6 +623,7 @@ react-bolivianite-grid {
   --article--navigation: 200px;
   --article--background: var(--color--background);
   --menu-item--background: var(--color--accent);
+  --menu-item--background-m: #161925ad;
   --menu-item--selected-background: var(--color--accent);
   --menu-item--color: var(--color--text-blur);
   --menu-item--hover-color: var(--color--highlight);
