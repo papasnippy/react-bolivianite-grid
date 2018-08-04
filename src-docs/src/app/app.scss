@@ -127,8 +127,8 @@
         .navigation {
             top: var(--toolbar--height);
             box-shadow: var(--shadow--medium);
-            width: 85%;
-            background: #000;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
             padding: 10px;
             box-sizing: border-box;
             left: -100%;
@@ -139,6 +139,7 @@
             }
             >a {
                 min-height: 4rem;
+                background: var(--menu-item--background-m);
             }
             >div {
                 min-height: 4rem;
