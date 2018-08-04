@@ -12,7 +12,7 @@ Local read only can be achieved with two ways:
     "main": "readonly-grid.tsx",
     "files": [
         ["readonly-grid.tsx", "javascript", "main.tsx"],
-        ["copy-and-paste.tsx", "javascript"],
+        ["copy-paste-grid.tsx", "javascript"],
         ["editable-grid.tsx", "javascript"],
         ["simple-editor.tsx", "javascript"],
         ["style.ts", "javascript"],
