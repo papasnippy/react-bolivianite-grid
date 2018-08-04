@@ -118,10 +118,10 @@ class App extends React.Component<IAppProps, any> {
                         <NavLink exact to="/" onClick={this._hideMenu} title="Home">
                             <HomeIcon />
                         </NavLink>
-                        <a target="blank" href={process.env.GITHUB_URL} title="GitHub page">
+                        <a target="blank" rel="noopener" href={process.env.GITHUB_URL} title="GitHub page">
                             <GitHubIcon size={20} />
                         </a>
-                        <a target="blank" href={process.env.GITHUB_URL + '/issues'} title="Issues">
+                        <a target="blank" rel="noopener" href={process.env.GITHUB_URL + '/issues'} title="Issues">
                             <IssuesIcon />
                         </a>
                     </div>
