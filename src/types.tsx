@@ -96,7 +96,7 @@ export interface IHeaderMeasureResult {
 }
 
 export interface IMeasureResult {
-    cells?: ICellMeasureResult[];
+    cells?: (ICellMeasureResult|null)[];
     headers?: IHeaderMeasureResult[];
 }
 
